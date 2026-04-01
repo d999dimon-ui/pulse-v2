@@ -19,13 +19,13 @@ export default function MapComponent() {
     setIsMounted(true);
   }, []);
 
-  // Координаты по умолчанию (Москва)
-  const defaultPosition: [number, number] = [55.751244, 37.618423];
+  // Default location: New York City
+  const defaultPosition: [number, number] = [40.7128, -74.0060];
 
   if (!isMounted) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
-        <div className="text-white">Загрузка карты...</div>
+        <div className="text-white">Loading map...</div>
       </div>
     );
   }
@@ -43,9 +43,9 @@ export default function MapComponent() {
       />
       <Marker position={defaultPosition}>
         <Popup>
-          Москва
+          New York City
           <br />
-          Добро пожаловать!
+          Welcome!
         </Popup>
       </Marker>
     </MapContainer>

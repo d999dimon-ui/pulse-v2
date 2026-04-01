@@ -9,15 +9,15 @@ interface SubscriptionModalProps {
 
 const tariffs = [
   {
-    name: "Week",
+    name: "Weekly Access",
     price: "$4.99",
-    description: "Доступ на 7 дней",
+    description: "7 days full access",
     popular: false,
   },
   {
-    name: "Month",
+    name: "Monthly Pro",
     price: "$9.99",
-    description: "Доступ на 30 дней",
+    description: "30 days premium access",
     popular: true,
   },
 ];
@@ -25,18 +25,18 @@ const tariffs = [
 export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
   const handlePayment = async (tariff: string, invoiceId: string) => {
     const tg = (window as any).Telegram?.WebApp;
-    
+
     if (tg && tg.openInvoice) {
       tg.openInvoice(invoiceId, (status: string) => {
         console.log(`Payment status: ${status}`);
         if (status === "paid") {
-          alert(`Оплата тарифа "${tariff}" успешна!`);
+          alert(`Payment for "${tariff}" successful!`);
           onClose();
         }
       });
     } else {
-      // Fallback для тестирования в браузере
-      alert(`Telegram WebApp не доступен. Тест оплаты: ${tariff} - ${invoiceId}`);
+      // Fallback for browser testing
+      alert(`Telegram WebApp not available. Test payment: ${tariff} - ${invoiceId}`);
     }
   };
 
@@ -44,13 +44,13 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
 
   return (
     <>
-      {/* Затемнение фона */}
+      {/* Background overlay */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] transition-opacity"
         onClick={onClose}
       />
 
-      {/* Drawer/Шторка */}
+      {/* Drawer */}
       <div
         className="fixed bottom-0 left-0 right-0 z-[2001]
                    bg-white/10 backdrop-blur-xl
@@ -59,33 +59,33 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
                    transform transition-transform duration-300 ease-out
                    animate-slide-up"
       >
-        {/* Заголовок с кнопкой закрытия */}
+        {/* Header with close button */}
         <div className="sticky top-0 flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-xl font-bold text-white">Выберите тариф</h2>
+          <h2 className="text-xl font-bold text-white">Choose a Plan</h2>
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/10 transition-colors"
-            aria-label="Закрыть"
+            aria-label="Close"
           >
             <X size={24} className="text-white" />
           </button>
         </div>
 
-        {/* Список тарифов */}
+        {/* Tariff list */}
         <div className="p-6 space-y-4">
           {tariffs.map((tariff) => (
             <div
               key={tariff.name}
               className={`relative p-5 rounded-2xl border transition-all duration-300
-                         ${tariff.popular 
-                           ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/50" 
+                         ${tariff.popular
+                           ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/50"
                            : "bg-white/5 border-white/10 hover:border-white/30"
                          }`}
             >
               {tariff.popular && (
                 <span className="absolute -top-3 left-4 px-3 py-1 text-xs font-semibold
                                  bg-cyan-500 text-black rounded-full">
-                  Популярный
+                  Best Value
                 </span>
               )}
 
@@ -97,10 +97,10 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
                 <span className="text-2xl font-bold text-cyan-400">{tariff.price}</span>
               </div>
 
-              {/* Кнопки оплаты */}
+              {/* Payment buttons */}
               <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => handlePayment(tariff.name, `invoice_${tariff.name.toLowerCase()}_stars`)}
+                  onClick={() => handlePayment(tariff.name, `invoice_${tariff.name.toLowerCase().replace(/\s+/g, '_')}_stars`)}
                   className="flex-1 py-3 px-4 rounded-xl
                              bg-gradient-to-r from-pink-500 to-purple-500
                              text-white font-semibold
@@ -108,10 +108,10 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
                              transition-all duration-300
                              active:scale-95"
                 >
-                  ⭐ Pay with Stars
+                  Pay with Stars ⭐
                 </button>
                 <button
-                  onClick={() => handlePayment(tariff.name, `invoice_${tariff.name.toLowerCase()}_ton`)}
+                  onClick={() => handlePayment(tariff.name, `invoice_${tariff.name.toLowerCase().replace(/\s+/g, '_')}_ton`)}
                   className="flex-1 py-3 px-4 rounded-xl
                              bg-gradient-to-r from-blue-500 to-cyan-500
                              text-white font-semibold
@@ -119,14 +119,14 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
                              transition-all duration-300
                              active:scale-95"
                 >
-                  💎 Pay with TON
+                  Pay with TON 💎
                 </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Отступ снизу для безопасной зоны */}
+        {/* Bottom spacing for safe area */}
         <div className="h-6" />
       </div>
     </>
