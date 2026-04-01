@@ -1,6 +1,6 @@
 {
   "name": "telegram-mini-app",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "leaflet": "1.9.4",
     "lucide-react": "0.400.0",
     "next": "14.2.21",
