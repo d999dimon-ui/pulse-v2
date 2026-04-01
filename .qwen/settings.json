@@ -10,7 +10,11 @@
       "Bash(rmdir *)",
       "Bash(del *)",
       "Bash(npx *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(npm cache *)",
+      "Bash(dir *)",
+      "Bash(findstr *)",
+      "Bash(npm *)"
     ]
   },
   "$version": 3
