@@ -8,7 +8,7 @@ import { Shield, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/admin-pulse-master';
+  const redirect = searchParams?.get('redirect') || '/admin-pulse-master';
   
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
