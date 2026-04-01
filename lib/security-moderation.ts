@@ -9,6 +9,7 @@ export interface FlashTask {
   title: string;
   description: string;
   reward: number;
+  currency?: string;
   is_flash_task: boolean;
   flash_xp_bonus: number;
   urgent_until: string;

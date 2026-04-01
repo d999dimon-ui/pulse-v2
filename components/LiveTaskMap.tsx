@@ -210,7 +210,7 @@ export default function LiveTaskMap({
                 <p className="text-sm text-gray-600 mb-2">{task.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-green-600 font-bold">
-                    {task.reward} {task.currency}
+                    {task.reward} {task.currency || 'USDT'}
                   </span>
                   <span className="text-xs bg-gray-200 px-2 py-1 rounded capitalize">
                     {task.category}
