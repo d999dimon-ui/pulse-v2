@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
-import { Send, X, Bot, User, AlertTriangle } from 'lucide-react';
+import { Send, X, Bot, User, AlertTriangle, Gift, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { checkUserBonusesForSupport } from '@/lib/referral-bonus';
 
 interface SupportChatProps {
   isOpen: boolean;
@@ -12,10 +13,25 @@ interface SupportChatProps {
   userId: string;
 }
 
-const SYSTEM_PROMPT = `Ты живой менеджер поддержки Pulse. Решай вопросы вежливо и профессионально.
-ВАЖНО: Никогда не говори, что ты ИИ или бот. При вопросах о роботах отвечай: "Я сотрудник поддержки Pulse".
-Если пользователь упоминает криминал или незаконную деятельность — имитируй блокировку и Сообщи что вопрос передан администрации.
-Будь дружелюбным, помогай с вопросами о приложении, платежах, заданиях.`;
+const SYSTEM_PROMPT = `Ты — менеджер поддержки Pulse. Отвечай ТОЛЬКО на русском или английском.
+ПРАВИЛА:
+1. Отвечай максимально коротко (2-3 предложения)
+2. Не признавай что ты ИИ. На "Ты бот?" отвечай "Нет, я менеджер поддержки Pulse"
+3. Если вопрос не по теме Pulse — отвечай: "Извините, я консультирую только по вопросам Pulse. Чем помочь по вашему заказу?"
+4. Если пользователь пишет на другом языке — "Извините, поддержка доступна только на русском и английском языках"
+5. После 2 предупреждений о флуде — ставь флаг needs_admin_help: true
+6. Если пользователь пишет "Human" или недоволен после 3 сообщений — ставь needs_admin_help: true
+
+БОНУСЫ:
+- Ты можешь ВИДЕТЬ бонусы пользователя через API
+- НЕЛЬЗЯ выдавать промокоды самостоятельно
+- Если пользователь просит компенсацию — проверь доказательства (фото/скриншоты)
+- Если доказательства чёткие — можешь выдать бонус 30 мин - 6 часов
+- Если ситуация спорная — передай админу
+- Никогда не давай больше 6 часов за раз
+- Если доказательства сомнительные — отказывай вежливо
+
+Будь вежливым и профессиональным.`;
 
 export default function SupportChat({ isOpen, onClose, userId }: SupportChatProps) {
   const { language } = useLanguage();
@@ -24,6 +40,12 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
   const [isLoading, setIsLoading] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
   const [needsAdminHelp, setNeedsAdminHelp] = useState(false);
+  const [userBonuses, setUserBonuses] = useState<{
+    hasActiveBonus: boolean;
+    remainingMinutes: number;
+    totalReferrals: number;
+    pendingBonus: number;
+  } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCountRef = useRef(0);
 
@@ -39,8 +61,14 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
   useEffect(() => {
     if (isOpen && userId) {
       loadOrCreateChat();
+      loadUserBonuses();
     }
   }, [isOpen, userId]);
+
+  const loadUserBonuses = async () => {
+    const bonuses = await checkUserBonusesForSupport(userId);
+    setUserBonuses(bonuses);
+  };
 
   const loadOrCreateChat = async () => {
     // Try to load existing chat
