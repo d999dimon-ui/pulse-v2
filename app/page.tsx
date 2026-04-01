@@ -229,7 +229,7 @@ function HomeContent() {
   return (
     <div className="bg-black min-h-screen relative">
       <div className="relative w-full h-screen">
-        <MapComponent onLongPress={handleMapLongPress} tasks={tasks} />
+        <MapComponent onLongPress={handleMapLongPress} tasks={tasks} userPosition={userPosition} />
         
         {/* Top Bar */}
         <div className="absolute top-4 left-4 right-4 z-[1000] flex items-center justify-between">

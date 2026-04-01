@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { useEffect, useState, useMemo } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from "react-leaflet";
 import L from "leaflet";
 import { Task } from "@/types/task";
+import { 
+  calculateDistance, 
+  countTasksInRadius, 
+  getSurgeMultiplier,
+  getSurgeZoneColor,
+  getSurgeStatusText,
+  SURGE_RADIUS_KM,
+  SURGE_THRESHOLD 
+} from "@/lib/surge-pricing";
 
 // Fix for Leaflet default markers in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -72,16 +81,31 @@ function MapEventHandler({ onLongPress }: { onLongPress: (e: any) => void }) {
 interface MapComponentProps {
   onLongPress?: (e: any) => void;
   tasks?: Task[];
+  userPosition?: [number, number];
 }
 
-export default function MapComponent({ onLongPress, tasks = [] }: MapComponentProps) {
+export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060] }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [surgeInfo, setSurgeInfo] = useState<{ multiplier: number; count: number; isActive: boolean } | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const defaultPosition: [number, number] = [40.7128, -74.0060];
+  // Calculate surge pricing on client side
+  const surgeData = useMemo(() => {
+    if (!isMounted || tasks.length === 0) return { multiplier: 1, count: 0, isActive: false };
+    
+    const count = countTasksInRadius(tasks, userPosition[0], userPosition[1], SURGE_RADIUS_KM);
+    const multiplier = getSurgeMultiplier(tasks, userPosition[0], userPosition[1]);
+    const isActive = count > SURGE_THRESHOLD;
+    
+    setSurgeInfo({ multiplier, count, isActive });
+    
+    return { multiplier, count, isActive };
+  }, [tasks, userPosition, isMounted]);
+
+  const defaultPosition: [number, number] = userPosition;
 
   if (!isMounted) {
     return (
@@ -102,6 +126,21 @@ export default function MapComponent({ onLongPress, tasks = [] }: MapComponentPr
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      
+      {/* Surge Zone Circle - Visual indicator for high demand area */}
+      {surgeData.isActive && (
+        <Circle
+          center={userPosition}
+          radius={SURGE_RADIUS_KM * 1000} // Convert to meters
+          pathOptions={{
+            color: getSurgeZoneColor(surgeData.multiplier).replace(/[\d.]+\)$/g, '1)'),
+            fillColor: getSurgeZoneColor(surgeData.multiplier),
+            fillOpacity: 0.3,
+            weight: 2,
+            dashArray: '10, 10',
+          }}
+        />
+      )}
       
       {/* Task markers */}
       {tasks.map((task) => (

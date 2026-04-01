@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
+import { calculateRewardWithSurge, getSurgeStatusText } from '@/lib/surge-pricing';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -23,10 +24,23 @@ export default function CreateTaskModal({
   const { language } = useLanguage();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [reward, setReward] = useState('5');
+  const [baseReward, setBaseReward] = useState('5');
   const [currency, setCurrency] = useState<'stars' | 'usd'>('stars');
   const [category, setCategory] = useState<typeof CATEGORIES[0]['value']>('delivery');
   const [isAutoCategorizing, setIsAutoCategorizing] = useState(false);
+  
+  // Load tasks for surge calculation
+  const [tasks, setTasks] = useState<any[]>([]);
+  
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) setTasks(JSON.parse(savedTasks));
+  }, []);
+  
+  // Calculate reward with surge pricing
+  const surgeMultiplier = calculateRewardWithSurge(Number(baseReward) || 5, tasks, latitude, longitude);
+  const surgeActive = surgeMultiplier > Number(baseReward);
 
   // AI Auto-categorization
   const autoCategorize = async () => {
@@ -80,7 +94,7 @@ export default function CreateTaskModal({
     onSubmit({
       title,
       description,
-      reward: parseFloat(reward),
+      reward: surgeMultiplier,
       currency,
       category,
       latitude,
@@ -90,7 +104,7 @@ export default function CreateTaskModal({
     // Reset form
     setTitle('');
     setDescription('');
-    setReward('5');
+    setBaseReward('5');
     setCurrency('stars');
     setCategory('delivery');
     onClose();
@@ -161,15 +175,15 @@ export default function CreateTaskModal({
             </div>
 
             {/* Reward & Currency */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">
                   {t(language, 'reward')}
                 </label>
                 <input
                   type="number"
-                  value={reward}
-                  onChange={(e) => setReward(e.target.value)}
+                  value={baseReward}
+                  onChange={(e) => setBaseReward(e.target.value)}
                   min="1"
                   step="0.5"
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
@@ -178,6 +192,24 @@ export default function CreateTaskModal({
                   required
                 />
               </div>
+              
+              {/* Surge Pricing Indicator */}
+              {surgeActive && (
+                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-red-400 text-sm font-semibold">
+                      {getSurgeStatusText(surgeMultiplier / Number(baseReward), language)}
+                    </span>
+                    <span className="text-red-400 font-bold text-lg">x{(surgeMultiplier / Number(baseReward)).toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-400">Base: {baseReward}</span>
+                    <span className="text-gray-400">With Surge:</span>
+                    <span className="text-red-400 font-bold">{surgeMultiplier} ⭐</span>
+                  </div>
+                </div>
+              )}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">
                   {t(language, 'currency')}
