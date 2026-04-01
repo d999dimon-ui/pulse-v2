@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 
 // Фикс для дефолтных маркеров Leaflet в Next.js
@@ -12,7 +12,38 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-export default function MapComponent() {
+// Component to handle map events
+function MapEventHandler({ onLongPress }: { onLongPress: (e: any) => void }) {
+  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [longPressPosition, setLongPressPosition] = useState<any>(null);
+
+  const map = useMapEvents({
+    contextmenu: (e) => {
+      e.originalEvent.preventDefault();
+      // Start long press timer
+      const timer = setTimeout(() => {
+        setLongPressPosition(e);
+        onLongPress(e);
+      }, 500); // 500ms for long press
+      setPressTimer(timer);
+    },
+    click: () => {
+      // Clear timer on regular click
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        setPressTimer(null);
+      }
+    },
+  });
+
+  return null;
+}
+
+interface MapComponentProps {
+  onLongPress?: (e: any) => void;
+}
+
+export default function MapComponent({ onLongPress }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -48,6 +79,9 @@ export default function MapComponent() {
           Welcome!
         </Popup>
       </Marker>
+      
+      {/* Handle long press events */}
+      {onLongPress && <MapEventHandler onLongPress={onLongPress} />}
     </MapContainer>
   );
 }

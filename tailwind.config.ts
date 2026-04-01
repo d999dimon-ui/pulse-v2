@@ -12,9 +12,23 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      lineHeight: {
+        tighter: 1,
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.line-clamp-2': {
+          'display': '-webkit-box',
+          '-webkit-line-clamp': '2',
+          '-webkit-box-orient': 'vertical',
+          'overflow': 'hidden',
+        },
+      });
+    },
+  ],
 };
 
 export default config;
