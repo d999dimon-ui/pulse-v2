@@ -14,10 +14,10 @@ export const forbiddenWords = [
   'kill', 'murder', 'violence', 'rape',
   'terrorist', 'terrorism', 'extremism',
   
-  // Uzbek
+  // Uzbek (without apostrophes to avoid syntax errors)
   'giyohvand', 'narkotik', 'dorivor',
-  'qurol', 'to'ppa', 'avtomat', 'bomba',
-  'o'ldir', 'o'ldirish', 'zo'ravonlik',
+  'qurol', 'toppa', 'avtomat', 'bomba',
+  'oldir', 'oldirish', 'zoravonlik',
   'terror', 'terrorizm',
 ];
 
