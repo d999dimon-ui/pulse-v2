@@ -34,26 +34,46 @@ function HomeContent() {
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
 
+  // Initialize Telegram WebApp
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    
+    const tg = (window as any).Telegram?.WebApp;
+    
+    if (tg) {
+      // Tell Telegram the app is ready
+      tg.ready();
+      // Expand to full height
+      tg.expand();
+      // Enable closing confirmation
+      tg.enableClosingConfirmation();
+      // Set header color
+      tg.setHeaderColor('#000000');
+      // Set background color
+      tg.setBackgroundColor('#000000');
+    }
+
     const savedTasks = localStorage.getItem('tasks');
     const savedUser = localStorage.getItem('user');
     const savedLanguage = localStorage.getItem('language');
+    
     if (savedTasks) setTasks(JSON.parse(savedTasks));
+    
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     } else {
-      const tg = (window as any).Telegram?.WebApp;
       const defaultUser: UserType = {
         id: generateId(),
-        username: tg?.initData?.user?.username || 'user_' + Math.random().toString(36).substr(2, 5),
+        username: tg?.initData?.user?.username || tg?.initData?.user?.first_name || 'user_' + Math.random().toString(36).substr(2, 5),
         balance: 0,
         completedTasks: 0,
       };
       setUser(defaultUser);
       localStorage.setItem('user', JSON.stringify(defaultUser));
     }
+    
     if (!savedLanguage) setShowLanguageSelector(true);
+    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => setUserPosition([position.coords.latitude, position.coords.longitude]),

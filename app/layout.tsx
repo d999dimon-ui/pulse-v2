@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
-// TaskHub v2.0 - Telegram Mini App for task management and earnings
-// Updated: Force rebuild for correct UI deployment
-// Force rebuild trigger: 2026-04-01 v2
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
   description: "Complete tasks and earn rewards in your area",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
 
 export default function RootLayout({
@@ -23,7 +21,9 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+        {children}
+      </body>
     </html>
   );
 }
