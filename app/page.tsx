@@ -37,13 +37,16 @@ export default function Home() {
 
   // Load data from localStorage on mount
   useEffect(() => {
+    // Safety check for SSR
+    if (typeof window === 'undefined') return;
+
     const savedTasks = localStorage.getItem('tasks');
     const savedUser = localStorage.getItem('user');
-    
+
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
     }
-    
+
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     } else {
@@ -99,7 +102,7 @@ export default function Home() {
 
   // Create task handler
   const handleCreateTask = useCallback((taskData: Omit<Task, 'id' | 'createdAt' | 'status' | 'userId'>) => {
-    if (!user) return;
+    if (!user || typeof window === 'undefined') return;
 
     const newTask: Task = {
       ...taskData,
@@ -110,7 +113,7 @@ export default function Home() {
     };
 
     setTasks(prev => [newTask, ...prev]);
-    
+
     // Notify Telegram WebApp (haptic feedback)
     const tg = (window as any).Telegram?.WebApp;
     tg?.HapticFeedback?.notificationOccurred('success');
@@ -118,10 +121,12 @@ export default function Home() {
 
   // Claim task handler
   const handleClaimTask = useCallback((taskId: string) => {
-    setTasks(prev => prev.map(task => 
+    if (typeof window === 'undefined') return;
+    
+    setTasks(prev => prev.map(task =>
       task.id === taskId ? { ...task, status: 'claimed' as const } : task
     ));
-    
+
     const tg = (window as any).Telegram?.WebApp;
     tg?.HapticFeedback?.impactOccurred('light');
     alert('Task claimed! Contact the task creator to complete.');
@@ -129,16 +134,16 @@ export default function Home() {
 
   // Withdraw handler
   const handleWithdraw = useCallback(() => {
-    if (!user || user.balance < 10) {
+    if (!user || typeof window === 'undefined') {
       alert('Minimum withdrawal is 10 Stars');
       return;
     }
-    
+
     const tg = (window as any).Telegram?.WebApp;
-    
+
     // In production, this would call your backend to process withdrawal
     alert(`Withdrawal request for ${user.balance} Stars submitted!\n\nIn production, this would integrate with Telegram Stars or TON payment.`);
-    
+
     // Reset balance (in production, this would be handled by backend)
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
   }, [user]);
