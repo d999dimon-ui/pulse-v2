@@ -19,20 +19,31 @@ import {
   Key,
   Eye,
   EyeOff,
-  MessageSquare
+  MessageSquare,
+  Ban,
+  AlertTriangle,
+  Activity,
+  Wallet,
+  Shield
 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 export default function AdminPanel() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'support' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'settings'>('dashboard');
   const [adminId, setAdminId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalCommissions: 0,
+    gmvTotal: 0,
     activeTasks: 0,
     totalTasks: 0,
     totalUsers: 0,
+    activeExecutors: 0,
+    aiBlocked: 0,
   });
+  const [chartData, setChartData] = useState<any[]>([]);
   const [reportedTasks, setReportedTasks] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [supportAlerts, setSupportAlerts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -41,9 +52,13 @@ export default function AdminPanel() {
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [settingsMessage, setSettingsMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  
+  // Emergency release state
+  const [taskId, setTaskId] = useState('');
+  const [releaseTo, setReleaseTo] = useState<'executor' | 'creator'>('executor');
+  const [emergencyReason, setEmergencyReason] = useState('');
 
   useEffect(() => {
-    // Get admin ID from token (in production, verify on server)
     const token = document.cookie.split(';').find(c => c.trim().startsWith('admin_token='));
     if (!token) {
       router.push('/admin-pulse-master/login');
@@ -65,10 +80,31 @@ export default function AdminPanel() {
     if (statsData) {
       setStats({
         totalCommissions: statsData.total_commissions || 0,
+        gmvTotal: statsData.gmv_total || 0,
         activeTasks: statsData.active_tasks_count || 0,
         totalTasks: statsData.total_tasks_count || 0,
         totalUsers: statsData.total_users_count || 0,
+        activeExecutors: statsData.active_executors || 0,
+        aiBlocked: statsData.ai_blocked_tasks || 0,
       });
+    }
+
+    // Load chart data (last 7 days)
+    if (activeTab === 'dashboard') {
+      const { data: dailyData } = await supabase
+        .from('daily_stats')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(7);
+      
+      if (dailyData) {
+        setChartData(dailyData.reverse().map(d => ({
+          date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          gmv: Number(d.gmv) || 0,
+          commissions: Number(d.commissions) || 0,
+          tasks: d.tasks_created || 0,
+        })));
+      }
     }
 
     // Load reported tasks
@@ -81,6 +117,17 @@ export default function AdminPanel() {
         .limit(50);
       
       setReportedTasks(tasks || []);
+    }
+
+    // Load users
+    if (activeTab === 'users') {
+      const { data: usersData } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      
+      setUsers(usersData || []);
     }
 
     // Load support alerts
@@ -107,13 +154,6 @@ export default function AdminPanel() {
       .update({ is_hidden: true, visibility: false, status: 'cancelled' })
       .eq('id', taskId);
 
-    // Log action
-    await supabase.rpc('log_admin_action', {
-      p_admin_id: adminId,
-      p_action: 'ban_task',
-      p_details: { task_id: taskId },
-    });
-
     loadData();
   };
 
@@ -123,14 +163,66 @@ export default function AdminPanel() {
       .update({ reports_count: 0, is_hidden: false, visibility: true })
       .eq('id', taskId);
 
-    // Log action
-    await supabase.rpc('log_admin_action', {
-      p_admin_id: adminId,
-      p_action: 'clear_reports',
-      p_details: { task_id: taskId },
-    });
-
     loadData();
+  };
+
+  const handleBanUser = async (userId: string, username: string) => {
+    const reason = prompt(`Enter ban reason for ${username}:`);
+    if (!reason) return;
+
+    try {
+      const { error } = await supabase.rpc('ban_user', {
+        p_user_id: userId,
+        p_reason: reason,
+      });
+
+      if (error) throw error;
+
+      alert(`User ${username} has been banned`);
+      loadData();
+    } catch (err: any) {
+      alert('Failed to ban user: ' + err.message);
+    }
+  };
+
+  const handleUnbanUser = async (userId: string) => {
+    try {
+      const { error } = await supabase.rpc('unban_user', {
+        p_user_id: userId,
+      });
+
+      if (error) throw error;
+
+      alert('User unbanned successfully');
+      loadData();
+    } catch (err: any) {
+      alert('Failed to unban user: ' + err.message);
+    }
+  };
+
+  const handleEmergencyRelease = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!taskId || !emergencyReason) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.rpc('emergency_release_escrow', {
+        p_task_id: taskId,
+        p_release_to: releaseTo,
+        p_reason: emergencyReason,
+      });
+
+      if (error) throw error;
+
+      alert(`Emergency release executed! Funds ${releaseTo === 'executor' ? 'released to executor (90%)' : 'refunded to creator'}`);
+      setTaskId('');
+      setEmergencyReason('');
+    } catch (err: any) {
+      alert('Failed: ' + err.message);
+    }
   };
 
   const handleResolveSupport = async (chatId: string) => {
@@ -139,13 +231,23 @@ export default function AdminPanel() {
       .update({ needs_admin_help: false, is_resolved: true })
       .eq('id', chatId);
 
-    // Log action
-    await supabase.rpc('log_admin_action', {
-      p_admin_id: adminId,
-      p_action: 'resolve_support',
-      p_details: { chat_id: chatId },
-    });
+    loadData();
+  };
 
+  const handleAdminReply = async (chatId: string, userId: string, message: string) => {
+    if (!message.trim()) return;
+
+    const adminMsg = { role: 'admin', content: message, timestamp: new Date().toISOString() };
+    
+    await supabase
+      .from('support_chats')
+      .update({
+        messages: supabase.array(adminMsg),
+        needs_admin_help: false,
+      })
+      .eq('id', chatId);
+
+    alert('Reply sent successfully!');
     loadData();
   };
 
@@ -173,7 +275,6 @@ export default function AdminPanel() {
 
       setSettingsMessage({ type: 'success', text: 'Credentials updated! Please login again.' });
       
-      // Clear session and redirect
       document.cookie = 'admin_token=; path=/; max-age=0';
       setTimeout(() => {
         router.push('/admin-pulse-master/login');
@@ -181,30 +282,6 @@ export default function AdminPanel() {
     } catch (err: any) {
       setSettingsMessage({ type: 'error', text: err.message || 'Failed to update credentials' });
     }
-  };
-
-  const handleAdminReply = async (chatId: string, userId: string, message: string) => {
-    if (!message.trim()) return;
-
-    const adminMsg = { role: 'admin', content: message, timestamp: new Date().toISOString() };
-    
-    await supabase
-      .from('support_chats')
-      .update({
-        messages: supabase.array(adminMsg),
-        needs_admin_help: false,
-      })
-      .eq('id', chatId);
-
-    // Log action
-    await supabase.rpc('log_admin_action', {
-      p_admin_id: adminId,
-      p_action: 'admin_support_reply',
-      p_details: { chat_id: chatId, user_id: userId },
-    });
-
-    loadData();
-    alert('Reply sent successfully!');
   };
 
   const handleLogout = () => {
@@ -283,6 +360,17 @@ export default function AdminPanel() {
               Moderation
             </button>
             <button
+              onClick={() => setActiveTab('users')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+                activeTab === 'users'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              <Users size={18} />
+              Users
+            </button>
+            <button
               onClick={() => setActiveTab('support')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
                 activeTab === 'support'
@@ -291,7 +379,7 @@ export default function AdminPanel() {
               }`}
             >
               <MessageSquareWarning size={18} />
-              Support Center
+              Support
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -315,6 +403,7 @@ export default function AdminPanel() {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold mb-6">Overview</h2>
             
+            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -322,41 +411,129 @@ export default function AdminPanel() {
                   <TrendingUp size={20} className="text-green-400" />
                 </div>
                 <div className="text-3xl font-bold text-white mb-1">
-                  ${stats.totalCommissions.toFixed(2)}
+                  ${stats.gmvTotal.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-400">Total Commissions (10%)</div>
+                <div className="text-sm text-gray-400">Total GMV</div>
               </div>
 
               <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <LayoutDashboard size={32} className="text-cyan-400" />
-                  <span className="text-xs text-cyan-400 bg-cyan-500/20 px-2 py-1 rounded-full">Live</span>
+                  <Wallet size={32} className="text-cyan-400" />
                 </div>
                 <div className="text-3xl font-bold text-white mb-1">
-                  {stats.activeTasks}
+                  ${stats.totalCommissions.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-400">Active Tasks</div>
+                <div className="text-sm text-gray-400">My Profit (10%)</div>
               </div>
 
               <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <CheckCircle size={32} className="text-purple-400" />
+                  <Activity size={32} className="text-purple-400" />
+                  <span className="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded-full">Live</span>
                 </div>
                 <div className="text-3xl font-bold text-white mb-1">
-                  {stats.totalTasks}
+                  {stats.activeExecutors}
                 </div>
-                <div className="text-sm text-gray-400">Total Tasks</div>
+                <div className="text-sm text-gray-400">Active Executors</div>
               </div>
 
-              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-6">
+              <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/50 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <Users size={32} className="text-orange-400" />
+                  <Shield size={32} className="text-red-400" />
                 </div>
                 <div className="text-3xl font-bold text-white mb-1">
-                  {stats.totalUsers}
+                  {stats.aiBlocked}
                 </div>
-                <div className="text-sm text-gray-400">Total Users</div>
+                <div className="text-sm text-gray-400">Blocked by AI</div>
               </div>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+              {/* GMV Chart */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <TrendingUp size={20} className="text-cyan-400" />
+                  GMV & Commissions (7 Days)
+                </h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="date" stroke="#666" />
+                    <YAxis stroke="#666" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                    />
+                    <Line type="monotone" dataKey="gmv" stroke="#22d3ee" strokeWidth={2} name="GMV" />
+                    <Line type="monotone" dataKey="commissions" stroke="#a855f7" strokeWidth={2} name="Commissions" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Tasks Chart */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                  <Activity size={20} className="text-green-400" />
+                  Tasks Created (7 Days)
+                </h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="date" stroke="#666" />
+                    <YAxis stroke="#666" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                    />
+                    <Bar dataKey="tasks" fill="#22c55e" name="Tasks" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Emergency Release */}
+            <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/50 rounded-2xl p-6 mt-8">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <AlertTriangle size={20} className="text-red-400" />
+                Admin Emergency Escrow Release
+              </h3>
+              <form onSubmit={handleEmergencyRelease} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <input
+                    type="text"
+                    value={taskId}
+                    onChange={(e) => setTaskId(e.target.value)}
+                    placeholder="Task ID (UUID)"
+                    className="px-4 py-3 bg-black/50 border border-white/10 rounded-xl
+                               text-white placeholder-gray-500 focus:outline-none focus:border-red-500/50"
+                  />
+                  <select
+                    value={releaseTo}
+                    onChange={(e) => setReleaseTo(e.target.value as 'executor' | 'creator')}
+                    className="px-4 py-3 bg-black/50 border border-white/10 rounded-xl
+                               text-white focus:outline-none focus:border-red-500/50"
+                  >
+                    <option value="executor">Release to Executor (90%)</option>
+                    <option value="creator">Refund to Creator (100%)</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={emergencyReason}
+                    onChange={(e) => setEmergencyReason(e.target.value)}
+                    placeholder="Reason for emergency release"
+                    className="px-4 py-3 bg-black/50 border border-white/10 rounded-xl
+                               text-white placeholder-gray-500 focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-gradient-to-r from-red-500 to-orange-500
+                             text-white font-bold rounded-xl
+                             hover:from-red-600 hover:to-orange-600
+                             transition-all"
+                >
+                  Execute Emergency Release
+                </button>
+              </form>
             </div>
 
             {/* Admin Wallet */}
@@ -426,10 +603,87 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* Support Center */}
+        {/* Users */}
+        {activeTab === 'users' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold mb-6">User Management</h2>
+            
+            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-black/50 border-b border-white/10">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">User</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Balance</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Rating</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Tasks</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {users.map((user) => (
+                      <tr key={user.user_id} className="hover:bg-white/5 transition-colors">
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="font-medium text-white">{user.username || 'N/A'}</div>
+                            <div className="text-xs text-gray-500">{user.user_id?.slice(0, 12)}...</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-cyan-400 font-semibold">{Number(user.balance || 0).toFixed(2)} ⭐</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1">
+                            <span className="text-yellow-400">★</span>
+                            <span className="text-white">{Number(user.rating || 5).toFixed(1)}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-xs text-gray-400">
+                            ✅ {user.completed_tasks || 0} done<br />
+                            📝 {user.created_tasks || 0} created
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {user.is_banned ? (
+                            <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full flex items-center gap-1 w-fit">
+                              <Ban size={12} /> Banned
+                            </span>
+                          ) : (
+                            <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Active</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {user.is_banned ? (
+                            <button
+                              onClick={() => handleUnbanUser(user.user_id)}
+                              className="px-3 py-1 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-xs hover:bg-green-500/30 transition-all"
+                            >
+                              Unban
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleBanUser(user.user_id, user.username || 'User')}
+                              className="px-3 py-1 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-xs hover:bg-red-500/30 transition-all"
+                            >
+                              BAN
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Support */}
         {activeTab === 'support' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold mb-6">Support Escalations</h2>
+            <h2 className="text-2xl font-bold mb-6">Support Center</h2>
             
             {supportAlerts.length === 0 ? (
               <div className="text-center py-12 bg-white/5 rounded-2xl">

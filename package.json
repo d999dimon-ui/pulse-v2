@@ -1,6 +1,6 @@
 {
   "name": "telegram-mini-app",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -19,6 +19,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-leaflet": "4.2.1",
+    "recharts": "^2.10.0",
     "viem": "^2.21.0",
     "wagmi": "^2.12.0"
   },
