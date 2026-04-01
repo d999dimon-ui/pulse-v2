@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
+// TaskHub - Telegram Mini App for task management and earnings
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
   description: "Complete tasks and earn rewards in your area",
@@ -20,7 +21,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
