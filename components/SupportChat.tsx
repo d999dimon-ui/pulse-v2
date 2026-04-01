@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
-import { Send, X, Bot, User, AlertTriangle, Gift, Clock } from 'lucide-react';
+import { Send, X, Bot, User, AlertTriangle, Gift, Clock, Languages } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { checkUserBonusesForSupport } from '@/lib/referral-bonus';
+import { getWarningMessage, Language } from '@/lib/warnings-i18n';
 
 interface SupportChatProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ const SYSTEM_PROMPT = `Ты — менеджер поддержки Pulse. От�
 Будь вежливым и профессиональным.`;
 
 export default function SupportChat({ isOpen, onClose, userId }: SupportChatProps) {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +49,9 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
   } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCountRef = useRef(0);
+  
+  // Use language from context for warnings
+  const warningLang: Language = (language === 'ru' || language === 'en' || language === 'uz') ? language : 'ru';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -157,7 +161,7 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
       const data = await response.json();
       const aiMsg = { 
         role: 'assistant', 
-        content: data.choices[0]?.message?.content || 'Sorry, I had an error. Please try again.' 
+        content: data.choices[0]?.message?.content || getWarningMessage('fraudWarning', warningLang)
       };
 
       const finalMessages = [...updatedMessages, aiMsg];
@@ -171,7 +175,7 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
 
     } catch (error) {
       console.error('AI Error:', error);
-      const errorMsg = { role: 'assistant', content: 'Sorry, I had an error. Please try again later.' };
+      const errorMsg = { role: 'assistant', content: getWarningMessage('fraudWarning', warningLang) };
       setMessages([...updatedMessages, errorMsg]);
     } finally {
       setIsLoading(false);

@@ -1,6 +1,7 @@
 // Security, Fraud Detection & Moderation Helpers
 
 import { supabase } from './supabase';
+import { Language, scanForOffPlatformKeywords, generateContextualWarning, getWarningMessage } from './warnings-i18n';
 
 // Flash task interface
 export interface FlashTask {
@@ -156,9 +157,17 @@ export async function sendChatMessage(
   taskId: string,
   senderId: string,
   receiverId: string,
-  message: string
-): Promise<{ success: boolean; isFlagged?: boolean; warning?: string }> {
+  message: string,
+  userLang: Language = 'ru'
+): Promise<{ success: boolean; isFlagged?: boolean; warning?: string; warningLang?: Language }> {
   try {
+    // Scan for off-platform keywords in user's language
+    const scanResult = scanForOffPlatformKeywords(message, userLang);
+    const isFlagged = scanResult.detected;
+    
+    // Generate warning in user's language
+    const warning = isFlagged ? generateContextualWarning(scanResult, userLang) : undefined;
+    
     const { data, error } = await supabase
       .from('chat_messages')
       .insert({
@@ -166,24 +175,22 @@ export async function sendChatMessage(
         sender_id: senderId,
         receiver_id: receiverId,
         message,
+        is_flagged: isFlagged,
+        flag_reason: isFlagged ? `Off-platform attempt detected (${userLang})` : null,
       })
       .select()
       .single();
     
     if (error) throw error;
     
-    // Check if message was flagged
-    if (data.is_flagged) {
-      return {
-        success: true,
-        isFlagged: true,
-        warning: '⚠️ Your attempt to negotiate off-platform has been recorded. This voids your insurance. Repeated violations will result in rating block.',
-      };
-    }
-    
-    return { success: true, isFlagged: false };
+    return { 
+      success: true, 
+      isFlagged,
+      warning,
+      warningLang: userLang,
+    };
   } catch (error: any) {
-    return { success: false, warning: error.message };
+    return { success: false, warning: getWarningMessage('fraudWarning', userLang) };
   }
 }
 
