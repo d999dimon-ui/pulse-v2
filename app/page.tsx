@@ -1,5 +1,6 @@
 "use client";
 
+// TaskHub SaaS v3.0 - Emergency Reset for Vercel Deployment
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Plus, User, ListFilter } from "lucide-react";
