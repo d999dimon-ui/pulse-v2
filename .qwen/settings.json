@@ -9,7 +9,8 @@
       "Bash(rm *)",
       "Bash(rmdir *)",
       "Bash(del *)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(git push *)"
     ]
   },
   "$version": 3
