@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { wagmiConfig } from '@/lib/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
+import { polygon } from 'wagmi/chains';
 
 // Initialize Web3Modal
 if (typeof window !== 'undefined') {
@@ -12,7 +13,7 @@ if (typeof window !== 'undefined') {
     wagmiConfig,
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
     enableAnalytics: true,
-    defaultChain: 'polygon',
+    defaultChain: polygon,
     themeMode: 'dark',
     themeVariables: {
       '--w3m-accent': '#22d3ee',
