@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
