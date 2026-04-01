@@ -124,6 +124,10 @@ export async function getUserLanguage(userId: string): Promise<Language> {
   return detectUserLanguage();
 }
 
+export function getUserLanguageSync(): Language {
+  return detectUserLanguage();
+}
+
 // Format warning with dynamic data
 export function formatWarning(
   type: keyof WarningMessages,

@@ -17,7 +17,8 @@
       "Bash(npm *)",
       "Bash(echo *)",
       "Bash(move *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(select-string *)"
     ]
   },
   "$version": 3

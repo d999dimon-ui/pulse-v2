@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
-import { Send, X, Bot, User, AlertTriangle, Gift, Clock, Languages } from 'lucide-react';
+import { Send, X, Bot, User, AlertTriangle, Gift, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { checkUserBonusesForSupport } from '@/lib/referral-bonus';
 import { getWarningMessage, Language } from '@/lib/warnings-i18n';

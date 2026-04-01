@@ -68,7 +68,10 @@ export async function getFlashTasks(limit: number = 20): Promise<FlashTask[]> {
       .order('urgent_until', { ascending: true })
       .limit(limit);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Get flash tasks error:', error.message);
+      return [];
+    }
     return data as FlashTask[];
   } catch (error) {
     console.error('Get flash tasks error:', error);
@@ -126,7 +129,10 @@ export async function getUserTransactions(
       .order('created_at', { ascending: false })
       .limit(limit);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Get transactions error:', error.message);
+      return [];
+    }
     return data as TransactionLog[];
   } catch (error) {
     console.error('Get transactions error:', error);
@@ -144,7 +150,10 @@ export async function getUserFraudAlerts(userId: string): Promise<FraudAlert[]> 
       .order('created_at', { ascending: false })
       .limit(10);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Get fraud alerts error:', error.message);
+      return [];
+    }
     return data as FraudAlert[];
   } catch (error) {
     console.error('Get fraud alerts error:', error);
@@ -212,7 +221,10 @@ export async function getFeedbackIdeas(
     
     const { data, error } = await query;
     
-    if (error) throw error;
+    if (error) {
+      console.error('Get feedback error:', error.message);
+      return [];
+    }
     return data as FeedbackIdea[];
   } catch (error) {
     console.error('Get feedback error:', error);
