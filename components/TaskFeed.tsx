@@ -1,9 +1,10 @@
 "use client";
 
 import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
-import { X, MapPin, Clock, Star, DollarSign } from 'lucide-react';
+import { X, MapPin, Clock, Star, DollarSign, Flag } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
+import { supabase } from '@/lib/supabase';
 
 interface TaskFeedProps {
   isOpen: boolean;
@@ -38,6 +39,34 @@ export default function TaskFeed({
   onClaimTask
 }: TaskFeedProps) {
   const { language } = useLanguage();
+
+  // Report task handler
+  const handleReport = async (taskId: string) => {
+    if (!confirm(language === 'ru' 
+      ? 'Пожаловаться на это задание?'
+      : 'Report this task?')) return;
+    
+    try {
+      const { data: task } = await supabase
+        .from('tasks')
+        .select('reports_count')
+        .eq('id', taskId)
+        .single();
+      
+      if (task) {
+        await supabase
+          .from('tasks')
+          .update({ reports_count: (task.reports_count || 0) + 1 })
+          .eq('id', taskId);
+        
+        alert(language === 'ru'
+          ? 'Спасибо за сообщение! Задание будет проверено.'
+          : 'Thanks for reporting! This task will be reviewed.');
+      }
+    } catch (error) {
+      console.error('Report error:', error);
+    }
+  };
 
   // Filter tasks within 5km and sort by distance
   const nearbyTasks = tasks
@@ -153,16 +182,25 @@ export default function TaskFeed({
                           <span>{task.latitude.toFixed(3)}, {task.longitude.toFixed(3)}</span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => onClaimTask(task.id)}
-                        className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500
-                                   text-white font-semibold rounded-xl text-sm
-                                   hover:from-cyan-600 hover:to-blue-600
-                                   shadow-[0_0_15px_rgba(34,211,238,0.3)]
-                                   transition-all duration-300 active:scale-95"
-                      >
-                        {t(language, 'claim')}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleReport(task.id)}
+                          className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                          aria-label="Report"
+                        >
+                          <Flag size={16} />
+                        </button>
+                        <button
+                          onClick={() => onClaimTask(task.id)}
+                          className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500
+                                     text-white font-semibold rounded-xl text-sm
+                                     hover:from-cyan-600 hover:to-blue-600
+                                     shadow-[0_0_15px_rgba(34,211,238,0.3)]
+                                     transition-all duration-300 active:scale-95"
+                        >
+                          {t(language, 'claim')}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

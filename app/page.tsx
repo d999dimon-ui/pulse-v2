@@ -9,6 +9,7 @@ import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
 import UserProfile from "@/components/UserProfile";
 import LanguageSelectorModal from "@/components/LanguageSelectorModal";
+import OnboardingModal from "@/components/OnboardingModal";
 import { Task as TaskType, User as UserType } from "@/types/task";
 import { t } from "@/utils/translations";
 import { supabase } from "@/lib/supabase";
@@ -36,6 +37,7 @@ function HomeContent() {
   const [isTaskFeedOpen, setIsTaskFeedOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Long press state
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
@@ -107,6 +109,13 @@ function HomeContent() {
     }
     
     if (!savedLanguage) setShowLanguageSelector(true);
+    
+    // Show onboarding for first-time users (after language selection)
+    const savedOnboarding = localStorage.getItem('onboarding_completed');
+    if (!savedLanguage && savedOnboarding !== 'true') {
+      // Will show after language selection completes
+      setTimeout(() => setShowOnboarding(true), 500);
+    }
     
     // Get user location
     if (navigator.geolocation) {
@@ -255,6 +264,7 @@ function HomeContent() {
 
       {/* Modals */}
       <LanguageSelectorModal isOpen={showLanguageSelector} onClose={() => setShowLanguageSelector(false)} />
+      <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} />
       <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setSelectedPosition(null); }} latitude={selectedPosition?.[0] || userPosition[0]} longitude={selectedPosition?.[1] || userPosition[1]} onSubmit={handleCreateTask} />
       <TaskFeed isOpen={isTaskFeedOpen} onClose={() => setIsTaskFeedOpen(false)} tasks={tasks} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={handleClaimTask} />
       <UserProfile isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} user={user} tasks={tasks} onWithdraw={handleWithdraw} />

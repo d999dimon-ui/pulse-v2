@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { User, Task } from '@/types/task';
-import { X, Wallet, Star, TrendingUp, Globe } from 'lucide-react';
+import { X, Wallet, Star, TrendingUp, Globe, Info } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t, Language } from '@/utils/translations';
+import AboutModal from './AboutModal';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export default function UserProfile({
 }: UserProfileProps) {
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   const myTasks = tasks.filter(task => task.userId === user?.id);
   const completedTasks = myTasks.filter(task => task.status === 'completed');
@@ -193,7 +195,23 @@ export default function UserProfile({
             </div>
           </div>
         </div>
+        
+        {/* About Button */}
+        <div className="p-6 border-t border-white/10">
+          <button
+            onClick={() => setShowAboutModal(true)}
+            className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-xl
+                       flex items-center justify-center gap-2
+                       hover:bg-white/10 hover:border-purple-500/50
+                       transition-all duration-300"
+          >
+            <Info size={18} className="text-purple-400" />
+            <span className="text-white font-medium">About Pulse</span>
+          </button>
+        </div>
       </div>
+      
+      <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
     </>
   );
 }

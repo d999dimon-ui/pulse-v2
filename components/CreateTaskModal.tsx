@@ -5,6 +5,8 @@ import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
 import { calculateRewardWithSurge, getSurgeStatusText } from '@/lib/surge-pricing';
+import { filterKeywords, getSafetyMessage } from '@/lib/safety-filter';
+import { AlertTriangle, CheckSquare, Square } from 'lucide-react';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -41,6 +43,10 @@ export default function CreateTaskModal({
   // Calculate reward with surge pricing
   const surgeMultiplier = calculateRewardWithSurge(Number(baseReward) || 5, tasks, latitude, longitude);
   const surgeActive = surgeMultiplier > Number(baseReward);
+  
+  // Legal checkbox state
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [safetyError, setSafetyError] = useState<string | null>(null);
 
   // AI Auto-categorization
   const autoCategorize = async () => {
@@ -90,6 +96,26 @@ export default function CreateTaskModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check legal agreement
+    if (!agreedToTerms) {
+      alert(language === 'ru' 
+        ? 'Вы должны согласиться с условиями использования'
+        : 'You must agree to the Terms of Service');
+      return;
+    }
+
+    // Safety filter check
+    const titleCheck = filterKeywords(title);
+    const descCheck = filterKeywords(description || '');
+    
+    if (!titleCheck.isValid || !descCheck.isValid) {
+      setSafetyError(getSafetyMessage(language));
+      alert(getSafetyMessage(language));
+      return;
+    }
+    
+    setSafetyError(null);
 
     onSubmit({
       title,
@@ -107,6 +133,7 @@ export default function CreateTaskModal({
     setBaseReward('5');
     setCurrency('stars');
     setCategory('delivery');
+    setAgreedToTerms(false);
     onClose();
   };
 
@@ -287,12 +314,42 @@ export default function CreateTaskModal({
               </button>
             </div>
 
+            {/* Legal Checkbox */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setAgreedToTerms(!agreedToTerms)}
+                  className="mt-0.5 flex-shrink-0"
+                >
+                  {agreedToTerms ? (
+                    <CheckSquare size={20} className="text-green-400" />
+                  ) : (
+                    <Square size={20} className="text-gray-400" />
+                  )}
+                </button>
+                <span className="text-xs text-gray-400 leading-relaxed">
+                  {language === 'ru'
+                    ? 'Я согласен с Условиями использования. Я понимаю, что незаконная деятельность приведёт к перманентному бану.'
+                    : 'I agree to the Terms of Service. I understand that illegal activities lead to a permanent ban.'}
+                </span>
+              </label>
+              {safetyError && (
+                <div className="mt-3 flex items-center gap-2 text-red-400 text-xs">
+                  <AlertTriangle size={14} />
+                  <span>{safetyError}</span>
+                </div>
+              )}
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
+              disabled={!agreedToTerms}
               className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500
                          text-white font-bold rounded-xl
                          hover:from-cyan-600 hover:to-blue-600
+                         disabled:opacity-50 disabled:cursor-not-allowed
                          shadow-[0_0_20px_rgba(34,211,238,0.4)]
                          hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]
                          transition-all duration-300 active:scale-98"
