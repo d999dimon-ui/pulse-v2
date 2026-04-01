@@ -179,20 +179,20 @@ export const OFF_PLATFORM_KEYWORDS: Record<Language, string[]> = {
 export function scanForOffPlatformKeywords(
   message: string,
   userLang?: Language
-): { detected: boolean; language?: Language; keywords?: string[] } {
+): { detected: boolean; language?: Language | 'unknown'; keywords?: string[] } {
   const lowerMessage = message.toLowerCase();
   const langToCheck = userLang || detectUserLanguage();
-  
+
   // Check in user's language first
   const keywords = OFF_PLATFORM_KEYWORDS[langToCheck];
   const foundKeywords: string[] = [];
-  
+
   for (const keyword of keywords) {
     if (lowerMessage.includes(keyword.toLowerCase())) {
       foundKeywords.push(keyword);
     }
   }
-  
+
   if (foundKeywords.length > 0) {
     return {
       detected: true,
@@ -200,26 +200,26 @@ export function scanForOffPlatformKeywords(
       keywords: foundKeywords,
     };
   }
-  
+
   // Check in other languages as fallback
   for (const [lang, kw] of Object.entries(OFF_PLATFORM_KEYWORDS)) {
     if (lang === langToCheck) continue;
-    
+
     for (const keyword of kw) {
       if (lowerMessage.includes(keyword.toLowerCase())) {
         foundKeywords.push(keyword);
       }
     }
   }
-  
+
   if (foundKeywords.length > 0) {
     return {
       detected: true,
-      language: 'unknown',
+      language: 'unknown' as const,
       keywords: foundKeywords,
     };
   }
-  
+
   return { detected: false };
 }
 
