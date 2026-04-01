@@ -13,6 +13,7 @@ import {
   SURGE_RADIUS_KM,
   SURGE_THRESHOLD 
 } from "@/lib/surge-pricing";
+import ExecutorMarker from "./ExecutorMarker";
 
 // Fix for Leaflet default markers in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -82,9 +83,10 @@ interface MapComponentProps {
   onLongPress?: (e: any) => void;
   tasks?: Task[];
   userPosition?: [number, number];
+  activeTaskId?: string; // For real-time tracking
 }
 
-export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060] }: MapComponentProps) {
+export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060], activeTaskId }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [surgeInfo, setSurgeInfo] = useState<{ multiplier: number; count: number; isActive: boolean } | null>(null);
 
@@ -165,6 +167,9 @@ export default function MapComponent({ onLongPress, tasks = [], userPosition = [
           </Popup>
         </Marker>
       ))}
+      
+      {/* Executor real-time marker */}
+      {activeTaskId && <ExecutorMarker taskId={activeTaskId} userPosition={userPosition} />}
       
       {/* Handle long press events */}
       {onLongPress && <MapEventHandler onLongPress={onLongPress} />}

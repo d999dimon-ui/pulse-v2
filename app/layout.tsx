@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import { Web3Provider } from "@/contexts/Web3Provider";
 
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
@@ -22,7 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
-        {children}
+        <Web3Provider>{children}</Web3Provider>
       </body>
     </html>
   );

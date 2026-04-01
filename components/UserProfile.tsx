@@ -6,6 +6,7 @@ import { X, Wallet, Star, TrendingUp, Globe, Info } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t, Language } from '@/utils/translations';
 import AboutModal from './AboutModal';
+import ConnectWalletButton from './ConnectWalletButton';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -89,6 +90,11 @@ export default function UserProfile({
 
           {/* Balance Card */}
           <div className="p-6">
+            {/* Web3 Connect */}
+            <div className="mb-6">
+              <ConnectWalletButton />
+            </div>
+            
             <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30
                             rounded-2xl p-5 mb-6">
               <div className="flex items-center justify-between mb-2">
