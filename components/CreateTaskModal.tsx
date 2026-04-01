@@ -26,6 +26,53 @@ export default function CreateTaskModal({
   const [reward, setReward] = useState('5');
   const [currency, setCurrency] = useState<'stars' | 'usd'>('stars');
   const [category, setCategory] = useState<typeof CATEGORIES[0]['value']>('delivery');
+  const [isAutoCategorizing, setIsAutoCategorizing] = useState(false);
+
+  // AI Auto-categorization
+  const autoCategorize = async () => {
+    if (!title.trim() || !description.trim()) return;
+    
+    setIsAutoCategorizing(true);
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'TaskHub Auto-Categorize',
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a task categorizer. Categorize tasks into one of: delivery, cleaning, help, photo. Respond with ONLY the category name, nothing else.`
+            },
+            {
+              role: 'user',
+              content: `Title: "${title}"\nDescription: "${description}"\n\nCategory:`
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 10,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiCategory = data.choices[0]?.message?.content?.trim().toLowerCase();
+        
+        if (aiCategory && ['delivery', 'cleaning', 'help', 'photo'].includes(aiCategory)) {
+          setCategory(aiCategory as typeof category);
+        }
+      }
+    } catch (error) {
+      console.error('Auto-categorize error:', error);
+    } finally {
+      setIsAutoCategorizing(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,7 +214,7 @@ export default function CreateTaskModal({
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 {t(language, 'category')}
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2 mb-2">
                 {CATEGORIES.map((cat) => (
                   <button
                     key={cat.value}
@@ -184,6 +231,28 @@ export default function CreateTaskModal({
                   </button>
                 ))}
               </div>
+              {/* AI Auto-categorize Button */}
+              <button
+                type="button"
+                onClick={autoCategorize}
+                disabled={isAutoCategorizing || !title.trim() || !description.trim()}
+                className="w-full py-2 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 
+                           border border-purple-500/50 rounded-xl text-purple-400 text-sm font-medium
+                           hover:from-purple-500/30 hover:to-pink-500/30
+                           disabled:opacity-50 disabled:cursor-not-allowed
+                           transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                {isAutoCategorizing ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                    {language === 'ru' ? '🤖 ИИ выбирает...' : '🤖 AI choosing...'}
+                  </>
+                ) : (
+                  <>
+                    ✨ {language === 'ru' ? 'Авто-категория (ИИ)' : 'Auto-Category (AI)'}
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Submit Button */}
