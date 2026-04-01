@@ -4,6 +4,8 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
+  // Nuclear fix: Force Vercel to use new clean build directory
+  distDir: '.next_custom',
 };
 
 export default nextConfig;
