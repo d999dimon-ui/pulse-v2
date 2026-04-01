@@ -4,6 +4,7 @@ import "./globals.css";
 
 // TaskHub v2.0 - Telegram Mini App for task management and earnings
 // Updated: Force rebuild for correct UI deployment
+// Force rebuild trigger: 2026-04-01
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
   description: "Complete tasks and earn rewards in your area",

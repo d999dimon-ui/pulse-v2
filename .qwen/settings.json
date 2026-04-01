@@ -14,7 +14,8 @@
       "Bash(npm cache *)",
       "Bash(dir *)",
       "Bash(findstr *)",
-      "Bash(npm *)"
+      "Bash(npm *)",
+      "Bash(echo *)"
     ]
   },
   "$version": 3
