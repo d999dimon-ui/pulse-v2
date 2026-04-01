@@ -13,7 +13,7 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       lineHeight: {
-        tighter: 1,
+        tighter: "1",
       },
     },
   },
