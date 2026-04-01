@@ -27,16 +27,18 @@ import {
   Shield,
   Gift,
   Trophy,
-  BarChart3
+  BarChart3,
+  Send
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import PromoCodesTab from './PromoCodesTab';
 import GamificationTab from './GamificationTab';
 import AnalyticsTab from './AnalyticsTab';
+import AdminToolsTab from './AdminToolsTab';
 
 export default function AdminPanel() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'promocodes' | 'gamification' | 'analytics' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'promocodes' | 'gamification' | 'analytics' | 'admintools' | 'settings'>('dashboard');
   const [adminId, setAdminId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalCommissions: 0,
@@ -429,6 +431,17 @@ export default function AdminPanel() {
             >
               <BarChart3 size={18} />
               Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab('admintools')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+                activeTab === 'admintools'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              <Send size={18} />
+              Admin Tools
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -828,6 +841,9 @@ export default function AdminPanel() {
 
         {/* Analytics */}
         {activeTab === 'analytics' && <AnalyticsTab />}
+
+        {/* Admin Tools */}
+        {activeTab === 'admintools' && <AdminToolsTab />}
 
         {/* Settings */}
         {activeTab === 'settings' && (
