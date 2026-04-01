@@ -1,6 +1,6 @@
 // Web3 Escrow Integration for Pulse
 import { toHex, parseAbi } from 'viem';
-import { useWriteContract, useWaitForTransaction, useBalance, useReadContract } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useBalance, useReadContract } from 'wagmi';
 
 export const ESCROW_ABI = parseAbi([
   'function createTask(bytes32 taskId, uint256 amount) external',
@@ -44,17 +44,17 @@ export function calculateSplit(amount: number): { executor: number; admin: numbe
   return { executor: executorAmount, admin: adminFee };
 }
 
-// React hooks for Escrow
+// React hooks for Escrow (Wagmi v2 compatible)
 export function useCreateEscrowTask() {
   const { writeContract, data: hash, isPending } = useWriteContract();
-  
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransaction({
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
-  
+
   const createTask = (taskId: `0x${string}`, amount: number) => {
     const amountWei = BigInt(Math.floor(amount * 1e18)); // USDT has 18 decimals on BSC
-    
+
     writeContract({
       address: CONTRACT_ADDRESSES.bsc.escrow as `0x${string}`,
       abi: ESCROW_ABI,
@@ -62,17 +62,17 @@ export function useCreateEscrowTask() {
       args: [taskId, amountWei],
     });
   };
-  
+
   return { createTask, isPending, isConfirming, isConfirmed, hash };
 }
 
 export function useCompleteEscrowTask() {
   const { writeContract, data: hash, isPending } = useWriteContract();
-  
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransaction({
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
-  
+
   const completeTask = (taskId: `0x${string}`) => {
     writeContract({
       address: CONTRACT_ADDRESSES.bsc.escrow as `0x${string}`,
@@ -81,7 +81,7 @@ export function useCompleteEscrowTask() {
       args: [taskId],
     });
   };
-  
+
   return { completeTask, isPending, isConfirming, isConfirmed, hash };
 }
 
@@ -90,6 +90,6 @@ export function useEscrowBalance(address: `0x${string}` | undefined) {
     address,
     token: CONTRACT_ADDRESSES.bsc.usdt as `0x${string}`,
   });
-  
+
   return balance;
 }
