@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Bot Setup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #22d3ee, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 20px;
+            margin: 20px 0 10px;
+            color: #22d3ee;
+        }
+        .step {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #22d3ee, #a855f7);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .code {
+            background: #000;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #22d3ee, #a855f7);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+        .checkmark {
+            color: #22c55e;
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        .warning {
+            background: rgba(234, 179, 8, 0.2);
+            border: 1px solid #eab308;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            margin: 10px 0;
+        }
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🤖 Pulse Bot Setup</h1>
+            <p style="color: #94a3b8; margin-top: 5px;">Настройка Telegram бота за 5 минут</p>
+        </div>
+
+        <div class="card">
+            <h2>📋 Шаг 1: Создай бота</h2>
+            <div class="step">
+                <span class="step-number">1</span>
+                Открой <a href="https://t.me/BotFather" class="button" target="_blank">@BotFather</a>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                Отправь команду: <code>/newbot</code>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                Введи имя: <strong>Pulse Assistant</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                Введи username (должен заканчиваться на 'bot'):<br>
+                <div class="code">PulseHelperBot</div>
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                ✅ <strong>СОХРАНИ ТОКЕН</strong> (выглядит как: 1234567890:ABCdef...)
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Шаг 2: Настрой кнопку меню</h2>
+            <div class="step">
+                <span class="step-number">1</span>
+                Отправь @BotFather: <code>/mybots</code>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                Выбери своего бота
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                Нажми: <strong>Bot Settings</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                Нажми: <strong>Menu Button</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                Отправь URL:<br>
+                <div class="code">https://pulse-v2-git-main-d999dimon-uis-projects.vercel.app</div>
+            </div>
+            <div class="step">
+                <span class="step-number">6</span>
+                Отправь название кнопки:<br>
+                <div class="code">Открыть Pulse</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Шаг 3: Прямая ссылка</h2>
+            <p style="margin-bottom: 10px;">После настройки, прямая ссылка будет:</p>
+            <div class="code" id="directLink">https://t.me/YOUR_BOT_USERNAME/app</div>
+            <p style="color: #94a3b8; font-size: 14px; margin-top: 10px;">
+                Пример: https://t.me/PulseHelperBot/app
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>✅ Проверка</h2>
+            <div class="success">
+                <p><span class="checkmark">✓</span> Найди бота по username</p>
+                <p><span class="checkmark">✓</span> Нажми /start</p>
+                <p><span class="checkmark">✓</span> Проверь кнопку меню слева внизу</p>
+                <p><span class="checkmark">✓</span> Открой приложение</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📝 Дополнительные команды</h2>
+            <p style="margin-bottom: 10px;">Настрой через @BotFather → Bot Settings → Group Commands:</p>
+            <div class="code">
+/start - Запустить приложение
+/help - Помощь
+/profile - Мой профиль
+/tasks - Задания
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Важно:</strong>
+            <ul style="margin: 10px 0 0 20px; color: #fbbf24;">
+                <li>URL должен быть HTTPS</li>
+                <li>Username бота должен заканчиваться на 'bot'</li>
+                <li>Токен никому не показывай!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Auto-generate direct link if username is entered
+        const usernameInput = document.createElement('input');
+        usernameInput.placeholder = 'Введи username бота (например: PulseHelperBot)';
+        usernameInput.oninput = (e) => {
+            const username = e.target.value.replace('@', '').trim();
+            const link = username ? `https://t.me/${username}/app` : 'https://t.me/YOUR_BOT_USERNAME/app';
+            document.getElementById('directLink').textContent = link;
+        };
+        document.querySelector('.container').insertBefore(usernameInput, document.querySelector('.container').firstChild.nextSibling);
+    </script>
+</body>
+</html>
