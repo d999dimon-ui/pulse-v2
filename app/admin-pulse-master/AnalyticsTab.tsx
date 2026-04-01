@@ -117,7 +117,7 @@ export default function AnalyticsTab() {
     return true;
   });
 
-  const cities = [...new Set(users.map(u => u.city).filter(Boolean))];
+  const cities = Array.from(new Set(users.map(u => u.city).filter(Boolean))) as string[];
 
   return (
     <div className="space-y-6">
