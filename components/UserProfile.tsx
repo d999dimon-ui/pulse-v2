@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { User, Task } from '@/types/task';
-import { X, Wallet, Star, TrendingUp, Globe, Info } from 'lucide-react';
+import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t, Language } from '@/utils/translations';
 import AboutModal from './AboutModal';
 import ConnectWalletButton from './ConnectWalletButton';
+import SupportChat from './SupportChat';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export default function UserProfile({
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showSupportChat, setShowSupportChat] = useState(false);
 
   const myTasks = tasks.filter(task => task.userId === user?.id);
   const completedTasks = myTasks.filter(task => task.status === 'completed');
@@ -202,8 +204,8 @@ export default function UserProfile({
           </div>
         </div>
         
-        {/* About Button */}
-        <div className="p-6 border-t border-white/10">
+        {/* About & Support Buttons */}
+        <div className="p-6 space-y-3 border-t border-white/10">
           <button
             onClick={() => setShowAboutModal(true)}
             className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-xl
@@ -214,10 +216,23 @@ export default function UserProfile({
             <Info size={18} className="text-purple-400" />
             <span className="text-white font-medium">About Pulse</span>
           </button>
+          
+          <button
+            onClick={() => setShowSupportChat(true)}
+            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 
+                       border border-purple-500/50 rounded-xl
+                       flex items-center justify-center gap-2
+                       hover:from-purple-500/30 hover:to-pink-500/30
+                       transition-all duration-300"
+          >
+            <MessageSquare size={18} className="text-purple-400" />
+            <span className="text-white font-medium">Support Chat</span>
+          </button>
         </div>
       </div>
       
       <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
+      <SupportChat isOpen={showSupportChat} onClose={() => setShowSupportChat(false)} userId={user?.id || ''} />
     </>
   );
 }
