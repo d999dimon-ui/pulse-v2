@@ -238,11 +238,21 @@ export default function AdminPanel() {
     if (!message.trim()) return;
 
     const adminMsg = { role: 'admin', content: message, timestamp: new Date().toISOString() };
-    
+
+    // Get current messages and append new one
+    const { data: chatData } = await supabase
+      .from('support_chats')
+      .select('messages')
+      .eq('id', chatId)
+      .single();
+
+    const currentMessages = chatData?.messages || [];
+    const updatedMessages = [...currentMessages, adminMsg];
+
     await supabase
       .from('support_chats')
       .update({
-        messages: supabase.array(adminMsg),
+        messages: updatedMessages,
         needs_admin_help: false,
       })
       .eq('id', chatId);
