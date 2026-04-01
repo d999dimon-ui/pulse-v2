@@ -26,15 +26,17 @@ import {
   Wallet,
   Shield,
   Gift,
-  Trophy
+  Trophy,
+  BarChart3
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import PromoCodesTab from './PromoCodesTab';
 import GamificationTab from './GamificationTab';
+import AnalyticsTab from './AnalyticsTab';
 
 export default function AdminPanel() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'promocodes' | 'gamification' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'promocodes' | 'gamification' | 'analytics' | 'settings'>('dashboard');
   const [adminId, setAdminId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalCommissions: 0,
@@ -416,6 +418,17 @@ export default function AdminPanel() {
             >
               <Trophy size={18} />
               Gamification
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+                activeTab === 'analytics'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              <BarChart3 size={18} />
+              Analytics
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -812,6 +825,9 @@ export default function AdminPanel() {
 
         {/* Gamification */}
         {activeTab === 'gamification' && <GamificationTab />}
+
+        {/* Analytics */}
+        {activeTab === 'analytics' && <AnalyticsTab />}
 
         {/* Settings */}
         {activeTab === 'settings' && (
