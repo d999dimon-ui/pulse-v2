@@ -46,6 +46,8 @@ function HomeContent() {
     // Safety check for SSR
     if (typeof window === 'undefined') return;
 
+    console.log("App Version 2.0 Loaded - TaskHub SaaS");
+
     const savedTasks = localStorage.getItem('tasks');
     const savedUser = localStorage.getItem('user');
     const savedLanguage = localStorage.getItem('language');
