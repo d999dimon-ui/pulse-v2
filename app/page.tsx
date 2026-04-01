@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Plus, User, ListFilter } from "lucide-react";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
 import UserProfile from "@/components/UserProfile";
+import LanguageSelectorModal from "@/components/LanguageSelectorModal";
 import { Task, User as UserType } from "@/types/task";
+import { t } from "@/utils/translations";
 
 // Динамический импорт карты с отключенным SSR
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
@@ -21,7 +24,9 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 // Generate unique ID
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-export default function Home() {
+// Inner component that uses language context
+function HomeContent() {
+  const { language } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
@@ -30,7 +35,8 @@ export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isTaskFeedOpen, setIsTaskFeedOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+
   // Long press state
   const [longPressTimer, setLongPressTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
@@ -42,6 +48,7 @@ export default function Home() {
 
     const savedTasks = localStorage.getItem('tasks');
     const savedUser = localStorage.getItem('user');
+    const savedLanguage = localStorage.getItem('language');
 
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
@@ -60,6 +67,11 @@ export default function Home() {
       };
       setUser(defaultUser);
       localStorage.setItem('user', JSON.stringify(defaultUser));
+    }
+
+    // Show language selector if not set
+    if (!savedLanguage) {
+      setShowLanguageSelector(true);
     }
 
     // Get user's actual location
@@ -92,10 +104,10 @@ export default function Home() {
   // Handle long press on map
   const handleMapLongPress = useCallback((e: any) => {
     if (!e?.latlng) return;
-    
+
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
-    
+
     setSelectedPosition([lat, lng]);
     setIsCreateModalOpen(true);
   }, []);
@@ -129,31 +141,31 @@ export default function Home() {
 
     const tg = (window as any).Telegram?.WebApp;
     tg?.HapticFeedback?.impactOccurred('light');
-    alert('Task claimed! Contact the task creator to complete.');
-  }, []);
+    alert(t(language, 'taskClaimed'));
+  }, [language]);
 
   // Withdraw handler
   const handleWithdraw = useCallback(() => {
     if (!user || typeof window === 'undefined') {
-      alert('Minimum withdrawal is 10 Stars');
+      alert(t(language, 'minimumWithdrawal'));
       return;
     }
 
     const tg = (window as any).Telegram?.WebApp;
 
     // In production, this would call your backend to process withdrawal
-    alert(`Withdrawal request for ${user.balance} Stars submitted!\n\nIn production, this would integrate with Telegram Stars or TON payment.`);
+    alert(t(language, 'withdrawalSubmitted', { amount: user.balance }) + '\n\n' + t(language, 'withdrawalInfo'));
 
     // Reset balance (in production, this would be handled by backend)
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
-  }, [user]);
+  }, [user, language]);
 
   return (
     <div className="bg-black min-h-screen relative">
       {/* Map with long press handler */}
       <div className="relative w-full h-screen">
         <MapComponent onLongPress={handleMapLongPress} />
-        
+
         {/* Top Bar */}
         <div className="absolute top-4 left-4 right-4 z-[1000] flex items-center justify-between">
           {/* Profile Button */}
@@ -200,14 +212,19 @@ export default function Home() {
         </button>
 
         {/* Instructions Toast */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[999] 
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[999]
                         px-4 py-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-full
                         text-white text-sm text-center max-w-[280px]">
-          📍 Long press on map to create a task
+          {t(language, 'longPressHint')}
         </div>
       </div>
 
       {/* Modals */}
+      <LanguageSelectorModal
+        isOpen={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+      />
+
       <CreateTaskModal
         isOpen={isCreateModalOpen}
         onClose={() => {
@@ -236,5 +253,14 @@ export default function Home() {
         onWithdraw={handleWithdraw}
       />
     </div>
+  );
+}
+
+// Main Home component wrapped with LanguageProvider
+export default function Home() {
+  return (
+    <LanguageProvider>
+      <HomeContent />
+    </LanguageProvider>
   );
 }

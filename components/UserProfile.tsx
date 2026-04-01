@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User, Task } from '@/types/task';
-import { X, Wallet, LogOut, List, Star, TrendingUp } from 'lucide-react';
+import { X, Wallet, Star, TrendingUp, Globe } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { t, Language } from '@/utils/translations';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -19,6 +21,7 @@ export default function UserProfile({
   tasks,
   onWithdraw
 }: UserProfileProps) {
+  const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
 
   const myTasks = tasks.filter(task => task.userId === user?.id);
@@ -33,47 +36,61 @@ export default function UserProfile({
     ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     : new Date();
 
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ru' : 'en');
+  };
+
   return (
     <>
       {/* Background overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[3500]"
         onClick={onClose}
       />
 
       {/* Profile Panel */}
       <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-[3501]">
-        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl 
+        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl
                         border border-purple-500/30 rounded-3xl overflow-hidden
                         shadow-[0_0_40px_rgba(168,85,247,0.2)]">
           
           {/* Header */}
           <div className="relative p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-white/10">
-            <button 
+            <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
+              aria-label={t(language, 'close')}
             >
               <X size={20} className="text-white" />
             </button>
 
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="absolute top-4 left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label={t(language, 'language')}
+            >
+              <Globe size={18} className="text-white" />
+            </button>
+
+            <div className="flex items-center gap-4 mt-8">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500
                               flex items-center justify-center text-2xl font-bold text-white">
                 {user.username.charAt(0).toUpperCase()}
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">@{user.username}</h2>
-                <p className="text-sm text-gray-400">Tasker since {joinedDate.toLocaleDateString()}</p>
+                <p className="text-sm text-gray-400">{t(language, 'taskerSince')} {joinedDate.toLocaleDateString()}</p>
               </div>
             </div>
           </div>
 
           {/* Balance Card */}
           <div className="p-6">
-            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 
+            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30
                             rounded-2xl p-5 mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">Current Balance</span>
+                <span className="text-sm text-gray-400">{t(language, 'currentBalance')}</span>
                 <Wallet size={18} className="text-cyan-400" />
               </div>
               <div className="flex items-baseline gap-2">
@@ -82,13 +99,13 @@ export default function UserProfile({
               </div>
               <button
                 onClick={onWithdraw}
-                className="mt-4 w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 
+                className="mt-4 w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500
                            text-white font-semibold rounded-xl
                            hover:from-cyan-600 hover:to-blue-600
                            shadow-[0_0_15px_rgba(34,211,238,0.3)]
                            transition-all duration-300 active:scale-98"
               >
-                💸 Withdraw Funds
+                {t(language, 'withdrawFunds')}
               </button>
             </div>
 
@@ -96,15 +113,15 @@ export default function UserProfile({
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-white">{user.completedTasks}</div>
-                <div className="text-xs text-gray-400 mt-1">Completed</div>
+                <div className="text-xs text-gray-400 mt-1">{t(language, 'completed')}</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-white">{activeTasks.length}</div>
-                <div className="text-xs text-gray-400 mt-1">Active</div>
+                <div className="text-xs text-gray-400 mt-1">{t(language, 'active')}</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
                 <div className="text-2xl font-bold text-cyan-400">{(user.completedTasks * 0.95).toFixed(0)}</div>
-                <div className="text-xs text-gray-400 mt-1">Rating</div>
+                <div className="text-xs text-gray-400 mt-1">{t(language, 'rating')}</div>
               </div>
             </div>
 
@@ -118,7 +135,7 @@ export default function UserProfile({
                     : 'bg-white/5 text-gray-400 border border-white/10'
                 }`}
               >
-                Overview
+                {t(language, 'overview')}
               </button>
               <button
                 onClick={() => setActiveTab('my-tasks')}
@@ -128,7 +145,7 @@ export default function UserProfile({
                     : 'bg-white/5 text-gray-400 border border-white/10'
                 }`}
               >
-                My Tasks ({myTasks.length})
+                {t(language, 'myTasks')} ({myTasks.length})
               </button>
             </div>
 
@@ -139,14 +156,14 @@ export default function UserProfile({
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                     <div className="flex items-center gap-3">
                       <TrendingUp size={18} className="text-green-400" />
-                      <span className="text-sm text-gray-300">Total Earned</span>
+                      <span className="text-sm text-gray-300">{t(language, 'totalEarned')}</span>
                     </div>
                     <span className="text-white font-semibold">+{user.balance} ⭐</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                     <div className="flex items-center gap-3">
                       <Star size={18} className="text-yellow-400" />
-                      <span className="text-sm text-gray-300">Success Rate</span>
+                      <span className="text-sm text-gray-300">{t(language, 'successRate')}</span>
                     </div>
                     <span className="text-white font-semibold">95%</span>
                   </div>
@@ -154,7 +171,7 @@ export default function UserProfile({
               ) : (
                 <div className="space-y-2">
                   {myTasks.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No tasks yet</p>
+                    <p className="text-center text-gray-500 py-4">{t(language, 'noTasksYet')}</p>
                   ) : (
                     myTasks.slice(0, 5).map(task => (
                       <div key={task.id} className="p-3 bg-white/5 rounded-xl">
@@ -165,7 +182,7 @@ export default function UserProfile({
                             task.status === 'claimed' ? 'bg-yellow-500/20 text-yellow-400' :
                             'bg-blue-500/20 text-blue-400'
                           }`}>
-                            {task.status}
+                            {t(language, `status.${task.status}`)}
                           </span>
                         </div>
                       </div>

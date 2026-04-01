@@ -3,8 +3,8 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Telegram Mini App",
-  description: "Interactive map with subscriptions",
+  title: "TaskHub - Earn with Tasks",
+  description: "Complete tasks and earn rewards in your area",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <head>
         <Script
           src="https://telegram.org/js/telegram-web-app.js"

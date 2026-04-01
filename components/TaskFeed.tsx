@@ -2,6 +2,8 @@
 
 import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
 import { X, MapPin, Clock, Star, DollarSign } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { t } from '@/utils/translations';
 
 interface TaskFeedProps {
   isOpen: boolean;
@@ -27,14 +29,16 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
-export default function TaskFeed({ 
-  isOpen, 
-  onClose, 
-  tasks, 
-  userLatitude, 
+export default function TaskFeed({
+  isOpen,
+  onClose,
+  tasks,
+  userLatitude,
   userLongitude,
-  onClaimTask 
+  onClaimTask
 }: TaskFeedProps) {
+  const { language } = useLanguage();
+
   // Filter tasks within 5km and sort by distance
   const nearbyTasks = tasks
     .filter(task => {
@@ -62,17 +66,17 @@ export default function TaskFeed({
   return (
     <>
       {/* Background overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2500]"
         onClick={onClose}
       />
 
       {/* Bottom Sheet */}
       <div className="fixed bottom-0 left-0 right-0 z-[2501] max-h-[70vh] overflow-hidden">
-        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl 
-                        border-t border-cyan-500/30 rounded-t-3xl 
+        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl
+                        border-t border-cyan-500/30 rounded-t-3xl
                         shadow-[0_-10px_40px_rgba(34,211,238,0.2)]">
-          
+
           {/* Handle bar */}
           <div className="flex items-center justify-center pt-4 pb-2">
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
@@ -81,12 +85,15 @@ export default function TaskFeed({
           {/* Header */}
           <div className="sticky top-0 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/95 to-transparent">
             <div>
-              <h2 className="text-xl font-bold text-white">Nearby Tasks</h2>
-              <p className="text-sm text-gray-400">{nearbyTasks.length} tasks within 5km</p>
+              <h2 className="text-xl font-bold text-white">{t(language, 'nearbyTasks')}</h2>
+              <p className="text-sm text-gray-400">
+                {t(language, 'tasksWithin5km', { count: nearbyTasks.length })}
+              </p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              aria-label={t(language, 'close')}
             >
               <X size={24} className="text-white" />
             </button>
@@ -97,8 +104,8 @@ export default function TaskFeed({
             {nearbyTasks.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📍</div>
-                <p className="text-gray-400">No tasks nearby</p>
-                <p className="text-sm text-gray-500 mt-2">Be the first to create a task!</p>
+                <p className="text-gray-400">{t(language, 'noTasksNearby')}</p>
+                <p className="text-sm text-gray-500 mt-2">{t(language, 'beFirstToCreate')}</p>
               </div>
             ) : (
               nearbyTasks.map((task) => {
@@ -106,18 +113,18 @@ export default function TaskFeed({
                 return (
                   <div
                     key={task.id}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4
                                hover:border-cyan-500/30 transition-all duration-300"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${CATEGORY_COLORS[task.category]} 
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${CATEGORY_COLORS[task.category]}
                                         flex items-center justify-center text-2xl`}>
                           {category?.icon}
                         </div>
                         <div>
                           <h3 className="font-bold text-white">{task.title}</h3>
-                          <p className="text-sm text-gray-400">{category?.label}</p>
+                          <p className="text-sm text-gray-400">{t(language, `categories.${task.category}`)}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -148,13 +155,13 @@ export default function TaskFeed({
                       </div>
                       <button
                         onClick={() => onClaimTask(task.id)}
-                        className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 
+                        className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500
                                    text-white font-semibold rounded-xl text-sm
                                    hover:from-cyan-600 hover:to-blue-600
                                    shadow-[0_0_15px_rgba(34,211,238,0.3)]
                                    transition-all duration-300 active:scale-95"
                       >
-                        Claim
+                        {t(language, 'claim')}
                       </button>
                     </div>
                   </div>
