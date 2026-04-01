@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { 
-  LayoutDashboard, 
-  ShieldAlert, 
-  MessageSquareWarning, 
-  DollarSign, 
-  CheckCircle, 
+import {
+  LayoutDashboard,
+  ShieldAlert,
+  MessageSquareWarning,
+  DollarSign,
+  CheckCircle,
   XCircle,
   Trash2,
   ExternalLink,
@@ -24,13 +24,15 @@ import {
   AlertTriangle,
   Activity,
   Wallet,
-  Shield
+  Shield,
+  Gift
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import PromoCodesTab from './PromoCodesTab';
 
 export default function AdminPanel() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'moderation' | 'users' | 'support' | 'promocodes' | 'settings'>('dashboard');
   const [adminId, setAdminId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalCommissions: 0,
@@ -390,6 +392,17 @@ export default function AdminPanel() {
             >
               <MessageSquareWarning size={18} />
               Support
+            </button>
+            <button
+              onClick={() => setActiveTab('promocodes')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+                activeTab === 'promocodes'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+              }`}
+            >
+              <Gift size={18} />
+              Promo Codes
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -780,6 +793,9 @@ export default function AdminPanel() {
             )}
           </div>
         )}
+
+        {/* Promo Codes */}
+        {activeTab === 'promocodes' && <PromoCodesTab />}
 
         {/* Settings */}
         {activeTab === 'settings' && (
