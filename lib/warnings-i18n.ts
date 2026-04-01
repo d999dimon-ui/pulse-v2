@@ -104,16 +104,26 @@ export function getWarningMessage(
 
 // Auto-detect language from user profile or browser
 export function detectUserLanguage(): Language {
+  // SSR check - default to Russian
   if (typeof window === 'undefined') return 'ru';
-  
+
   // Check localStorage first
-  const saved = localStorage.getItem('language');
-  if (saved === 'ru' || saved === 'en' || saved === 'uz') return saved;
-  
+  try {
+    const saved = localStorage.getItem('language');
+    if (saved === 'ru' || saved === 'en' || saved === 'uz') return saved;
+  } catch (e) {
+    // localStorage not available
+  }
+
   // Try browser language
-  const browserLang = navigator.language.toLowerCase();
-  if (browserLang.startsWith('uz')) return 'uz';
-  if (browserLang.startsWith('en')) return 'en';
+  try {
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith('uz')) return 'uz';
+    if (browserLang.startsWith('en')) return 'en';
+  } catch (e) {
+    // navigator not available
+  }
+  
   return 'ru'; // Default
 }
 
