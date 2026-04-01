@@ -27,7 +27,6 @@ export default function SubscriptionModal({ isOpen, onClose }: SubscriptionModal
     const tg = (window as any).Telegram?.WebApp;
     
     if (tg && tg.openInvoice) {
-      // В реальном приложении invoiceId должен приходить с бэкенда
       tg.openInvoice(invoiceId, (status: string) => {
         console.log(`Payment status: ${status}`);
         if (status === "paid") {

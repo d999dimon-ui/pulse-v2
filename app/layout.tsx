@@ -3,8 +3,8 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Telegram Bot App",
-  description: "Next.js Telegram WebApp",
+  title: "Telegram Mini App",
+  description: "Interactive map with subscriptions",
 };
 
 export default function RootLayout({

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Plus } from "lucide-react";
 import L from "leaflet";
+import SubscriptionModal from "@/components/SubscriptionModal";
 
 // Фикс для дефолтных маркеров Leaflet в Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -26,6 +27,7 @@ function useMapInitialized() {
 
 export default function Home() {
   const isMounted = useMapInitialized();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Координаты по умолчанию (Москва)
   const defaultPosition: [number, number] = [55.751244, 37.618423];
@@ -62,6 +64,7 @@ export default function Home() {
 
       {/* Плавающая кнопка [+] (Bottom Right, Neon Blue) */}
       <button
+        onClick={() => setIsModalOpen(true)}
         className="fixed bottom-6 right-6 z-[1000] w-14 h-14 rounded-full 
                    bg-black border-2 border-cyan-400 text-cyan-400
                    flex items-center justify-center
@@ -74,6 +77,12 @@ export default function Home() {
       >
         <Plus size={28} strokeWidth={2.5} />
       </button>
+
+      {/* Модальное окно с тарифами */}
+      <SubscriptionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
