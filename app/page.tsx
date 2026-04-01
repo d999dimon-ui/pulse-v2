@@ -32,7 +32,7 @@ export default function Home() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   // Long press state
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [longPressTimer, setLongPressTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
 
   // Load data from localStorage on mount

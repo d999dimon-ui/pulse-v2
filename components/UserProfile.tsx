@@ -12,12 +12,12 @@ interface UserProfileProps {
   onWithdraw: () => void;
 }
 
-export default function UserProfile({ 
-  isOpen, 
-  onClose, 
-  user, 
+export default function UserProfile({
+  isOpen,
+  onClose,
+  user,
   tasks,
-  onWithdraw 
+  onWithdraw
 }: UserProfileProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
 
@@ -25,7 +25,13 @@ export default function UserProfile({
   const completedTasks = myTasks.filter(task => task.status === 'completed');
   const activeTasks = myTasks.filter(task => task.status === 'active');
 
-  if (!isOpen || !user) return null;
+  // Safety check for SSR
+  if (!isOpen || !user || typeof window === 'undefined') return null;
+
+  // Safe date calculation
+  const joinedDate = user.completedTasks > 0 
+    ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    : new Date();
 
   return (
     <>
@@ -57,7 +63,7 @@ export default function UserProfile({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">@{user.username}</h2>
-                <p className="text-sm text-gray-400">Tasker since {new Date(user.completedTasks > 0 ? Date.now() - 30*24*60*60*1000 : Date.now()).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-400">Tasker since {joinedDate.toLocaleDateString()}</p>
               </div>
             </div>
           </div>

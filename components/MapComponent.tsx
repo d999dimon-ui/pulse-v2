@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
 
 // Component to handle map events
 function MapEventHandler({ onLongPress }: { onLongPress: (e: any) => void }) {
-  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [pressTimer, setPressTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [longPressPosition, setLongPressPosition] = useState<any>(null);
 
   const map = useMapEvents({
