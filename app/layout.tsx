@@ -1,15 +1,11 @@
 import dynamic from 'next/dynamic';
-import Web3Loading from '@/components/Web3Loading';
 import Script from "next/script";
 import "./globals.css";
 
-// Мы ГАРАНТИРУЕМ, что код кошелька загрузится ТОЛЬКО в браузере
+// Это ГАРАНТИРУЕТ, что Web3 не сломает гидратацию
 const Web3Provider = dynamic(
-  () => import('@/contexts/Web3Provider'),
-  { 
-    ssr: false, 
-    loading: () => <Web3Loading /> 
-  }
+  () => import('@/contexts/Web3Provider').then((mod) => mod.Web3Provider || mod.default),
+  { ssr: false }
 );
 
 export const metadata = {
