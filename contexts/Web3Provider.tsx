@@ -25,9 +25,9 @@ if (typeof window !== 'undefined') {
 
 const queryClient = new QueryClient();
 
-export function Web3Provider({ children }: { children: ReactNode }) {
+export default function Web3Provider({ children }: { children: ReactNode }) {
   const [queryClientInstance] = useState(() => new QueryClient());
-  
+
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClientInstance}>
