@@ -16,12 +16,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
-    const savedLang = localStorage.getItem('language');
-    if (savedLang === 'en' || savedLang === 'ru') {
-      setLanguageState(savedLang);
-    } else {
-      setLanguageState(getDefaultLanguage());
+
+    try {
+      const savedLang = localStorage.getItem('language');
+      if (savedLang === 'en' || savedLang === 'ru') {
+        setLanguageState(savedLang);
+      } else {
+        setLanguageState(getDefaultLanguage());
+      }
+    } catch (e) {
+      console.error('Language init error:', e);
     }
     setIsLoaded(true);
   }, []);
@@ -29,13 +33,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('language', lang);
+      try {
+        localStorage.setItem('language', lang);
+      } catch (e) {
+        console.error('Language save error:', e);
+      }
     }
   };
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
-      {isLoaded ? children : null}
+      {children}
     </LanguageContext.Provider>
   );
 }

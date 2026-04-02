@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { useAccount } from 'wagmi';
 import { supabase } from '@/lib/supabase';
-import { MapPin, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 
 interface LocationTrackerProps {
   taskId: string;
@@ -12,18 +11,17 @@ interface LocationTrackerProps {
 }
 
 export default function LocationTracker({ taskId, isActive, onLocationUpdate }: LocationTrackerProps) {
-  const { address } = useAccount();
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [isClient, setIsClient] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   // Start tracking executor location
   const startTracking = useCallback(() => {
-    if (!isActive || !navigator.geolocation) return;
+    if (!isActive || !navigator.geolocation || !isClient) return;
 
     setIsTracking(true);
     setError(null);
@@ -41,7 +39,7 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
         try {
           const { error } = await supabase.from('locations').insert({
             task_id: taskId,
-            user_id: address || 'anonymous',
+            user_id: 'anonymous',
             latitude,
             longitude,
             accuracy: accuracy || null,
@@ -68,24 +66,19 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
     return () => {
       navigator.geolocation.clearWatch(watchId);
     };
-  }, [isActive, taskId, address, onLocationUpdate]);
-
-  // Stop tracking
-  const stopTracking = useCallback(() => {
-    setIsTracking(false);
-  }, []);
+  }, [isActive, taskId, isClient, onLocationUpdate]);
 
   useEffect(() => {
     if (isActive && !isTracking && isClient) {
       startTracking();
     } else if (!isActive && isTracking) {
-      stopTracking();
+      setIsTracking(false);
     }
 
     return () => {
-      if (isTracking) stopTracking();
+      if (isTracking) setIsTracking(false);
     };
-  }, [isActive, isTracking, startTracking, stopTracking, isClient]);
+  }, [isActive, isTracking, startTracking, isClient]);
 
   if (!isActive || !isClient) return null;
 

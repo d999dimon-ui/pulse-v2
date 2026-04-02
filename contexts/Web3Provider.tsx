@@ -1,36 +1,37 @@
 "use client";
 
-import { useEffect, useState, ReactNode, useMemo } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { WagmiProvider, createConfig, http, createStorage } from 'wagmi';
 import { mainnet, bsc } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+  const [config, setConfig] = useState<ReturnType<typeof createConfig> | null>(null);
+  const [queryClient] = useState(() => new QueryClient());
 
   useEffect(() => {
-    setMounted(true);
+    // Создаем конфиг только в браузере
+    if (typeof window === 'undefined') return;
+
+    try {
+      const cfg = createConfig({
+        chains: [mainnet, bsc],
+        storage: createStorage({
+          storage: window.localStorage,
+        }),
+        transports: {
+          [mainnet.id]: http(),
+          [bsc.id]: http(),
+        },
+      });
+      setConfig(cfg);
+    } catch (e) {
+      console.error('Web3 config error:', e);
+    }
   }, []);
 
-  // Создаем конфиг ТОЛЬКО после монтирования
-  const config = useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    
-    return createConfig({
-      chains: [mainnet, bsc],
-      storage: createStorage({
-        storage: window.localStorage,
-      }),
-      transports: {
-        [mainnet.id]: http(),
-        [bsc.id]: http(),
-      },
-    });
-  }, []);
-
-  const queryClient = useMemo(() => new QueryClient(), []);
-
-  if (!mounted || !config) return null;
+  // Пока конфиг не создан - показываем пустоту
+  if (!config) return null;
 
   return (
     <WagmiProvider config={config}>

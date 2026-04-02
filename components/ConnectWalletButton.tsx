@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
 import { Wallet, LogOut, Copy, Check } from 'lucide-react';
-import { formatAddress } from '@/lib/web3';
 
 // Declare Web3Modal custom elements
 declare global {
@@ -23,64 +21,26 @@ declare global {
 
 export default function ConnectWalletButton() {
   const [isClient, setIsClient] = useState(false);
-  const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { data: balance } = useBalance({ address });
+  const [address, setAddress] = useState<string | undefined>(undefined);
+  const [isConnected, setIsConnected] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleCopyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  // NOTE: wagmi hooks will work only after Web3Provider is mounted
+  // For now, just show the button
+  const handleConnect = () => {
+    // Web3Modal will handle the connection
+    const modal = document.querySelector('w3m-button') as any;
+    if (modal) modal.click();
   };
 
   if (!isClient) {
     return (
       <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
         <div className="text-sm text-gray-400">Loading...</div>
-      </div>
-    );
-  }
-
-  if (isConnected && address) {
-    return (
-      <div className="flex items-center gap-3">
-        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/50 rounded-xl px-4 py-2">
-          <div className="flex items-center gap-2">
-            <Wallet size={16} className="text-cyan-400" />
-            <div>
-              <div className="text-xs text-gray-400">Connected</div>
-              <div className="text-sm font-semibold text-white flex items-center gap-2">
-                {formatAddress(address)}
-                <button
-                  onClick={handleCopyAddress}
-                  className="hover:text-cyan-400 transition-colors"
-                >
-                  {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-                </button>
-              </div>
-            </div>
-          </div>
-          {balance && (
-            <div className="text-xs text-gray-500 mt-1">
-              {balance.formatted.slice(0, 6)} {balance.symbol}
-            </div>
-          )}
-        </div>
-        <button
-          onClick={() => disconnect()}
-          className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-red-500/20 hover:border-red-500/50 transition-all"
-          aria-label="Disconnect"
-        >
-          <LogOut size={18} className="text-gray-400 hover:text-red-400" />
-        </button>
       </div>
     );
   }
