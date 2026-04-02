@@ -1,4 +1,4 @@
-import { Web3Provider } from '@/contexts/Web3Provider';
+import Web3Provider from '@/contexts/Web3Provider';
 import Script from "next/script";
 import "./globals.css";
 
