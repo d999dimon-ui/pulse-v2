@@ -33,7 +33,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <div className="bg-black min-h-screen" />;
 
   return (
     <WagmiProvider config={wagmiConfig}>
