@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Web3Provider from '@/contexts/Web3Provider';
 import Script from "next/script";
 import "./globals.css";
