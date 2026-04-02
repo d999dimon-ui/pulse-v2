@@ -21,16 +21,32 @@ interface Task {
 }
 
 interface TaskFeedProps {
+  isOpen: boolean;
+  onClose: () => void;
   onTaskClick: (task: Task) => void;
   onCreateTask: () => void;
+  tasks: Task[];
+  userLatitude: number;
+  userLongitude: number;
+  onClaimTask: (taskId: string) => void;
 }
 
-export default function TaskFeed({ onTaskClick, onCreateTask }: TaskFeedProps) {
+export default function TaskFeed({
+  isOpen,
+  onClose,
+  onTaskClick,
+  onCreateTask,
+  tasks,
+  userLatitude,
+  userLongitude,
+  onClaimTask
+}: TaskFeedProps) {
   const { language } = useLanguage();
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  if (!isOpen) return null;
 
   const categories = [
     { value: 'all', label: t(language, 'categories.all'), icon: '📋' },
