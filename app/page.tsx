@@ -141,9 +141,14 @@ function HomeContent() {
     const savedOnboarding = localStorage.getItem('onboarding_completed');
     if (!savedLanguage && savedOnboarding !== 'true') {
       // Will show after language selection completes
-      setTimeout(() => setShowOnboarding(true), 500);
+      setTimeout(() => {
+        setShowOnboarding(true);
+        setIsLoading(false);
+      }, 500);
+    } else {
+      setIsLoading(false);
     }
-    
+
     // Get user location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

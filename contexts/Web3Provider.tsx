@@ -30,8 +30,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
 
   const queryClient = useMemo(() => new QueryClient(), []);
 
-  // 2. ЕСЛИ НЕ В БРАУЗЕРЕ - РИСУЕМ ПУСТОТУ. Никаких Wagmi до этого момента!
-  if (!mounted || !config) return <div style={{ background: 'black', minHeight: '100vh' }} />;
+  if (!mounted || !config) return null;
 
   return (
     <WagmiProvider config={config}>

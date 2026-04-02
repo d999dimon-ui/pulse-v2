@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { MapPin, Navigation } from 'lucide-react';
+import { useAccount } from 'wagmi';
 import { supabase } from '@/lib/supabase';
+import { MapPin, Navigation } from 'lucide-react';
 
 interface LocationTrackerProps {
   taskId: string;
@@ -11,22 +12,16 @@ interface LocationTrackerProps {
 }
 
 export default function LocationTracker({ taskId, isActive, onLocationUpdate }: LocationTrackerProps) {
-  const [address, setAddress] = useState<string | undefined>(undefined);
-  const [isClient, setIsClient] = useState(false);
+  const { address } = useAccount();
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Get address from localStorage (без wagmi)
-  useEffect(() => {
-    if (isClient) {
-      // Пытаемся получить адрес из localStorage или оставляем undefined
-      setAddress(undefined);
-    }
-  }, [isClient]);
+  // Start tracking executor location
   const startTracking = useCallback(() => {
     if (!isActive || !navigator.geolocation) return;
 
@@ -36,7 +31,7 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
     const watchId = navigator.geolocation.watchPosition(
       async (position) => {
         const { latitude, longitude, accuracy } = position.coords;
-        
+
         // Update UI
         if (onLocationUpdate) {
           onLocationUpdate(latitude, longitude);
@@ -81,7 +76,7 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
   }, []);
 
   useEffect(() => {
-    if (isActive && !isTracking) {
+    if (isActive && !isTracking && isClient) {
       startTracking();
     } else if (!isActive && isTracking) {
       stopTracking();
@@ -90,9 +85,9 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
     return () => {
       if (isTracking) stopTracking();
     };
-  }, [isActive, isTracking, startTracking, stopTracking]);
+  }, [isActive, isTracking, startTracking, stopTracking, isClient]);
 
-  if (!isActive) return null;
+  if (!isActive || !isClient) return null;
 
   return (
     <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 rounded-xl p-4">
@@ -106,11 +101,11 @@ export default function LocationTracker({ taskId, isActive, onLocationUpdate }: 
           <span className="text-xs text-green-400">Live</span>
         </div>
       </div>
-      
+
       {error && (
         <div className="text-red-400 text-sm mb-3">{error}</div>
       )}
-      
+
       <div className="text-xs text-gray-400">
         Your location is being shared with the task creator in real-time.
         This helps them track your progress and estimate arrival time.
