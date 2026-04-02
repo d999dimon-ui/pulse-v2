@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Shield, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
-export default function AdminLoginPage() {
+// Force dynamic rendering to avoid SSR issues
+export const dynamic = 'force-dynamic';
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams?.get('redirect') || '/admin-pulse-master';
