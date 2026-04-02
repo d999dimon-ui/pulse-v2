@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Home, Map, MessageSquare, User, Bell } from 'lucide-react';
+import { HomeIcon, Map, MessageSquare, User, Bell } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
 
@@ -33,7 +33,7 @@ export default function TabBar({ activeTab, onTabChange, unreadCount = 0 }: TabB
               : 'text-gray-400 hover:text-white'
           }`}
         >
-          <Home size={22} />
+          <HomeIcon size={22} />
           <span className="text-[10px] font-medium">{t(language, 'nav.feed')}</span>
         </button>
         
