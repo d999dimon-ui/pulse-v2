@@ -5,6 +5,22 @@ import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
 import { Wallet, LogOut, Copy, Check } from 'lucide-react';
 import { formatAddress } from '@/lib/web3';
 
+// Declare Web3Modal custom elements
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'w3m-button': {
+        balance?: string;
+        size?: string;
+        label?: string;
+        loadingLabel?: string;
+      };
+      'w3m-network-button': {};
+      'w3m-modal': {};
+    }
+  }
+}
+
 export default function ConnectWalletButton() {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
