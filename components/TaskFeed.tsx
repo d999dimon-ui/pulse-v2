@@ -70,7 +70,7 @@ export default function TaskFeed({
             />
           </div>
           <button
-            onClick={onCreateTask}
+            onClick={() => onCreateTask?.()}
             className="p-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl hover:opacity-90 transition-all"
           >
             <Plus size={24} className="text-white" />
@@ -107,7 +107,7 @@ export default function TaskFeed({
           filteredTasks.map((task) => (
             <div
               key={task.id}
-              onClick={() => onTaskClick(task)}
+              onClick={() => onTaskClick?.(task)}
               className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:border-cyan-500/30 transition-all cursor-pointer"
             >
               <div className="flex items-start justify-between mb-3">
