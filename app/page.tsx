@@ -8,7 +8,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
 import { Plus, User, ListFilter, Loader2, Home as HomeIcon, Map, Clipboard, MessageSquare, Bell } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import Web3Provider from "@/contexts/Web3Provider";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
 import UserProfile from "@/components/UserProfile";
@@ -302,11 +301,5 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return (
-    <LanguageProvider>
-      <Web3Provider>
-        <HomeContent />
-      </Web3Provider>
-    </LanguageProvider>
-  );
+  return (<LanguageProvider><HomeContent /></LanguageProvider>);
 }
