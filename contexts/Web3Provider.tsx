@@ -32,7 +32,16 @@ if (typeof window !== 'undefined') {
 const queryClient = new QueryClient();
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const [queryClientInstance] = useState(() => new QueryClient());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="fixed inset-0 bg-black" />;
+  }
 
   return (
     <WagmiProvider config={wagmiConfig}>
