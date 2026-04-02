@@ -7,10 +7,19 @@ import { wagmiConfig } from '@/lib/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { bsc } from 'wagmi/chains';
 
+// Shield for Vercel SSR - prevent indexedDB errors
+if (typeof window !== "undefined" && !window.indexedDB) {
+  // Fix error "open is not a function"
+  // @ts-ignore
+  window.indexedDB = {
+    open: () => ({ onupgradeneeded: null, onerror: null, onsuccess: null }),
+  };
+}
+
 // Fix for Vercel SSR - prevent indexedDB errors
 if (typeof window === "undefined") {
   // @ts-ignore
-  global.indexedDB = {}; 
+  global.indexedDB = {};
 }
 
 // Initialize Web3Modal (Wagmi v2 compatible - NO chains in options!)
