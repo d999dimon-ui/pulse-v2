@@ -1,9 +1,18 @@
-import type { Metadata } from "next";
-import Web3Provider from '@/contexts/Web3Provider';
+import dynamic from 'next/dynamic';
+import Web3Loading from '@/components/Web3Loading';
 import Script from "next/script";
 import "./globals.css";
 
-export const metadata: Metadata = {
+// Мы ГАРАНТИРУЕМ, что код кошелька загрузится ТОЛЬКО в браузере
+const Web3Provider = dynamic(
+  () => import('@/contexts/Web3Provider'),
+  { 
+    ssr: false, 
+    loading: () => <Web3Loading /> 
+  }
+);
+
+export const metadata = {
   title: "TaskHub - Earn with Tasks",
   description: "Complete tasks and earn rewards in your area",
 };
@@ -29,7 +38,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }} suppressHydrationWarning>
-        <Web3Provider>{children}</Web3Provider>
+        <Web3Provider>
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );
