@@ -10,8 +10,8 @@ import { Task as TaskType } from '@/types/task';
 interface TaskFeedProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskClick: (task: TaskType) => void;
-  onCreateTask: () => void;
+  onTaskClick?: (task: TaskType) => void;
+  onCreateTask?: () => void;
   tasks: TaskType[];
   userLatitude: number;
   userLongitude: number;
@@ -28,12 +28,6 @@ export default function TaskFeed({
   userLongitude,
   onClaimTask
 }: TaskFeedProps) {
-  const { language } = useLanguage();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-
-  if (!isOpen) return null;
 
   const categories = [
     { value: 'all', label: t(language, 'categories.all'), icon: '📋' },
