@@ -1,18 +1,22 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Script from "next/script";
-import React from 'react';
 import "./globals.css";
 
-// Добавляем as React.FC<any>, чтобы убрать ошибку IntrinsicAttributes
 const Web3Provider = dynamic(
-  () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default || mod),
-  { 
-    ssr: false,
-    loading: () => <div style={{ background: 'black', minHeight: '100vh' }} />
-  }
-) as React.FC<any>;
+  () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default),
+  { ssr: false }
+);
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -21,10 +25,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
         />
       </head>
-      <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }} suppressHydrationWarning>
-        <Web3Provider>
-          {children}
-        </Web3Provider>
+      <body>
+        {/* Это КЛЮЧЕВОЙ МОМЕНТ: если мы не на клиенте, НЕ показываем провайдер вообще */}
+        {isClient ? (
+          <Web3Provider>
+            {children}
+          </Web3Provider>
+        ) : (
+          <div style={{ background: 'black', minHeight: '100vh' }} />
+        )}
       </body>
     </html>
   );
