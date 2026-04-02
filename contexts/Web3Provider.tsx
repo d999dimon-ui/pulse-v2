@@ -54,7 +54,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
         metadata: {
           name: 'TaskHub',
           description: 'Complete tasks and earn rewards',
-          url: 'https://pulse-v2-drab.vercel.app',
+          url: 'https://pulse-v2.vercel.app',
           icons: ['https://avatars.githubusercontent.com/u/37784886'],
         },
         // Разрешаем неподдерживаемые цепочки

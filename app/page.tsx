@@ -71,7 +71,7 @@ function HomeContent() {
   }, []);
 
   // Пока не смонтировался - показываем черный экран
-  if (!isClient) return null;
+  if (!isClient) return <div style={{ background: 'black', minHeight: '100vh' }} />;
 
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
