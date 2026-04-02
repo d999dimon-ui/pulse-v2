@@ -3,18 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Wallet, LogOut, Copy, Check } from 'lucide-react';
 
-// Declare Web3Modal custom elements
+// Web3Modal custom elements - using any to bypass TypeScript checks
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'w3m-button': {
-        balance?: string;
-        size?: string;
-        label?: string;
-        loadingLabel?: string;
-      };
-      'w3m-network-button': {};
-      'w3m-modal': {};
+      'w3m-button': any;
+      'w3m-network-button': any;
+      'w3m-modal': any;
     }
   }
 }
