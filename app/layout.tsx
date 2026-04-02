@@ -28,7 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
-        <Web3Provider>{children}</Web3Provider>
+        {children}
       </body>
     </html>
   );
