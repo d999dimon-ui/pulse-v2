@@ -6,15 +6,17 @@ export const dynamic = 'force-dynamic';
 // TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
-import { Plus, User, ListFilter, Loader2 } from "lucide-react";
+import { Plus, User, ListFilter, Loader2, Home, Map, Clipboard, MessageSquare } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
 import UserProfile from "@/components/UserProfile";
 import LanguageSelectorModal from "@/components/LanguageSelectorModal";
 import OnboardingModal from "@/components/OnboardingModal";
+import ChatRoom from "@/components/ChatRoom";
+import TabBar from "@/components/TabBar";
 import { Task as TaskType, User as UserType } from "@/types/task";
-import { t } from "@/utils/translations";
+import { t, initializeLanguage } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 
 const MapComponent = nextDynamic(() => import("@/components/MapComponent"), {
