@@ -33,9 +33,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <div className="fixed inset-0 bg-black" />;
-  }
+  if (!mounted) return null;
 
   return (
     <WagmiProvider config={wagmiConfig}>

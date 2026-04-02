@@ -3,14 +3,10 @@ import Script from "next/script";
 import nextDynamic from "next/dynamic";
 import "./globals.css";
 
-// Dynamic import with SSR disabled to avoid indexedDB errors
-const Web3Provider = nextDynamic(
-  () => import("@/contexts/Web3Provider").then((mod) => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div className="fixed inset-0 bg-black" /> 
-  }
-);
+const Web3Provider = nextDynamic(() => import('@/contexts/Web3Provider'), {
+  ssr: false,
+  loading: () => <div className="min-h-screen bg-black" />
+});
 
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
