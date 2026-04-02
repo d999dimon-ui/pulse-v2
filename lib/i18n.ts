@@ -1,45 +1,87 @@
-// i18n Configuration with Geo-IP Detection
-// Smart localization based on user location
+// Pulse v2 i18n Configuration
+// Complete localization with Zero-Russian Policy
 
-export type Language = 'ru' | 'kg' | 'en';
+export type Language = 'ru' | 'en';
 
-export const translations = {
+export const i18n = {
   ru: {
     // Navigation
-    feed: 'Лента',
-    map: 'Карта',
-    myOrders: 'Мои заказы',
-    profile: 'Профиль',
+    nav: {
+      feed: 'Лента',
+      map: 'Карта',
+      chats: 'Сообщения',
+      profile: 'Профиль',
+    },
     
-    // Task Categories
+    // Feed
+    feed: {
+      title: 'Лента заданий',
+      search: 'Поиск заданий...',
+      noTasks: 'Заданий не найдено',
+      loading: 'Загрузка...',
+      createNew: 'Создать задание',
+    },
+    
+    // Categories
     categories: {
+      all: 'Все',
       it: 'IT-услуги',
       repair: 'Ремонт',
       translation: 'Переводы',
       delivery: 'Доставка',
       cleaning: 'Клининг',
       tutoring: 'Репетиторство',
+      marketing: 'Маркетинг',
+      photo: 'Фото/Видео',
       other: 'Другое',
+      custom: 'Своя категория',
     },
     
     // Task Creation
-    createTask: 'Создать задание',
-    taskTitle: 'Название задания',
-    taskDescription: 'Описание',
-    taskCategory: 'Категория',
-    taskBudget: 'Бюджет',
-    taskAddress: 'Адрес',
-    setOnMap: 'Указать на карте',
-    createTaskButton: 'Создать задание',
+    task: {
+      createTitle: 'Создать задание',
+      title: 'Название',
+      titlePlaceholder: 'Например: Настроить Telegram-бота',
+      description: 'Описание',
+      descriptionPlaceholder: 'Опишите задачу подробно...',
+      category: 'Категория',
+      budget: 'Бюджет',
+      budgetPlaceholder: 'Сумма в USDT',
+      address: 'Адрес',
+      addressPlaceholder: 'Город, улица, дом',
+      setOnMap: 'Указать на карте',
+      phone: 'Контактный телефон',
+      phonePlaceholder: '+996 ___ ___ ___',
+      createButton: 'Создать задание',
+      success: 'Задание создано!',
+      error: 'Ошибка создания',
+    },
     
     // Chat
-    chat: 'Чат',
-    sendMessage: 'Отправить сообщение',
-    contactHidden: 'Контакты скрыты после завершения',
-    call: 'Позвонить',
-    message: 'Написать',
+    chat: {
+      title: 'Сообщения',
+      noChats: 'Нет диалогов',
+      search: 'Поиск...',
+      sendMessage: 'Введите сообщение...',
+      contactHidden: 'Контакт скрыт после завершения',
+      call: 'Позвонить',
+      taskCompleted: 'Заказ завершён',
+    },
     
-    // Order Status
+    // Profile
+    profile: {
+      title: 'Профиль',
+      balance: 'Баланс',
+      completed: 'Выполнено',
+      active: 'Активные',
+      settings: 'Настройки',
+      language: 'Язык',
+      logout: 'Выйти',
+      joinDate: 'В системе с',
+      rating: 'Рейтинг',
+    },
+    
+    // Status
     status: {
       open: 'Открыто',
       inProgress: 'В работе',
@@ -47,129 +89,115 @@ export const translations = {
       cancelled: 'Отменено',
     },
     
+    // Errors
+    errors: {
+      required: 'Обязательное поле',
+      invalidPhone: 'Неверный формат телефона',
+      invalidAddress: 'Неверный адрес',
+      networkError: 'Ошибка сети',
+      unauthorized: 'Требуется авторизация',
+      forbidden: 'Доступ запрещён',
+    },
+    
     // Notifications
     notifications: {
       taskCreated: 'Задание создано',
       taskCompleted: 'Задание завершено',
       newMessage: 'Новое сообщение',
+      offerReceived: 'Новое предложение',
     },
     
-    // Errors
-    errors: {
-      required: 'Обязательное поле',
-      invalidAddress: 'Неверный адрес',
-      networkError: 'Ошибка сети',
-    },
-    
-    // Geo
-    location: {
-      kyrgyzstan: 'Кыргызстан',
-      jalalAbad: 'Джалал-Абад',
-      detectLocation: 'Определить местоположение',
-    },
-  },
-  
-  kg: {
-    // Navigation
-    feed: 'Лента',
-    map: 'Карта',
-    myOrders: 'Менин буйрутмаларым',
-    profile: 'Профиль',
-    
-    // Task Categories
-    categories: {
-      it: 'IT-кызматтар',
-      repair: 'Оңдоо',
-      translation: 'Котормо',
-      delivery: 'Жеткирүү',
-      cleaning: 'Тазалоо',
-      tutoring: 'Репетиторство',
-      other: 'Башка',
-    },
-    
-    // Task Creation
-    createTask: 'Тапшырма түзүү',
-    taskTitle: 'Тапшырманын аталышы',
-    taskDescription: 'Сүрөттөмө',
-    taskCategory: 'Категория',
-    taskBudget: 'Бюджет',
-    taskAddress: 'Дарек',
-    setOnMap: 'Картадан белгилөө',
-    createTaskButton: 'Тапшырма түзүү',
-    
-    // Chat
-    chat: 'Чат',
-    sendMessage: 'Билдирүү жөнөтүү',
-    contactHidden: 'Байланыштар жашырылган',
-    call: 'Чалуу',
-    message: 'Жазуу',
-    
-    // Order Status
-    status: {
-      open: 'Ачык',
-      inProgress: 'Иштеп жатат',
-      completed: 'Аяктады',
-      cancelled: 'Жокко чыгарылды',
-    },
-    
-    // Notifications
-    notifications: {
-      taskCreated: 'Тапшырма түзүлдү',
-      taskCompleted: 'Тапшырма аяктады',
-      newMessage: 'Жаңы билдирүү',
-    },
-    
-    // Errors
-    errors: {
-      required: 'Милдеттүү талаа',
-      invalidAddress: 'Туура эмес дарек',
-      networkError: 'Тармак катасы',
-    },
-    
-    // Geo
-    location: {
-      kyrgyzstan: 'Кыргызстан',
-      jalalAbad: 'Жалал-Абад',
-      detectLocation: 'Жайгашкан жерди аныктоо',
+    // Common
+    common: {
+      save: 'Сохранить',
+      cancel: 'Отмена',
+      delete: 'Удалить',
+      edit: 'Редактировать',
+      confirm: 'Подтвердить',
+      close: 'Закрыть',
+      loading: 'Загрузка...',
+      usdt: 'USDT',
     },
   },
   
   en: {
     // Navigation
-    feed: 'Feed',
-    map: 'Map',
-    myOrders: 'My Orders',
-    profile: 'Profile',
+    nav: {
+      feed: 'Feed',
+      map: 'Map',
+      chats: 'Messages',
+      profile: 'Profile',
+    },
     
-    // Task Categories
+    // Feed
+    feed: {
+      title: 'Task Feed',
+      search: 'Search tasks...',
+      noTasks: 'No tasks found',
+      loading: 'Loading...',
+      createNew: 'Create Task',
+    },
+    
+    // Categories
     categories: {
+      all: 'All',
       it: 'IT Services',
       repair: 'Repair',
       translation: 'Translation',
       delivery: 'Delivery',
       cleaning: 'Cleaning',
       tutoring: 'Tutoring',
+      marketing: 'Marketing',
+      photo: 'Photo/Video',
       other: 'Other',
+      custom: 'Custom Category',
     },
     
     // Task Creation
-    createTask: 'Create Task',
-    taskTitle: 'Task Title',
-    taskDescription: 'Description',
-    taskCategory: 'Category',
-    taskBudget: 'Budget',
-    taskAddress: 'Address',
-    setOnMap: 'Set on Map',
-    createTaskButton: 'Create Task',
+    task: {
+      createTitle: 'Create Task',
+      title: 'Title',
+      titlePlaceholder: 'e.g., Setup Telegram Bot',
+      description: 'Description',
+      descriptionPlaceholder: 'Describe the task in detail...',
+      category: 'Category',
+      budget: 'Budget',
+      budgetPlaceholder: 'Amount in USDT',
+      address: 'Address',
+      addressPlaceholder: 'City, street, building',
+      setOnMap: 'Set on Map',
+      phone: 'Contact Phone',
+      phonePlaceholder: '+996 ___ ___ ___',
+      createButton: 'Create Task',
+      success: 'Task created!',
+      error: 'Creation error',
+    },
     
     // Chat
-    chat: 'Chat',
-    sendMessage: 'Send Message',
-    contactHidden: 'Contacts hidden after completion',
-    call: 'Call',
-    message: 'Message',
+    chat: {
+      title: 'Messages',
+      noChats: 'No conversations',
+      search: 'Search...',
+      sendMessage: 'Type a message...',
+      contactHidden: 'Contact hidden after completion',
+      call: 'Call',
+      taskCompleted: 'Order completed',
+    },
     
-    // Order Status
+    // Profile
+    profile: {
+      title: 'Profile',
+      balance: 'Balance',
+      completed: 'Completed',
+      active: 'Active',
+      settings: 'Settings',
+      language: 'Language',
+      logout: 'Logout',
+      joinDate: 'Member since',
+      rating: 'Rating',
+    },
+    
+    // Status
     status: {
       open: 'Open',
       inProgress: 'In Progress',
@@ -177,82 +205,75 @@ export const translations = {
       cancelled: 'Cancelled',
     },
     
+    // Errors
+    errors: {
+      required: 'Required field',
+      invalidPhone: 'Invalid phone format',
+      invalidAddress: 'Invalid address',
+      networkError: 'Network error',
+      unauthorized: 'Authorization required',
+      forbidden: 'Access denied',
+    },
+    
     // Notifications
     notifications: {
       taskCreated: 'Task created',
       taskCompleted: 'Task completed',
       newMessage: 'New message',
+      offerReceived: 'New offer',
     },
     
-    // Errors
-    errors: {
-      required: 'Required field',
-      invalidAddress: 'Invalid address',
-      networkError: 'Network error',
-    },
-    
-    // Geo
-    location: {
-      kyrgyzstan: 'Kyrgyzstan',
-      jalalAbad: 'Jalal-Abad',
-      detectLocation: 'Detect Location',
+    // Common
+    common: {
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      edit: 'Edit',
+      confirm: 'Confirm',
+      close: 'Close',
+      loading: 'Loading...',
+      usdt: 'USDT',
     },
   },
 };
 
-// Geo-IP detection helper
-export async function detectUserLocation(): Promise<{
-  country: string;
-  city?: string;
-  language: Language;
-}> {
-  try {
-    // Try to get location from IP
-    const response = await fetch('https://ipapi.co/json/');
-    const data = await response.json();
-    
-    const country = data.country_code;
-    const city = data.city;
-    
-    // Determine language based on location
-    let language: Language = 'en'; // Default
-    
-    if (country === 'KG') {
-      // Kyrgyzstan - prefer Russian/Kyrgyz
-      language = 'ru';
-    } else if (['RU', 'KZ', 'UZ', 'TJ'].includes(country)) {
-      // CIS countries - Russian
-      language = 'ru';
-    } else {
-      // Rest of world - English
-      language = 'en';
-    }
-    
-    return { country, city, language };
-  } catch (error) {
-    console.error('Geo-IP detection failed:', error);
-    // Fallback to browser language
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('ru') || browserLang.startsWith('uk')) {
-      return { country: 'unknown', language: 'ru' };
-    } else if (browserLang.startsWith('ky')) {
-      return { country: 'KG', language: 'kg' };
-    }
-    return { country: 'unknown', language: 'en' };
+// Auto-detect language
+export function detectLanguage(): Language {
+  if (typeof window === 'undefined') return 'en';
+  
+  const saved = localStorage.getItem('language');
+  if (saved === 'ru' || saved === 'en') return saved;
+  
+  const browserLang = navigator.language.toLowerCase();
+  
+  // CIS countries → Russian
+  const cisCodes = ['ru', 'uk', 'be', 'kk', 'uz', 'tj', 'az', 'hy'];
+  if (cisCodes.some(code => browserLang.startsWith(code))) {
+    return 'ru';
   }
+  
+  // Default → English
+  return 'en';
+}
+
+// Initialize language on first load
+export async function initializeLanguage(): Promise<Language> {
+  const lang = detectLanguage();
+  localStorage.setItem('language', lang);
+  return lang;
 }
 
 // Get translation helper
 export function t(lang: Language, key: string, params?: Record<string, string>): string {
   const keys = key.split('.');
-  let value: any = translations[lang];
+  let value: any = i18n[lang];
   
   for (const k of keys) {
     value = value?.[k];
   }
   
   if (typeof value !== 'string') {
-    return key; // Fallback to key
+    return key;
   }
   
   if (params) {
@@ -264,17 +285,10 @@ export function t(lang: Language, key: string, params?: Record<string, string>):
   return value;
 }
 
-// Auto-detect and set language on first load
-export async function initializeLanguage(): Promise<Language> {
-  // Check localStorage first
-  const saved = localStorage.getItem('language');
-  if (saved && ['ru', 'kg', 'en'].includes(saved)) {
-    return saved as Language;
+// Set language
+export function setLanguage(lang: Language): void {
+  localStorage.setItem('language', lang);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('language-change', { detail: lang }));
   }
-  
-  // Detect from Geo-IP
-  const location = await detectUserLocation();
-  localStorage.setItem('language', location.language);
-  
-  return location.language;
 }
