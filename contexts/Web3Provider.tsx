@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { wagmiConfig } from '@/lib/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
-import { mainnet, polygon, bsc } from 'wagmi/chains';
+import { bsc } from 'wagmi/chains';
 
 // Initialize Web3Modal (Wagmi v2 compatible)
 if (typeof window !== 'undefined') {
@@ -14,7 +14,6 @@ if (typeof window !== 'undefined') {
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
     enableAnalytics: true,
     defaultChain: bsc, // Use BSC as default for Pulse
-    chains: [mainnet, polygon, bsc],
     themeMode: 'dark',
     themeVariables: {
       '--w3m-accent': '#22d3ee',
