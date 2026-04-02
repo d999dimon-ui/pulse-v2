@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { User, Task } from '@/types/task';
+import { Task } from '@/types/task';
+import { User } from '@/types/task';
 import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t, Language } from '@/utils/translations';

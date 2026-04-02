@@ -5,27 +5,14 @@ import { MapPin, Search, Plus, Clock, DollarSign } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  reward: number;
-  currency: string;
-  category: string;
-  status: string;
-  created_at: string;
-  exact_address?: string;
-  latitude?: number;
-  longitude?: number;
-}
+import { Task as TaskType } from '@/types/task';
 
 interface TaskFeedProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: TaskType) => void;
   onCreateTask: () => void;
-  tasks: Task[];
+  tasks: TaskType[];
   userLatitude: number;
   userLongitude: number;
   onClaimTask: (taskId: string) => void;
