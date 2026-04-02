@@ -7,13 +7,13 @@ import { wagmiConfig } from '@/lib/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { bsc } from 'wagmi/chains';
 
-// Initialize Web3Modal (Wagmi v2 compatible)
+// Initialize Web3Modal (Wagmi v2 compatible - NO chains in options!)
 if (typeof window !== 'undefined') {
   createWeb3Modal({
     wagmiConfig,
     projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
     enableAnalytics: true,
-    defaultChain: bsc, // Use BSC as default for Pulse
+    defaultChain: bsc,
     themeMode: 'dark',
     themeVariables: {
       '--w3m-accent': '#22d3ee',

@@ -93,3 +93,8 @@ export function useEscrowBalance(address: `0x${string}` | undefined) {
 
   return balance;
 }
+
+// Helper to handle errors safely
+export function handleEscrowError(error: any) {
+  return { success: false, message: error?.message || 'Unknown error' } as any;
+}

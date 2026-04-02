@@ -16,6 +16,8 @@ export interface FlashTask {
   latitude: number;
   longitude: number;
   category: string;
+  status?: string;
+  user_id?: string;
 }
 
 // Feedback idea interface
