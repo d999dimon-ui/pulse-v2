@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import "./globals.css";
 
 const Web3Provider = dynamic(
-  () => import('./contexts/Web3Provider').then((mod) => mod.default),
+  () => import('@/contexts/Web3Provider').then((mod) => mod.default),
   { ssr: false }
 );
 
