@@ -245,7 +245,7 @@ function HomeContent() {
       alert(t(language, 'minimumWithdrawal'));
       return;
     }
-    alert(t(language, 'withdrawalSubmitted', { amount: user.balance }) + '\n\n' + t(language, 'withdrawalInfo'));
+    alert(t(language, 'withdrawalSubmitted', { amount: String(user.balance) }) + '\n\n' + t(language, 'withdrawalInfo'));
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
   }, [user, language]);
 
