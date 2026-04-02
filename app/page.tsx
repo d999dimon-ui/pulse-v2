@@ -202,8 +202,9 @@ function HomeContent() {
         longitude: newTask.longitude,
         status: 'open',
         user_id: user.id,
+        created_at: newTask.created_at,
       });
-      
+
       if (error) throw error;
     } catch (error) {
       console.error('Error creating task:', error);
@@ -211,7 +212,7 @@ function HomeContent() {
 
     // Update local state
     setTasks(prev => [newTask, ...prev]);
-    
+
     // Haptic feedback
     const tg = (window as any).Telegram?.WebApp;
     tg?.HapticFeedback?.notificationOccurred('success');

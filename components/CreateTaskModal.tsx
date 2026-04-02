@@ -13,7 +13,7 @@ interface CreateTaskModalProps {
   onClose: () => void;
   latitude: number;
   longitude: number;
-  onSubmit: (task: Omit<Task, 'id' | 'createdAt' | 'status' | 'userId'>) => void;
+  onSubmit: (task: Omit<Task, 'id' | 'created_at' | 'status' | 'user_id'>) => void;
 }
 
 export default function CreateTaskModal({
