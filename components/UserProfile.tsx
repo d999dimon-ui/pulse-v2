@@ -30,7 +30,7 @@ export default function UserProfile({
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showSupportChat, setShowSupportChat] = useState(false);
 
-  const myTasks = tasks.filter(task => task.userId === user?.id);
+  const myTasks = tasks.filter(task => task.user_id === user?.id);
   const completedTasks = myTasks.filter(task => task.status === 'completed');
   const activeTasks = myTasks.filter(task => task.status === 'active');
 
