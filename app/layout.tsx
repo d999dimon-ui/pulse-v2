@@ -33,7 +33,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+      <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }} suppressHydrationWarning>
         <Web3Provider>{children}</Web3Provider>
       </body>
     </html>

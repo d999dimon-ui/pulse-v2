@@ -35,6 +35,7 @@ const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9
 
 function HomeContent() {
   const { language } = useLanguage();
+  const [isClient, setIsClient] = useState(false);
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
@@ -56,6 +57,11 @@ function HomeContent() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
+  // Client-side check
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Show splash on first load
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -63,6 +69,9 @@ function HomeContent() {
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Пока не смонтировался - показываем черный экран
+  if (!isClient) return null;
 
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
