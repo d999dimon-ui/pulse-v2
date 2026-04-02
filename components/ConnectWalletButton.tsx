@@ -3,17 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Wallet, LogOut, Copy, Check } from 'lucide-react';
 
-// Web3Modal custom elements - using any to bypass TypeScript checks
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'w3m-button': any;
-      'w3m-network-button': any;
-      'w3m-modal': any;
-    }
-  }
-}
-
 export default function ConnectWalletButton() {
   const [isClient, setIsClient] = useState(false);
   const [address, setAddress] = useState<string | undefined>(undefined);
