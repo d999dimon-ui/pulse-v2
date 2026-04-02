@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 // TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
-import { Plus, User, ListFilter, Loader2, Home, Map, Clipboard, MessageSquare } from "lucide-react";
+import { Plus, User, ListFilter, Loader2, Home, Map, Clipboard, MessageSquare, Bell } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
@@ -15,6 +15,9 @@ import LanguageSelectorModal from "@/components/LanguageSelectorModal";
 import OnboardingModal from "@/components/OnboardingModal";
 import ChatRoom from "@/components/ChatRoom";
 import TabBar from "@/components/TabBar";
+import Header from "@/components/Header";
+import Splash from "@/components/Splash";
+import PulseLogo from "@/components/PulseLogo";
 import { Task as TaskType, User as UserType } from "@/types/task";
 import { t, initializeLanguage } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
@@ -36,17 +39,34 @@ function HomeContent() {
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [showSplash, setShowSplash] = useState(true);
+
   // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isTaskFeedOpen, setIsTaskFeedOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  
+
+  // Tab navigation
+  const [activeTab, setActiveTab] = useState<'feed' | 'map' | 'chats' | 'profile'>('feed');
+  const [unreadCount, setUnreadCount] = useState(0);
+
   // Long press state
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Show splash on first load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <Splash onFinish={() => setShowSplash(false)} />;
+  }
 
   // Load tasks from Supabase
   const loadTasks = useCallback(async () => {
