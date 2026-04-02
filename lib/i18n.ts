@@ -240,18 +240,18 @@ export const i18n = {
 // Auto-detect language
 export function detectLanguage(): Language {
   if (typeof window === 'undefined') return 'en';
-  
+
   const saved = localStorage.getItem('language');
   if (saved === 'ru' || saved === 'en') return saved;
-  
+
   const browserLang = navigator.language.toLowerCase();
-  
-  // CIS countries → Russian
-  const cisCodes = ['ru', 'uk', 'be', 'kk', 'uz', 'tj', 'az', 'hy'];
+
+  // CIS countries → Russian (except Uzbek)
+  const cisCodes = ['ru', 'uk', 'be', 'kk', 'tj', 'az', 'hy'];
   if (cisCodes.some(code => browserLang.startsWith(code))) {
     return 'ru';
   }
-  
+
   // Default → English
   return 'en';
 }

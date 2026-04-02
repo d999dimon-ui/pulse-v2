@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { MapPin, Search, Plus, Clock, DollarSign } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
 import { Task as TaskType } from '@/types/task';
@@ -10,7 +9,6 @@ import { Task as TaskType } from '@/types/task';
 interface TaskFeedProps {
   isOpen: boolean;
   onClose: () => void;
-  language: 'ru' | 'en' | 'uz';
   onTaskClick?: (task: TaskType) => void;
   onCreateTask?: () => void;
   tasks: TaskType[];
@@ -22,7 +20,6 @@ interface TaskFeedProps {
 export default function TaskFeed({
   isOpen,
   onClose,
-  language,
   onTaskClick,
   onCreateTask,
   tasks,
@@ -30,11 +27,12 @@ export default function TaskFeed({
   userLongitude,
   onClaimTask
 }: TaskFeedProps) {
+  const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
 
-  const categories = [
+  // Массив категорий должен быть внутри компонента для доступа к пропсам
+  const categories = useMemo(() => [
     { value: 'all', label: t(language, 'categories.all'), icon: '📋' },
     { value: 'it', label: t(language, 'categories.it'), icon: '💻' },
     { value: 'repair', label: t(language, 'categories.repair'), icon: '🔧' },
@@ -44,38 +42,16 @@ export default function TaskFeed({
     { value: 'tutoring', label: t(language, 'categories.tutoring'), icon: '📚' },
     { value: 'marketing', label: t(language, 'categories.marketing'), icon: '📊' },
     { value: 'photo', label: t(language, 'categories.photo'), icon: '📸' },
-  ];
+  ], [language]);
 
-  useEffect(() => {
-    loadTasks();
-  }, [selectedCategory]);
-
-  const loadTasks = async () => {
-    setIsLoading(true);
-    
-    let query = supabase
-      .from('tasks')
-      .select('*')
-      .eq('status', 'open')
-      .order('created_at', { ascending: false });
-
-    if (selectedCategory !== 'all') {
-      query = query.eq('category', selectedCategory);
-    }
-
-    const { data, error } = await query;
-
-    if (error) console.error('Load tasks error:', error);
-    else setTasks(data || []);
-
-    setIsLoading(false);
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    if (!searchQuery) return true;
-    return task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           task.description.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Фильтрация заданий
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      if (!searchQuery) return true;
+      return task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             task.description.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  }, [tasks, searchQuery]);
 
   return (
     <div className="pb-24">
@@ -122,12 +98,7 @@ export default function TaskFeed({
 
       {/* Task List */}
       <div className="p-4 space-y-3">
-        {isLoading ? (
-          <div className="text-center text-gray-400 py-12">
-            <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p>{t(language, 'feed.loading')}</p>
-          </div>
-        ) : filteredTasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <Search size={48} className="mx-auto mb-4 opacity-50" />
             <p>{t(language, 'feed.noTasks')}</p>

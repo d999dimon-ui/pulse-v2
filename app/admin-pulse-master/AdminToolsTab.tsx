@@ -38,7 +38,7 @@ export default function AdminToolsTab() {
     type: 'push' as 'push' | 'telegram' | 'in_app',
     audience: 'all' as 'all' | 'executors' | 'customers' | 'city_specific',
     targetCity: '',
-    languageFilter: 'all' as 'ru' | 'en' | 'uz' | 'all',
+    languageFilter: 'all' as 'ru' | 'en' | 'all',
   });
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiGeneratedContent, setAiGeneratedContent] = useState<string[]>([]);
@@ -453,7 +453,6 @@ export default function AdminToolsTab() {
                 <option value="all">🌍 All Languages</option>
                 <option value="ru">🇷🇺 Russian Only</option>
                 <option value="en">🇬🇧 English Only</option>
-                <option value="uz">🇺🇿 Uzbek Only</option>
               </select>
             </div>
           </div>

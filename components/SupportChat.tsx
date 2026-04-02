@@ -49,9 +49,9 @@ export default function SupportChat({ isOpen, onClose, userId }: SupportChatProp
   } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCountRef = useRef(0);
-  
+
   // Use language from context for warnings
-  const warningLang: Language = (language === 'ru' || language === 'en' || language === 'uz') ? language : 'ru';
+  const warningLang: Language = (language === 'ru' || language === 'en') ? language : 'ru';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -182,13 +182,13 @@ export function t(lang: Language, key: string, params?: Record<string, string | 
 // Get default language from localStorage or browser
 export function getDefaultLanguage(): Language {
   if (typeof window === 'undefined') return 'en';
-  
+
   const saved = localStorage.getItem('language');
   if (saved === 'en' || saved === 'ru') return saved;
-  
+
   // Try to detect from browser
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith('ru')) return 'ru';
-  
+
   return 'en';
 }

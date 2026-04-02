@@ -1,7 +1,7 @@
 // Multi-language Warning & Disclaimer System
-// All system messages must match user's selected language (RU/EN/UZ)
+// All system messages must match user's selected language (RU/EN)
 
-export type Language = 'ru' | 'en' | 'uz';
+export type Language = 'ru' | 'en';
 
 export interface WarningMessages {
   escrowDisclaimer: string;
@@ -66,32 +66,6 @@ export const WARNING_MESSAGES: Record<Language, WarningMessages> = {
     suspiciousActivity:
       '⚠️ Suspicious activity detected. Recommended to change password and enable two-factor authentication.',
   },
-  
-  uz: {
-    escrowDisclaimer:
-      '⚠️ Diqqat! Pulse platformasi ilova TASHQARISIDA amalga oshirilgan bitimlar uchun moliyaviy javobgarlikni zimmasiga olmaydi. Toʻgʻridan-toʻgʻri kelishish Escrow himoyasini bekor qiladi va pulingizni xavf ostiga qoʻyadi.',
-    
-    offPlatformAttempt:
-      '⚠️ Platformadan tashqarida kelishish urinishingiz qayd etildi. Bu sugʻurtangizni bekor qiladi. Takroriy buzilishlar reyting bloklanganligiga olib keladi.',
-    
-    fraudWarning:
-      '🚫 Shubhali faoliyat aniqlandi. Sizning bitimingiz xavfsizlik tekshiruvi tugaguncha toʻxtatib turildi.',
-    
-    ratingBlockWarning:
-      '⛔ Ogohlantirish: Tizimni chetlab oʻtishga takroriy urinishlar reyting bloklanganligiga olib keladi.',
-    
-    directDealRisk:
-      '⚠️ Pulse tashqarisidagi toʻgʻridan-toʻgʻri bitimlar himoyalanmagan. Pulni qaytarish imkoniyatisiz yoʻqotishingiz mumkin.',
-    
-    accountBlocked:
-      '🔒 Hisobingiz platforma qoidalarini buzganligi uchun bloklandi. Blokdan chiqarish uchun qoʻllab-quvvatlash xizmatiga murojaat qiling.',
-    
-    bonusRevoked:
-      '❌ Xizmat koʻrsatish shartlarini buzganligi uchun bonus soatlaringiz bekor qilindi.',
-    
-    suspiciousActivity:
-      '⚠️ Shubhali faoliyat aniqlandi. Parolni oʻzgartirish va ikki faktorli autentifikatsiyani yoqish tavsiya etiladi.',
-  },
 };
 
 // Get warning message by language
@@ -110,7 +84,7 @@ export function detectUserLanguage(): Language {
   // Check localStorage first
   try {
     const saved = localStorage.getItem('language');
-    if (saved === 'ru' || saved === 'en' || saved === 'uz') return saved;
+    if (saved === 'ru' || saved === 'en') return saved;
   } catch (e) {
     // localStorage not available
   }
@@ -118,12 +92,11 @@ export function detectUserLanguage(): Language {
   // Try browser language
   try {
     const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('uz')) return 'uz';
     if (browserLang.startsWith('en')) return 'en';
   } catch (e) {
     // navigator not available
   }
-  
+
   return 'ru'; // Default
 }
 
@@ -167,11 +140,6 @@ export const OFF_PLATFORM_KEYWORDS: Record<Language, string[]> = {
     'bank transfer', 'card number', 'account details',
     'phone', 'whatsapp', 'telegram', 'instagram',
     'off platform', 'outside app', 'cash',
-  ],
-  uz: [
-    'komissiyasiz', 'toʻgʻridan-toʻgʻri', 'kartaga',
-    'telefon', 'raqam', 'karta raqami',
-    'vatsap', 'telegram', 'instagram',
   ],
 };
 
