@@ -1,11 +1,16 @@
 import dynamic from 'next/dynamic';
 import Script from "next/script";
+import React from 'react';
 import "./globals.css";
 
+// Добавляем as React.FC<any>, чтобы убрать ошибку IntrinsicAttributes
 const Web3Provider = dynamic(
   () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default || mod),
-  { ssr: false }
-);
+  { 
+    ssr: false,
+    loading: () => <div style={{ background: 'black', minHeight: '100vh' }} />
+  }
+) as React.FC<any>;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
