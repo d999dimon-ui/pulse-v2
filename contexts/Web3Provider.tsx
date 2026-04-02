@@ -7,6 +7,12 @@ import { wagmiConfig } from '@/lib/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { bsc } from 'wagmi/chains';
 
+// Fix for Vercel SSR - prevent indexedDB errors
+if (typeof window === "undefined") {
+  // @ts-ignore
+  global.indexedDB = {}; 
+}
+
 // Initialize Web3Modal (Wagmi v2 compatible - NO chains in options!)
 // Wrap in useEffect to avoid SSR issues with indexedDB
 if (typeof window !== 'undefined') {
