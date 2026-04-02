@@ -165,7 +165,7 @@ export async function activateLuckyChance(
   bonusHours: number = 6,
   maxWinners: number = 100,
   daysActive: number = 7
-): Promise<{ success: boolean; winners?: number }> {
+): Promise<{ success: boolean; winners?: number; message?: string }> {
   try {
     const { error } = await supabase.rpc('activate_lucky_chance', {
       p_discount_percent: discountPercent,
@@ -173,14 +173,14 @@ export async function activateLuckyChance(
       p_max_winners: maxWinners,
       p_days_active: daysActive,
     });
-    
+
     if (error) throw error;
-    
+
     // Run lucky chance
     const { data: winners, error: runError } = await supabase.rpc('run_lucky_chance');
-    
+
     if (runError) throw runError;
-    
+
     return { success: true, winners };
   } catch (error: any) {
     return { success: false, message: error.message };
