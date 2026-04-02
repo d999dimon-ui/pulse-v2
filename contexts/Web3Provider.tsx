@@ -49,12 +49,6 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
           '--w3m-accent': '#22d3ee',
           '--w3m-color-mix': '#000000',
         },
-        // ВРЕМЕННОЕ РЕШЕНИЕ: отключаем функции, которые могут вызывать ошибки
-        features: {
-          analytics: false,
-          email: false,
-          socials: false,
-        },
         metadata: {
           name: 'TaskHub',
           description: 'Complete tasks and earn rewards',
