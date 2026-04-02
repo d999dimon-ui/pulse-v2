@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import nextDynamic from "next/dynamic";
 import "./globals.css";
-
-const Web3Provider = nextDynamic(() => import('@/contexts/Web3Provider'), {
-  ssr: false,
-  loading: () => <div className="min-h-screen bg-black" />
-});
 
 export const metadata: Metadata = {
   title: "TaskHub - Earn with Tasks",
