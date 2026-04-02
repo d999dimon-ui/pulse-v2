@@ -22,6 +22,7 @@ interface TaskFeedProps {
 export default function TaskFeed({
   isOpen,
   onClose,
+  language,
   onTaskClick,
   onCreateTask,
   tasks,
@@ -29,6 +30,9 @@ export default function TaskFeed({
   userLongitude,
   onClaimTask
 }: TaskFeedProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const categories = [
     { value: 'all', label: t(language, 'categories.all'), icon: '📋' },
