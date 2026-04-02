@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { useAccount } from 'wagmi';
-import { supabase } from '@/lib/supabase';
 import { MapPin, Navigation } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface LocationTrackerProps {
   taskId: string;
@@ -12,11 +11,22 @@ interface LocationTrackerProps {
 }
 
 export default function LocationTracker({ taskId, isActive, onLocationUpdate }: LocationTrackerProps) {
-  const { address } = useAccount();
+  const [address, setAddress] = useState<string | undefined>(undefined);
+  const [isClient, setIsClient] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Start tracking executor location
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Get address from localStorage (без wagmi)
+  useEffect(() => {
+    if (isClient) {
+      // Пытаемся получить адрес из localStorage или оставляем undefined
+      setAddress(undefined);
+    }
+  }, [isClient]);
   const startTracking = useCallback(() => {
     if (!isActive || !navigator.geolocation) return;
 
