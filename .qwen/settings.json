@@ -18,7 +18,8 @@
       "Bash(echo *)",
       "Bash(move *)",
       "Bash(git *)",
-      "Bash(select-string *)"
+      "Bash(select-string *)",
+      "Bash(select-object *)"
     ]
   },
   "$version": 3

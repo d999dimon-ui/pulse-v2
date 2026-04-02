@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { wagmiConfig } from '@/lib/wagmi';
@@ -8,6 +8,7 @@ import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { bsc } from 'wagmi/chains';
 
 // Initialize Web3Modal (Wagmi v2 compatible - NO chains in options!)
+// Wrap in useEffect to avoid SSR issues with indexedDB
 if (typeof window !== 'undefined') {
   createWeb3Modal({
     wagmiConfig,
