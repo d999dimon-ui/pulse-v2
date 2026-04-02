@@ -178,15 +178,15 @@ function HomeContent() {
   }, []);
 
   // Create task handler
-  const handleCreateTask = useCallback(async (taskData: Omit<TaskType, 'id' | 'createdAt' | 'status' | 'userId'>) => {
+  const handleCreateTask = useCallback(async (taskData: Omit<TaskType, 'id' | 'created_at' | 'status' | 'user_id'>) => {
     if (!user || typeof window === 'undefined') return;
 
     const newTask: TaskType = {
       ...taskData,
       id: generateId(),
-      createdAt: Date.now(),
-      status: 'active',
-      userId: user.id,
+      created_at: Date.now(),
+      status: 'open',
+      user_id: user.id,
     };
 
     // Add to Supabase
