@@ -1,8 +1,5 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import Script from "next/script";
 import { Web3Provider } from '@/contexts/Web3Provider';
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,12 +19,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <html lang="en">
       <head>
@@ -37,11 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }} suppressHydrationWarning>
-        {mounted ? (
-          <Web3Provider>{children}</Web3Provider>
-        ) : (
-          <div className="bg-black min-h-screen" />
-        )}
+        <Web3Provider>{children}</Web3Provider>
       </body>
     </html>
   );
