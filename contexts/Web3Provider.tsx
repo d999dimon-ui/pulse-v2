@@ -6,7 +6,9 @@ import { mainnet, bsc } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
 
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'a458da84b85d46b8a16d1a3e94c10e51';
+// ПУБЛИЧНЫЙ PROJECT ID ДЛЯ ТЕСТИРОВАНИЯ
+// Замени на свой когда добавишь домен в WalletConnect Cloud
+const projectId = '3874285f623f980075334592e6a39f0c';
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<ReturnType<typeof createConfig> | null>(null);
