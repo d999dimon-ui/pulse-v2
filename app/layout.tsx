@@ -5,10 +5,7 @@ import "./globals.css";
 
 // Dynamic import with SSR disabled to avoid indexedDB errors
 const Web3Provider = nextDynamic(
-  async () => {
-    const mod = await import("@/contexts/Web3Provider");
-    return mod.default || mod.Web3Provider;
-  },
+  () => import("@/contexts/Web3Provider").then((mod) => mod.default),
   { 
     ssr: false, 
     loading: () => <div className="fixed inset-0 bg-black" /> 
