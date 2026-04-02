@@ -9,10 +9,15 @@ import { bsc } from 'wagmi/chains';
 
 // Shield for Vercel SSR - prevent indexedDB errors
 if (typeof window !== "undefined" && !window.indexedDB) {
-  // Fix error "open is not a function"
-  // @ts-ignore
-  window.indexedDB = {
-    open: () => ({ onupgradeneeded: null, onerror: null, onsuccess: null }),
+  // Используем (window as any), чтобы TypeScript не ругался на нехватку свойств
+  (window as any).indexedDB = {
+    open: () => ({ 
+      onupgradeneeded: null, 
+      onerror: null, 
+      onsuccess: null,
+      addEventListener: () => {},
+      removeEventListener: () => {}
+    }),
   };
 }
 
