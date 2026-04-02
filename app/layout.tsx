@@ -2,29 +2,12 @@ import dynamic from 'next/dynamic';
 import Script from "next/script";
 import "./globals.css";
 
-// Это ГАРАНТИРУЕТ, что Web3 не сломает гидратацию
 const Web3Provider = dynamic(
-  () => import('@/contexts/Web3Provider').then((mod) => mod.Web3Provider || mod.default),
+  () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default || mod),
   { ssr: false }
 );
 
-export const metadata = {
-  title: "TaskHub - Earn with Tasks",
-  description: "Complete tasks and earn rewards in your area",
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
