@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 // TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { Plus, User, ListFilter, Loader2 } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
@@ -17,7 +17,7 @@ import { Task as TaskType, User as UserType } from "@/types/task";
 import { t } from "@/utils/translations";
 import { supabase } from "@/lib/supabase";
 
-const MapComponent = dynamic(() => import("@/components/MapComponent"), {
+const MapComponent = nextDynamic(() => import("@/components/MapComponent"), {
   ssr: false,
   loading: () => (
     <div className="bg-black min-h-screen flex items-center justify-center">
