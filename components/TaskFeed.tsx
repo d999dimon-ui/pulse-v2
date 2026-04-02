@@ -10,6 +10,7 @@ import { Task as TaskType } from '@/types/task';
 interface TaskFeedProps {
   isOpen: boolean;
   onClose: () => void;
+  language: 'ru' | 'en' | 'uz';
   onTaskClick?: (task: TaskType) => void;
   onCreateTask?: () => void;
   tasks: TaskType[];
