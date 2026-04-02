@@ -88,9 +88,11 @@ function HomeContent() {
           category: (task.category as any) || 'help',
           latitude: task.latitude,
           longitude: task.longitude,
-          status: (task.status as any) || 'active',
-          createdAt: new Date(task.created_at).getTime(),
-          userId: task.user_id || '',
+          status: (task.status as any) || 'open',
+          created_at: new Date(task.created_at).getTime(),
+          user_id: task.user_id || '',
+          executor_id: task.executor_id,
+          exact_address: task.exact_address,
         }));
         setTasks(localTasks);
       }
