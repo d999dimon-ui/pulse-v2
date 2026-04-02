@@ -8,7 +8,7 @@ import "./globals.css";
 const Web3Provider = dynamic(
   () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default),
   { ssr: false }
-);
+) as React.ComponentType<{ children: React.ReactNode }>;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isClient, setIsClient] = useState(false);
