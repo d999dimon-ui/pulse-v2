@@ -19,7 +19,18 @@
       "Bash(move *)",
       "Bash(git *)",
       "Bash(select-string *)",
-      "Bash(select-object *)"
+      "Bash(select-object *)",
+      "Bash(curl *)",
+      "Bash(timeout *)",
+      "Bash(powershell *)",
+      "Bash(mkdir *)",
+      "Bash(r *)",
+      "Bash(@fsutil *)",
+      "Bash(xcopy *)",
+      "Bash(type *)",
+      "Bash(node *)",
+      "Bash(vercel *)",
+      "Bash(taskkill *)"
     ]
   },
   "$version": 3

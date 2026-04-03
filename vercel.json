@@ -1,4 +1,5 @@
 {
+  "name": "pulse-v2-drab",
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
