@@ -1,8 +1,5 @@
 "use client";
 
-// Force dynamic rendering to avoid SSR issues
-export const dynamic = 'force-dynamic';
-
 // TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
