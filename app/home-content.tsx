@@ -1,6 +1,5 @@
 "use client";
 
-// TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
 import { Plus, User, ListFilter, Loader2 } from "lucide-react";
@@ -15,21 +14,31 @@ import { Task as TaskType, User as UserType } from "@/types/task";
 import { t } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 
-const MapComponent = nextDynamic(() => import("@/components/MapComponent"), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-black min-h-screen flex items-center justify-center">
-      <div className="text-white">Loading map...</div>
-    </div>
-  ),
-});
+// Dynamic import with SSR disabled and loading fallback
+const MapComponent = nextDynamic(
+  () => import("@/components/MapComponent").catch((err) => {
+    console.error("MapComponent load error:", err);
+    return { default: () => <div className="bg-black min-h-screen flex items-center justify-center text-white">Map unavailable</div> };
+  }),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-white text-center">
+          <Loader2 className="w-8 h-8 text-cyan-400 animate-spin mx-auto mb-2" />
+          <div>Loading map...</div>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 function HomeContent() {
   const { language } = useLanguage();
 
-  // === ALL STATE MUST BE AT TOP ===
+  // === ALL STATE AT TOP ===
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
@@ -46,7 +55,7 @@ function HomeContent() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // === ALL CALLBACKS MUST BE AT TOP ===
+  // === ALL CALLBACKS AT TOP ===
   const loadTasks = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -76,8 +85,10 @@ function HomeContent() {
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
-      const savedTasks = localStorage.getItem('tasks');
-      if (savedTasks) setTasks(JSON.parse(savedTasks));
+      try {
+        const savedTasks = localStorage.getItem('tasks');
+        if (savedTasks) setTasks(JSON.parse(savedTasks));
+      } catch { /* ignore */ }
     } finally {
       setIsLoading(false);
     }
@@ -90,8 +101,7 @@ function HomeContent() {
   }, []);
 
   const handleCreateTask = useCallback(async (taskData: Omit<TaskType, 'id' | 'created_at' | 'status' | 'user_id'>) => {
-    if (!user || typeof window === 'undefined') return;
-
+    if (!user) return;
     const newTask: TaskType = {
       ...taskData,
       id: generateId(),
@@ -99,9 +109,8 @@ function HomeContent() {
       status: 'open',
       user_id: user.id,
     };
-
     try {
-      const { error } = await supabase.from('tasks').insert({
+      await supabase.from('tasks').insert({
         id: newTask.id,
         title: newTask.title,
         description: newTask.description,
@@ -114,16 +123,13 @@ function HomeContent() {
         user_id: user.id,
         created_at: newTask.created_at,
       });
-      if (error) throw error;
     } catch (error) {
       console.error('Error creating task:', error);
     }
-
     setTasks(prev => [newTask, ...prev]);
   }, [user]);
 
   const handleClaimTask = useCallback(async (taskId: string) => {
-    if (typeof window === 'undefined') return;
     try {
       await supabase.from('tasks').update({ status: 'in_progress' }).eq('id', taskId);
     } catch (error) {
@@ -135,79 +141,84 @@ function HomeContent() {
   }, []);
 
   const handleWithdraw = useCallback(() => {
-    if (!user || typeof window === 'undefined') {
-      alert(t(language, 'minimumWithdrawal'));
+    if (!user) {
+      alert('Minimum withdrawal is 10 Stars');
       return;
     }
-    alert(t(language, 'withdrawalSubmitted', { amount: String(user.balance) }));
+    alert(`Withdrawal request for ${user.balance} Stars submitted!`);
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
-  }, [user, language]);
+  }, [user]);
 
-  // === ALL EFFECTS MUST BE AT TOP ===
-  // Splash timer
+  // === ALL EFFECTS AT TOP ===
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // App initialization
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const tg = (window as any).Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      tg.setHeaderColor('#000000');
-      tg.setBackgroundColor('#000000');
-    }
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#000000');
+        tg.setBackgroundColor('#000000');
+      }
 
-    const savedUser = localStorage.getItem('user');
-    const savedLanguage = localStorage.getItem('language');
+      const savedUser = localStorage.getItem('user');
+      const savedLanguage = localStorage.getItem('language');
 
-    if (savedUser) {
-      try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ }
-    } else {
-      const defaultUser: UserType = {
-        id: generateId(),
-        username: tg?.initData?.user?.username || tg?.initData?.user?.first_name || 'user_' + Math.random().toString(36).substr(2, 5),
-        balance: 0,
-        completedTasks: 0,
-      };
-      setUser(defaultUser);
-      localStorage.setItem('user', JSON.stringify(defaultUser));
-    }
+      if (savedUser) {
+        try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ }
+      } else {
+        const defaultUser: UserType = {
+          id: generateId(),
+          username: tg?.initData?.user?.username || tg?.initData?.user?.first_name || 'user_' + Math.random().toString(36).substr(2, 5),
+          balance: 0,
+          completedTasks: 0,
+        };
+        setUser(defaultUser);
+        localStorage.setItem('user', JSON.stringify(defaultUser));
+      }
 
-    if (!savedLanguage) setShowLanguageSelector(true);
+      if (!savedLanguage) setShowLanguageSelector(true);
 
-    const savedOnboarding = localStorage.getItem('onboarding_completed');
-    if (!savedLanguage && savedOnboarding !== 'true') {
-      setTimeout(() => { setShowOnboarding(true); setIsLoading(false); }, 500);
-    } else {
+      const savedOnboarding = localStorage.getItem('onboarding_completed');
+      if (!savedLanguage && savedOnboarding !== 'true') {
+        setTimeout(() => { setShowOnboarding(true); setIsLoading(false); }, 500);
+      } else {
+        setIsLoading(false);
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => setUserPosition([position.coords.latitude, position.coords.longitude]),
+          () => console.log('Using default position')
+        );
+      }
+
+      loadTasks();
+    } catch (error) {
+      console.error('Init error:', error);
       setIsLoading(false);
     }
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => setUserPosition([position.coords.latitude, position.coords.longitude]),
-        () => console.log('Using default position')
-      );
-    }
-
-    loadTasks();
   }, [loadTasks]);
 
-  // Save tasks
   useEffect(() => {
-    if (tasks.length > 0) localStorage.setItem('tasks', JSON.stringify(tasks));
+    try {
+      if (tasks.length > 0) localStorage.setItem('tasks', JSON.stringify(tasks));
+    } catch { /* ignore */ }
   }, [tasks]);
 
-  // Save user
   useEffect(() => {
-    if (user) localStorage.setItem('user', JSON.stringify(user));
+    try {
+      if (user) localStorage.setItem('user', JSON.stringify(user));
+    } catch { /* ignore */ }
   }, [user]);
 
-  // === NOW CONDITIONAL RETURNS ARE SAFE ===
+  // === CONDITIONAL RETURNS AFTER ALL HOOKS ===
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
   }
