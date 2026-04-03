@@ -53,11 +53,6 @@ function HomeContent() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Client-side check
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // Show splash on first load
   useEffect(() => {
     const timer = setTimeout(() => {
