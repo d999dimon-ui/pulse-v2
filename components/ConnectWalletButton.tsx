@@ -79,7 +79,6 @@ export default function ConnectWalletButton() {
           </button>
         )}
       </div>
-      <w3m-button size="md" label={address ? 'Disconnect' : 'Connect'} />
     </div>
   );
 }
