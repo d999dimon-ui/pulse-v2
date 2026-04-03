@@ -1,20 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import type { Metadata } from "next";
 import Script from "next/script";
+import ClientLayout from "./client-layout";
 import "./globals.css";
 
-const Web3Provider = dynamic(
-  () => import('@/contexts/Web3Provider').then((mod: any) => mod.Web3Provider || mod.default),
-  { ssr: false }
-) as React.ComponentType<{ children: React.ReactNode }>;
+export const metadata: Metadata = {
+  title: "TaskHub - Earn with Tasks",
+  description: "Complete tasks and earn rewards",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   return (
     <html lang="en">
       <head>
@@ -23,15 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
         />
       </head>
-      <body>
-        {/* Это КЛЮЧЕВОЙ МОМЕНТ: если мы не на клиенте, НЕ показываем провайдер вообще */}
-        {isClient ? (
-          <Web3Provider>
-            {children}
-          </Web3Provider>
-        ) : (
-          <div style={{ background: 'black', minHeight: '100vh' }} />
-        )}
+      <body className="antialiased" style={{ margin: 0, padding: 0, overflow: 'hidden' }}>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
