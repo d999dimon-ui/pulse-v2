@@ -1,7 +1,7 @@
 // Pulse v2 i18n Configuration
-// Complete localization with Zero-Russian Policy
+// Complete localization with EN/RU/UZ support
 
-export type Language = 'ru' | 'en';
+export type Language = 'ru' | 'en' | 'uz';
 
 export const i18n = {
   ru: {
@@ -235,6 +235,19 @@ export const i18n = {
       usdt: 'USDT',
     },
   },
+
+  uz: {
+    nav: { feed: 'Asosiy', map: 'Xarita', chats: 'Xabarlar', profile: 'Profil' },
+    feed: { title: 'Vazifalar', search: 'Qidirish...', noTasks: 'Topilmadi', loading: 'Yuklanmoqda...', createNew: 'Yaratish' },
+    categories: { all: 'Hammasi', it: 'IT', repair: 'Tuzatish', translation: 'Tarjima', delivery: 'Yetkazish', cleaning: 'Tozalash', tutoring: 'Repetitor', marketing: 'Marketing', photo: 'Foto', other: 'Boshqa', custom: 'Boshqa' },
+    task: { createTitle: 'Vazifa', title: 'Nomi', titlePlaceholder: 'Masalan, Bot yaratish', description: 'Tavsif', descriptionPlaceholder: 'Batafsil...', category: 'Kategoriya', budget: 'Budjet', budgetPlaceholder: 'USDT miqdori', address: 'Manzil', addressPlaceholder: 'Shahar, ko\'cha', setOnMap: 'Xaritada', phone: 'Telefon', phonePlaceholder: '+996 ___ ___ ___', createButton: 'Yaratish', success: 'Yaratildi!', error: 'Xato' },
+    chat: { title: 'Xabarlar', noChats: 'Yo\'q', search: 'Qidirish...', sendMessage: 'Yozing...', contactHidden: 'Yashirin', call: 'Qo\'ng\'iroq', taskCompleted: 'Bajarildi' },
+    profile: { title: 'Profil', balance: 'Balans', completed: 'Bajarilgan', active: 'Faol', settings: 'Sozlamalar', language: 'Til', logout: 'Chiqish', joinDate: 'A\'zo', rating: 'Reyting' },
+    status: { open: 'Ochiq', inProgress: 'Jarayonda', completed: 'Bajarildi', cancelled: 'Bekor' },
+    errors: { required: 'Majburiy', invalidPhone: 'Noto\'g\'ri telefon', invalidAddress: 'Noto\'g\'ri manzil', networkError: 'Tarmoq xatosi', unauthorized: 'Kirish kerak', forbidden: 'Taqiqlangan' },
+    notifications: { taskCreated: 'Yaratildi', taskCompleted: 'Bajarildi', newMessage: 'Yangi xabar', offerReceived: 'Yangi taklif' },
+    common: { save: 'Saqlash', cancel: 'Bekor', delete: 'O\'chirish', edit: 'Tahrirlash', confirm: 'Tasdiqlash', close: 'Yopish', loading: 'Yuklanmoqda...', usdt: 'USDT' },
+  },
 };
 
 // Auto-detect language
@@ -242,17 +255,17 @@ export function detectLanguage(): Language {
   if (typeof window === 'undefined') return 'en';
 
   const saved = localStorage.getItem('language');
-  if (saved === 'ru' || saved === 'en') return saved;
+  if (saved === 'ru' || saved === 'en' || saved === 'uz') return saved;
 
   const browserLang = navigator.language.toLowerCase();
 
-  // CIS countries → Russian (except Uzbek)
-  const cisCodes = ['ru', 'uk', 'be', 'kk', 'tj', 'az', 'hy'];
-  if (cisCodes.some(code => browserLang.startsWith(code))) {
-    return 'ru';
-  }
+  // Uzbek
+  if (browserLang.startsWith('uz')) return 'uz';
 
-  // Default → English
+  // CIS countries → Russian
+  const cisCodes = ['ru', 'uk', 'be', 'kk', 'tj', 'az', 'hy'];
+  if (cisCodes.some(code => browserLang.startsWith(code))) return 'ru';
+
   return 'en';
 }
 
