@@ -1,194 +1,494 @@
-// Translations for English and Russian
+// TaskHub i18n — EN / RU / UZ
+export type Language = 'en' | 'ru' | 'uz';
 
-export type Language = 'en' | 'ru';
-
-export const translations = {
+export const translations: Record<Language, Record<string, any>> = {
   en: {
-    // Common
-    loading: 'Loading...',
-    close: 'Close',
-    create: 'Create',
-    cancel: 'Cancel',
-    save: 'Save',
-    confirm: 'Confirm',
-    
+    // Nav
+    'nav.home': 'Home',
+    'nav.map': 'Map',
+    'nav.tasks': 'Tasks',
+    'nav.profile': 'Profile',
+
+    // Home
+    'home.title': 'Find Tasks Nearby',
+    'home.subtitle': 'Choose a category to get started',
+    'home.search': 'Search tasks...',
+    'home.categories': 'Categories',
+
+    // Categories
+    'cat.all': 'All',
+    'cat.it': 'IT Services',
+    'cat.delivery': 'Delivery',
+    'cat.cleaning': 'Cleaning',
+    'cat.help': 'Help',
+    'cat.photo': 'Photo/Video',
+    'cat.repair': 'Repair',
+    'cat.tutoring': 'Tutoring',
+    'cat.translation': 'Translation',
+    'cat.marketing': 'Marketing',
+
     // Map
-    mapLoading: 'Loading map...',
-    longPressHint: '📍 Long press on map to create a task',
-    welcome: 'Welcome!',
-    
+    'map.loading': 'Loading map...',
+    'map.hint': 'Tap on map to create a task',
+    'map.noTasks': 'No tasks nearby',
+    'map.zoomIn': 'Zoom in to see tasks',
+
+    // Tasks
+    'tasks.title': 'Available Tasks',
+    'tasks.filter': 'Filter',
+    'tasks.sort': 'Sort',
+    'tasks.noTasks': 'No tasks found',
+    'tasks.loading': 'Loading tasks...',
+    'tasks.claim': 'Claim',
+    'tasks.claimed': 'Claimed',
+    'tasks.reward': 'Reward',
+    'tasks.distance': 'Distance',
+    'tasks.created': 'Created',
+    'tasks.status.open': 'Open',
+    'tasks.status.in_progress': 'In Progress',
+    'tasks.status.completed': 'Completed',
+    'tasks.status.cancelled': 'Cancelled',
+
+    // Profile
+    'profile.title': 'Profile',
+    'profile.balance': 'Balance',
+    'profile.stars': 'Stars',
+    'profile.completed': 'Completed',
+    'profile.active': 'Active',
+    'profile.rating': 'Rating',
+    'profile.settings': 'Settings',
+    'profile.language': 'Language',
+    'profile.wallet': 'Connect Wallet',
+    'profile.disconnect': 'Disconnect Wallet',
+    'profile.withdraw': 'Withdraw Funds',
+    'profile.referral': 'Invite Friends',
+    'profile.referralHint': 'Get 24h premium access when your friend completes 5 tasks',
+    'profile.referralLink': 'Your referral link',
+    'profile.referralCopied': 'Link copied!',
+    'profile.myTasks': 'My Tasks',
+    'profile.noTasksYet': 'No tasks yet',
+    'profile.overview': 'Overview',
+    'profile.totalEarned': 'Total Earned',
+    'profile.successRate': 'Success Rate',
+    'profile.support': 'Support Chat',
+    'profile.about': 'About',
+    'profile.logout': 'Logout',
+    'profile.taskerSince': 'Member since',
+    'profile.minWithdraw': 'Minimum withdrawal is 10 Stars',
+    'profile.withdrawSubmit': 'Withdrawal request for {amount} Stars submitted!',
+    'profile.withdrawInfo': 'In production, this integrates with Telegram Stars or TON.',
+
     // Task Creation
-    createTaskTitle: 'Create New Task',
-    taskTitle: 'Task Title',
-    taskTitlePlaceholder: 'e.g., Deliver package to downtown',
-    description: 'Description',
-    descriptionPlaceholder: 'Describe the task details...',
-    reward: 'Reward',
-    currency: 'Currency',
-    stars: 'Stars',
-    usd: 'USD',
-    category: 'Category',
-    categories: {
-      delivery: 'Delivery',
-      cleaning: 'Cleaning',
-      help: 'Help',
-      photo: 'Photo',
-    },
-    createTaskButton: '🚀 Create Task',
-    
-    // Task Feed
-    nearbyTasks: 'Nearby Tasks',
-    tasksWithin5km: '{count} tasks within 5km',
-    noTasksNearby: 'No tasks nearby',
-    beFirstToCreate: 'Be the first to create a task!',
-    claim: 'Claim',
-    
-    // User Profile
-    currentBalance: 'Current Balance',
-    withdrawFunds: '💸 Withdraw Funds',
-    completed: 'Completed',
-    active: 'Active',
-    rating: 'Rating',
-    overview: 'Overview',
-    myTasks: 'My Tasks',
-    totalEarned: 'Total Earned',
-    successRate: 'Success Rate',
-    noTasksYet: 'No tasks yet',
-    taskerSince: 'Tasker since',
-    minimumWithdrawal: 'Minimum withdrawal is 10 Stars',
-    withdrawalSubmitted: 'Withdrawal request for {amount} Stars submitted!',
-    withdrawalInfo: 'In production, this would integrate with Telegram Stars or TON payment.',
-    
-    // Language
-    language: 'Language',
-    english: 'English',
-    russian: 'Русский',
-    selectLanguage: 'Select Language',
-    selectLanguageHint: 'Choose your preferred language to get started',
-    
-    // Task Status
-    status: {
-      active: 'Active',
-      completed: 'Completed',
-      claimed: 'Claimed',
-    },
-    
-    // Notifications
-    taskClaimed: 'Task claimed! Contact the task creator to complete.',
-    paymentSuccess: 'Payment for "{tariff}" successful!',
-    paymentTest: 'Telegram WebApp not available. Test payment: {tariff} - {invoiceId}',
+    'task.createTitle': 'Create New Task',
+    'task.title': 'Task Title',
+    'task.titlePlaceholder': 'e.g., Deliver package to downtown',
+    'task.description': 'Description',
+    'task.descriptionPlaceholder': 'Describe the task details...',
+    'task.reward': 'Reward',
+    'task.currency': 'Currency',
+    'task.stars': 'Stars',
+    'task.usd': 'USD',
+    'task.category': 'Category',
+    'task.createButton': '🚀 Create Task',
+    'task.success': 'Task created!',
+    'task.error': 'Error creating task',
+
+    // Chat
+    'chat.title': 'Support Chat',
+    'chat.noChats': 'No conversations',
+    'chat.placeholder': 'Type a message...',
+    'chat.send': 'Send',
+    'chat.contactHidden': 'Contact hidden after completion',
+    'chat.call': 'Call',
+    'chat.taskCompleted': 'Order completed',
+
+    // Language Selector
+    'lang.select': 'Select Language',
+    'lang.hint': 'Choose your preferred language',
+    'lang.english': 'English',
+    'lang.russian': 'Русский',
+    'lang.uzbek': 'O\'zbek',
+
+    // Onboarding
+    'onboarding.welcome': 'Welcome to TaskHub!',
+    'onboarding.skip': 'Skip',
+    'onboarding.next': 'Next',
+    'onboarding.start': 'Get Started!',
+    'onboarding.step1.title': 'Map of Opportunities',
+    'onboarding.step1.desc': 'Find tasks nearby or delegate your tasks to people around the world.',
+    'onboarding.step2.title': 'Secure Payments',
+    'onboarding.step2.desc': 'Your Stars are protected. Payment occurs only after confirmation.',
+    'onboarding.step3.title': 'Earn Everywhere',
+    'onboarding.step3.desc': 'Become part of the global TaskHub network.',
+
+    // Common
+    'common.loading': 'Loading...',
+    'common.close': 'Close',
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.delete': 'Delete',
+    'common.edit': 'Edit',
+    'common.confirm': 'Confirm',
+    'common.share': 'Share',
+    'common.copy': 'Copy',
+    'common.search': 'Search...',
+    'common.noData': 'No data',
+    'common.tryAgain': 'Try Again',
+    'common.back': 'Back',
+    'common.done': 'Done',
+
+    // Errors
+    'error.title': 'Something went wrong',
+    'error.message': 'An unexpected error occurred',
+    'error.network': 'Network error. Check your connection.',
+    'error.unauthorized': 'Please sign in to continue',
+    'error.forbidden': 'Access denied',
+    'error.notFound': 'Not found',
+
+    // NeuroChat
+    'neuro.title': 'NeuroChat AI',
+    'neuro.placeholder': 'Ask about tasks, pricing, or tips...',
+    'neuro.welcome': 'Hi! I\'m your TaskHub assistant. Ask me anything about tasks, payments, or how to get started!',
+    'neuro.typing': 'AI is typing...',
+
+    // Admin
+    'admin.title': 'Admin Panel',
+    'admin.createTask': 'Create Task',
+    'admin.editTask': 'Edit Task',
+    'admin.tasks': 'All Tasks',
+    'admin.users': 'Users',
+    'admin.stats': 'Statistics',
+
+    // Notification
+    'notif.taskCreated': 'Task created successfully!',
+    'notif.taskClaimed': 'Task claimed! Contact the creator to complete.',
+    'notif.paymentSuccess': 'Payment successful!',
+    'notif.newMessage': 'New message received',
+    'notif.referralBonus': 'Your referral earned a reward!',
   },
+
   ru: {
-    // Common
-    loading: 'Загрузка...',
-    close: 'Закрыть',
-    create: 'Создать',
-    cancel: 'Отмена',
-    save: 'Сохранить',
-    confirm: 'Подтвердить',
-    
-    // Map
-    mapLoading: 'Загрузка карты...',
-    longPressHint: '📍 Долгое нажатие для создания задания',
-    welcome: 'Добро пожаловать!',
-    
-    // Task Creation
-    createTaskTitle: 'Новое задание',
-    taskTitle: 'Название',
-    taskTitlePlaceholder: 'Например, Доставить посылку в центр',
-    description: 'Описание',
-    descriptionPlaceholder: 'Опишите детали задания...',
-    reward: 'Награда',
-    currency: 'Валюта',
-    stars: 'Stars',
-    usd: 'USD',
-    category: 'Категория',
-    categories: {
-      delivery: 'Доставка',
-      cleaning: 'Уборка',
-      help: 'Помощь',
-      photo: 'Фото',
-    },
-    createTaskButton: '🚀 Создать задание',
-    
-    // Task Feed
-    nearbyTasks: 'Задания рядом',
-    tasksWithin5km: '{count} заданий в радиусе 5км',
-    noTasksNearby: 'Нет заданий рядом',
-    beFirstToCreate: 'Создайте первое задание!',
-    claim: 'Взять',
-    
-    // User Profile
-    currentBalance: 'Текущий баланс',
-    withdrawFunds: '💸 Вывести средства',
-    completed: 'Выполнено',
-    active: 'Активные',
-    rating: 'Рейтинг',
-    overview: 'Обзор',
-    myTasks: 'Мои задания',
-    totalEarned: 'Всего заработано',
-    successRate: 'Успешность',
-    noTasksYet: 'Пока нет заданий',
-    taskerSince: 'В приложении с',
-    minimumWithdrawal: 'Минимальный вывод 10 Stars',
-    withdrawalSubmitted: 'Запрос на вывод {amount} Stars отправлен!',
-    withdrawalInfo: 'В продакшене это будет интегрировано с Telegram Stars или TON.',
-    
-    // Language
-    language: 'Язык',
-    english: 'English',
-    russian: 'Русский',
-    selectLanguage: 'Выберите язык',
-    selectLanguageHint: 'Выберите предпочитаемый язык для начала работы',
-    
-    // Task Status
-    status: {
-      active: 'Активно',
-      completed: 'Выполнено',
-      claimed: 'Взято',
-    },
-    
-    // Notifications
-    taskClaimed: 'Задание взято! Свяжитесь с создателем для выполнения.',
-    paymentSuccess: 'Оплата тарифа "{tariff}" успешна!',
-    paymentTest: 'Telegram WebApp недоступен. Тест оплаты: {tariff} - {invoiceId}',
+    'nav.home': 'Главная',
+    'nav.map': 'Карта',
+    'nav.tasks': 'Задания',
+    'nav.profile': 'Профиль',
+
+    'home.title': 'Задания рядом',
+    'home.subtitle': 'Выберите категорию',
+    'home.search': 'Поиск заданий...',
+    'home.categories': 'Категории',
+
+    'cat.all': 'Все',
+    'cat.it': 'IT-услуги',
+    'cat.delivery': 'Доставка',
+    'cat.cleaning': 'Уборка',
+    'cat.help': 'Помощь',
+    'cat.photo': 'Фото/Видео',
+    'cat.repair': 'Ремонт',
+    'cat.tutoring': 'Репетиторство',
+    'cat.translation': 'Переводы',
+    'cat.marketing': 'Маркетинг',
+
+    'map.loading': 'Загрузка карты...',
+    'map.hint': 'Нажмите на карту для создания задания',
+    'map.noTasks': 'Нет заданий рядом',
+    'map.zoomIn': 'Приблизьте карту',
+
+    'tasks.title': 'Доступные задания',
+    'tasks.filter': 'Фильтр',
+    'tasks.sort': 'Сортировка',
+    'tasks.noTasks': 'Задания не найдены',
+    'tasks.loading': 'Загрузка заданий...',
+    'tasks.claim': 'Взять',
+    'tasks.claimed': 'Взято',
+    'tasks.reward': 'Награда',
+    'tasks.distance': 'Расстояние',
+    'tasks.created': 'Создано',
+    'tasks.status.open': 'Открыто',
+    'tasks.status.in_progress': 'В работе',
+    'tasks.status.completed': 'Выполнено',
+    'tasks.status.cancelled': 'Отменено',
+
+    'profile.title': 'Профиль',
+    'profile.balance': 'Баланс',
+    'profile.stars': 'Stars',
+    'profile.completed': 'Выполнено',
+    'profile.active': 'Активные',
+    'profile.rating': 'Рейтинг',
+    'profile.settings': 'Настройки',
+    'profile.language': 'Язык',
+    'profile.wallet': 'Подключить кошелёк',
+    'profile.disconnect': 'Отключить кошелёк',
+    'profile.withdraw': 'Вывести средства',
+    'profile.referral': 'Пригласить друга',
+    'profile.referralHint': 'Получите 24ч премиум-доступа когда друг выполнит 5 заданий',
+    'profile.referralLink': 'Ваша реферальная ссылка',
+    'profile.referralCopied': 'Ссылка скопирована!',
+    'profile.myTasks': 'Мои задания',
+    'profile.noTasksYet': 'Пока нет заданий',
+    'profile.overview': 'Обзор',
+    'profile.totalEarned': 'Всего заработано',
+    'profile.successRate': 'Успешность',
+    'profile.support': 'Поддержка',
+    'profile.about': 'О приложении',
+    'profile.logout': 'Выйти',
+    'profile.taskerSince': 'В приложении с',
+    'profile.minWithdraw': 'Минимальный вывод 10 Stars',
+    'profile.withdrawSubmit': 'Запрос на вывод {amount} Stars отправлен!',
+    'profile.withdrawInfo': 'В продакшене интеграция с Telegram Stars или TON.',
+
+    'task.createTitle': 'Новое задание',
+    'task.title': 'Название',
+    'task.titlePlaceholder': 'Например, Доставить посылку в центр',
+    'task.description': 'Описание',
+    'task.descriptionPlaceholder': 'Опишите детали задания...',
+    'task.reward': 'Награда',
+    'task.currency': 'Валюта',
+    'task.stars': 'Stars',
+    'task.usd': 'USD',
+    'task.category': 'Категория',
+    'task.createButton': '🚀 Создать задание',
+    'task.success': 'Задание создано!',
+    'task.error': 'Ошибка создания задания',
+
+    'chat.title': 'Поддержка',
+    'chat.noChats': 'Нет диалогов',
+    'chat.placeholder': 'Введите сообщение...',
+    'chat.send': 'Отправить',
+    'chat.contactHidden': 'Контакт скрыт после завершения',
+    'chat.call': 'Позвонить',
+    'chat.taskCompleted': 'Заказ завершён',
+
+    'lang.select': 'Выберите язык',
+    'lang.hint': 'Выберите предпочитаемый язык',
+    'lang.english': 'English',
+    'lang.russian': 'Русский',
+    'lang.uzbek': 'O\'zbek',
+
+    'onboarding.welcome': 'Добро пожаловать в TaskHub!',
+    'onboarding.skip': 'Пропустить',
+    'onboarding.next': 'Далее',
+    'onboarding.start': 'Начать!',
+    'onboarding.step1.title': 'Карта возможностей',
+    'onboarding.step1.desc': 'Находи задания рядом или делегируй свои задачи.',
+    'onboarding.step2.title': 'Безопасные платежи',
+    'onboarding.step2.desc': 'Твои Stars под защитой. Оплата после подтверждения.',
+    'onboarding.step3.title': 'Зарабатывай везде',
+    'onboarding.step3.desc': 'Стань частью глобальной сети помощников.',
+
+    'common.loading': 'Загрузка...',
+    'common.close': 'Закрыть',
+    'common.save': 'Сохранить',
+    'common.cancel': 'Отмена',
+    'common.delete': 'Удалить',
+    'common.edit': 'Редактировать',
+    'common.confirm': 'Подтвердить',
+    'common.share': 'Поделиться',
+    'common.copy': 'Копировать',
+    'common.search': 'Поиск...',
+    'common.noData': 'Нет данных',
+    'common.tryAgain': 'Попробовать снова',
+    'common.back': 'Назад',
+    'common.done': 'Готово',
+
+    'error.title': 'Что-то пошло не так',
+    'error.message': 'Произошла непредвиденная ошибка',
+    'error.network': 'Ошибка сети. Проверьте подключение.',
+    'error.unauthorized': 'Войдите, чтобы продолжить',
+    'error.forbidden': 'Доступ запрещён',
+    'error.notFound': 'Не найдено',
+
+    'neuro.title': 'NeuroChat ИИ',
+    'neuro.placeholder': 'Спросите о заданиях, ценах или советах...',
+    'neuro.welcome': 'Привет! Я ваш ассистент TaskHub. Спрашивайте о заданиях, оплатах или как начать!',
+    'neuro.typing': 'ИИ печатает...',
+
+    'admin.title': 'Админ-панель',
+    'admin.createTask': 'Создать задание',
+    'admin.editTask': 'Редактировать задание',
+    'admin.tasks': 'Все задания',
+    'admin.users': 'Пользователи',
+    'admin.stats': 'Статистика',
+
+    'notif.taskCreated': 'Задание создано!',
+    'notif.taskClaimed': 'Задание взято! Свяжитесь с создателем.',
+    'notif.paymentSuccess': 'Оплата успешна!',
+    'notif.newMessage': 'Новое сообщение',
+    'notif.referralBonus': 'Ваш реферал получил награду!',
   },
-} as const;
 
-export type TranslationKey = keyof typeof translations.en;
+  uz: {
+    'nav.home': 'Bosh sahifa',
+    'nav.map': 'Xarita',
+    'nav.tasks': 'Vazifalar',
+    'nav.profile': 'Profil',
 
-// Helper function to get translation with interpolation
+    'home.title': 'Yaqindagi vazifalar',
+    'home.subtitle': 'Boshlash uchun kategoriyani tanlang',
+    'home.search': 'Vazifalarni qidirish...',
+    'home.categories': 'Kategoriyalar',
+
+    'cat.all': 'Hammasi',
+    'cat.it': 'IT xizmatlar',
+    'cat.delivery': 'Yetkazib berish',
+    'cat.cleaning': 'Tozalash',
+    'cat.help': 'Yordam',
+    'cat.photo': 'Foto/Video',
+    'cat.repair': 'Tuzatish',
+    'cat.tutoring': 'Repetitorlik',
+    'cat.translation': 'Tarjima',
+    'cat.marketing': 'Marketing',
+
+    'map.loading': 'Xarita yuklanmoqda...',
+    'map.hint': 'Vazifa yaratish uchun xaritaga bosing',
+    'map.noTasks': 'Yaqinda vazifalar yo\'q',
+    'map.zoomIn': 'Vazifalarni ko\'rish uchun yaqinlashtiring',
+
+    'tasks.title': 'Mavjud vazifalar',
+    'tasks.filter': 'Filtr',
+    'tasks.sort': 'Saralash',
+    'tasks.noTasks': 'Vazifalar topilmadi',
+    'tasks.loading': 'Vazifalar yuklanmoqda...',
+    'tasks.claim': 'Olish',
+    'tasks.claimed': 'Olingan',
+    'tasks.reward': 'Mukofot',
+    'tasks.distance': 'Masofa',
+    'tasks.created': 'Yaratilgan',
+    'tasks.status.open': 'Ochiq',
+    'tasks.status.in_progress': 'Jarayonda',
+    'tasks.status.completed': 'Bajarildi',
+    'tasks.status.cancelled': 'Bekor qilindi',
+
+    'profile.title': 'Profil',
+    'profile.balance': 'Balans',
+    'profile.stars': 'Stars',
+    'profile.completed': 'Bajarilgan',
+    'profile.active': 'Faol',
+    'profile.rating': 'Reyting',
+    'profile.settings': 'Sozlamalar',
+    'profile.language': 'Til',
+    'profile.wallet': 'Hamyonni ulash',
+    'profile.disconnect': 'Hamyonni uzish',
+    'profile.withdraw': 'Mablag\'ni yechib olish',
+    'profile.referral': 'Do\'stni taklif qilish',
+    'profile.referralHint': 'Do\'stingiz 5 ta vazifa bajarganda 24 soatlik premium oling',
+    'profile.referralLink': 'Sizning referal havolangiz',
+    'profile.referralCopied': 'Havola nusxalandi!',
+    'profile.myTasks': 'Mening vazifalarim',
+    'profile.noTasksYet': 'Hali vazifalar yo\'q',
+    'profile.overview': 'Umumiy ko\'rinish',
+    'profile.totalEarned': 'Jami ishlab topilgan',
+    'profile.successRate': 'Muvaffaqiyat darajasi',
+    'profile.support': 'Qo\'llab-quvvatlash',
+    'profile.about': 'Ilova haqida',
+    'profile.logout': 'Chiqish',
+    'profile.taskerSince': 'Ilovada',
+    'profile.minWithdraw': 'Minimal yechib olish 10 Stars',
+    'profile.withdrawSubmit': '{amount} Stars yechib olish so\'rovi yuborildi!',
+    'profile.withdrawInfo': 'Ishlab chiqarishda Telegram Stars yoki TON bilan integratsiya.',
+
+    'task.createTitle': 'Yangi vazifa',
+    'task.title': 'Nomi',
+    'task.titlePlaceholder': 'Masalan, Markazga posilka yetkazish',
+    'task.description': 'Tavsif',
+    'task.descriptionPlaceholder': 'Vazifa tafsilotlarini yozing...',
+    'task.reward': 'Mukofot',
+    'task.currency': 'Valyuta',
+    'task.stars': 'Stars',
+    'task.usd': 'USD',
+    'task.category': 'Kategoriya',
+    'task.createButton': '🚀 Vazifa yaratish',
+    'task.success': 'Vazifa yaratildi!',
+    'task.error': 'Vazifa yaratishda xato',
+
+    'chat.title': 'Qo\'llab-quvvatlash',
+    'chat.noChats': 'Suhbatlar yo\'q',
+    'chat.placeholder': 'Xabar yozing...',
+    'chat.send': 'Yuborish',
+    'chat.contactHidden': 'Bajarilgandan keyin kontakt yashirin',
+    'chat.call': 'Qo\'ng\'iroq',
+    'chat.taskCompleted': 'Buyurtma bajarildi',
+
+    'lang.select': 'Tilni tanlang',
+    'lang.hint': 'Afzal tilni tanlang',
+    'lang.english': 'English',
+    'lang.russian': 'Русский',
+    'lang.uzbek': 'O\'zbek',
+
+    'onboarding.welcome': 'TaskHub-ga xush kelibsiz!',
+    'onboarding.skip': 'O\'tkazish',
+    'onboarding.next': 'Keyingisi',
+    'onboarding.start': 'Boshlash!',
+    'onboarding.step1.title': 'Imkoniyatlar xaritasi',
+    'onboarding.step1.desc': 'Yaqindagi vazifalarni toping yoki o\'z vazifalaringizni topshiring.',
+    'onboarding.step2.title': 'Xavfsiz to\'lovlar',
+    'onboarding.step2.desc': 'Sizning Starlaringiz himoyalangan. To\'lov tasdiqlangandan keyin.',
+    'onboarding.step3.title': 'Hamma joyda ishlash',
+    'onboarding.step3.desc': 'TaskHub global tarmog\'ining bir qismi bo\'ling.',
+
+    'common.loading': 'Yuklanmoqda...',
+    'common.close': 'Yopish',
+    'common.save': 'Saqlash',
+    'common.cancel': 'Bekor qilish',
+    'common.delete': 'O\'chirish',
+    'common.edit': 'Tahrirlash',
+    'common.confirm': 'Tasdiqlash',
+    'common.share': 'Ulashish',
+    'common.copy': 'Nusxalash',
+    'common.search': 'Qidirish...',
+    'common.noData': 'Ma\'lumot yo\'q',
+    'common.tryAgain': 'Qayta urinish',
+    'common.back': 'Orqaga',
+    'common.done': 'Tayyor',
+
+    'error.title': 'Nimadir noto\'g\'ri ketdi',
+    'error.message': 'Kutilmagan xato yuz berdi',
+    'error.network': 'Tarmoq xatosi. Ulanishni tekshiring.',
+    'error.unauthorized': 'Davom etish uchun kiring',
+    'error.forbidden': 'Kirish taqiqlangan',
+    'error.notFound': 'Topilmadi',
+
+    'neuro.title': 'NeuroChat AI',
+    'neuro.placeholder': 'Vazifalar, narxlar yoki maslahatlar haqida so\'rang...',
+    'neuro.welcome': 'Salom! Men sizning TaskHub yordamchingizman. Vazifalar, to\'lovlar yoki boshlash haqida so\'rang!',
+    'neuro.typing': 'AI yozmoqda...',
+
+    'admin.title': 'Admin panel',
+    'admin.createTask': 'Vazifa yaratish',
+    'admin.editTask': 'Vazifani tahrirlash',
+    'admin.tasks': 'Barcha vazifalar',
+    'admin.users': 'Foydalanuvchilar',
+    'admin.stats': 'Statistika',
+
+    'notif.taskCreated': 'Vazifa muvaffaqiyatli yaratildi!',
+    'notif.taskClaimed': 'Vazifa olindi! Yaratuvchi bilan bog\'laning.',
+    'notif.paymentSuccess': 'To\'lov muvaffaqiyatli!',
+    'notif.newMessage': 'Yangi xabar',
+    'notif.referralBonus': 'Sizning referalingiz mukofot oldi!',
+  },
+};
+
+// Translation helper
 export function t(lang: Language, key: string, params?: Record<string, string | number>): string {
   const keys = key.split('.');
   let value: any = translations[lang];
-  
   for (const k of keys) {
     value = value?.[k];
   }
-  
-  if (typeof value !== 'string') {
-    return key;
-  }
-  
+  if (typeof value !== 'string') return key;
   if (params) {
-    return value.replace(/\{(\w+)\}/g, (match, paramKey) => {
-      return String(params[paramKey] ?? match);
-    });
+    return value.replace(/\{(\w+)\}/g, (match, p) => String(params[p] ?? match));
   }
-  
   return value;
 }
 
-// Get default language from localStorage or browser
+// Default language detection
 export function getDefaultLanguage(): Language {
   if (typeof window === 'undefined') return 'en';
-
   const saved = localStorage.getItem('language');
-  if (saved === 'en' || saved === 'ru') return saved;
-
-  // Try to detect from browser
+  if (saved === 'en' || saved === 'ru' || saved === 'uz') return saved;
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith('ru')) return 'ru';
-
+  if (browserLang.startsWith('uz')) return 'uz';
   return 'en';
 }

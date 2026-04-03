@@ -16,10 +16,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
     try {
       const savedLang = localStorage.getItem('language');
-      if (savedLang === 'en' || savedLang === 'ru') {
+      if (savedLang === 'en' || savedLang === 'ru' || savedLang === 'uz') {
         setLanguageState(savedLang);
       } else {
         setLanguageState(getDefaultLanguage());
@@ -33,11 +32,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('language', lang);
-      } catch (e) {
-        console.error('Language save error:', e);
-      }
+      try { localStorage.setItem('language', lang); } catch (e) {}
     }
   };
 
@@ -50,8 +45,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
+  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
   return context;
 }
