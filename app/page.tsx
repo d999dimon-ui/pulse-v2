@@ -32,7 +32,6 @@ const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9
 
 function HomeContent() {
   const { language } = useLanguage();
-  const [isClient, setIsClient] = useState(false);
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
@@ -66,9 +65,6 @@ function HomeContent() {
     }, 3000);
     return () => clearTimeout(timer);
   }, []);
-
-  // Пока не смонтировался - показываем черный экран
-  if (!isClient) return <div style={{ background: 'black', minHeight: '100vh' }} />;
 
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
