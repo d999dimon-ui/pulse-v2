@@ -46,17 +46,16 @@ interface ModerationResult {
 function checkKeywords(text: string): ModerationResult {
   const lowerText = text.toLowerCase();
   const detectedWords: string[] = [];
-  let maxSeverity: string = 'none';
+  let maxSeverity: ModerationResult['severity'] = 'none';
   let detectedCategory: string | null = null;
 
   for (const [category, keywords] of Object.entries(FORBIDDEN_KEYWORDS)) {
     for (const keyword of keywords) {
       if (lowerText.includes(keyword)) {
         detectedWords.push(keyword);
-        const severity = SEVERITY_LEVELS[category as keyof typeof SEVERITY_LEVELS] || 'low';
-        if (severity === 'critical') maxSeverity = 'critical';
-        else if (severity === 'high' && maxSeverity !== 'critical') maxSeverity = 'high';
-        else if (severity === 'medium' && !['critical', 'high'].includes(maxSeverity)) maxSeverity = 'medium';
+        const severity = SEVERITY_LEVELS[category as keyof typeof SEVERITY_LEVELS] || 'none';
+        const order = { none: 0, low: 1, medium: 2, high: 3, critical: 4 };
+        if ((order as any)[severity] > (order as any)[maxSeverity]) maxSeverity = severity;
         if (!detectedCategory) detectedCategory = category;
       }
     }
