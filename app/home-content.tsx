@@ -46,6 +46,7 @@ function HomeContent() {
   const [unreadCount] = useState(0);
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
   // ========== ALL CALLBACKS (must be before effects and returns) ==========
@@ -199,10 +200,29 @@ function HomeContent() {
             <button onClick={() => setIsProfileOpen(true)} className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-purple-500/50 transition-all">
               <User size={20} className="text-white" />
             </button>
-            <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all">
-              <ListFilter size={18} className="text-cyan-400" />
-              <span className="text-white font-medium text-sm">{tasks.filter(tk => tk.status === 'open').length} Tasks</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsDetectingLocation(true);
+                  getLocationByIP().finally(() => setIsDetectingLocation(false));
+                }}
+                className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-cyan-500/50 transition-all"
+                title={language === 'ru' ? 'Определить местоположение' : 'Detect location'}
+              >
+                {isDetectingLocation ? (
+                  <Loader2 size={20} className="text-cyan-400 animate-spin" />
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-cyan-400">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                  </svg>
+                )}
+              </button>
+              <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all">
+                <ListFilter size={18} className="text-cyan-400" />
+                <span className="text-white font-medium text-sm">{tasks.filter(tk => tk.status === 'open').length} {t(language, 'tasks.status.open')}</span>
+              </button>
+            </div>
           </div>
           <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:bg-cyan-400 hover:text-black transition-all active:scale-95">
             <Plus size={28} strokeWidth={2.5} />
