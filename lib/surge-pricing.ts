@@ -88,7 +88,7 @@ export function getSurgeZoneColor(multiplier: number): string {
 }
 
 // Get surge status text
-export function getSurgeStatusText(multiplier: number, language: 'en' | 'ru' | 'uz'): string {
+export function getSurgeStatusText(multiplier: number, language: 'en' | 'ru'): string {
   if (multiplier >= 2.0) {
     return language === 'ru' ? '🔴 Экстремальный спрос' : '🔴 Extreme Demand';
   }

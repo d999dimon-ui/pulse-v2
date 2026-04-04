@@ -1,19 +1,42 @@
-// TaskHub i18n — EN / RU / UZ
-export type Language = 'en' | 'ru' | 'uz';
+// Translations for English and Russian
 
-export const translations: Record<Language, Record<string, any>> = {
+export type Language = 'en' | 'ru';
+
+export const translations = {
   en: {
+    // Common
+    loading: 'Loading...',
+    close: 'Close',
+    create: 'Create',
+    cancel: 'Cancel',
+    save: 'Save',
+    confirm: 'Confirm',
+    share: 'Share',
+    copy: 'Copy',
+    search: 'Search...',
+    noData: 'No data',
+    tryAgain: 'Try Again',
+    back: 'Back',
+    done: 'Done',
+    delete: 'Delete',
+    edit: 'Edit',
+
     // Nav
     'nav.home': 'Home',
     'nav.map': 'Map',
     'nav.tasks': 'Tasks',
     'nav.profile': 'Profile',
+    'nav.chats': 'Chats',
 
     // Home
     'home.title': 'Find Tasks Nearby',
     'home.subtitle': 'Choose a category to get started',
     'home.search': 'Search tasks...',
     'home.categories': 'Categories',
+    'home.nearbyTasks': 'Nearby Tasks',
+    'home.tasksWithin5km': '{count} tasks within 5km',
+    'home.noTasksNearby': 'No tasks nearby',
+    'home.beFirstToCreate': 'Be the first to create a task!',
 
     // Categories
     'cat.all': 'All',
@@ -26,12 +49,15 @@ export const translations: Record<Language, Record<string, any>> = {
     'cat.tutoring': 'Tutoring',
     'cat.translation': 'Translation',
     'cat.marketing': 'Marketing',
+    'cat.custom': 'Custom',
+    'cat.other': 'Other',
 
     // Map
     'map.loading': 'Loading map...',
-    'map.hint': 'Tap on map to create a task',
+    'map.hint': 'Long press on map to create a task',
     'map.noTasks': 'No tasks nearby',
     'map.zoomIn': 'Zoom in to see tasks',
+    'map.currentLocation': 'Current location',
 
     // Tasks
     'tasks.title': 'Available Tasks',
@@ -48,6 +74,8 @@ export const translations: Record<Language, Record<string, any>> = {
     'tasks.status.in_progress': 'In Progress',
     'tasks.status.completed': 'Completed',
     'tasks.status.cancelled': 'Cancelled',
+    'tasks.status.claimed': 'Claimed',
+    'tasks.status.active': 'Active',
 
     // Profile
     'profile.title': 'Profile',
@@ -77,6 +105,8 @@ export const translations: Record<Language, Record<string, any>> = {
     'profile.minWithdraw': 'Minimum withdrawal is 10 Stars',
     'profile.withdrawSubmit': 'Withdrawal request for {amount} Stars submitted!',
     'profile.withdrawInfo': 'In production, this integrates with Telegram Stars or TON.',
+    'profile.currentBalance': 'Current Balance',
+    'profile.withdrawFunds': 'Withdraw Funds',
 
     // Task Creation
     'task.createTitle': 'Create New Task',
@@ -89,25 +119,30 @@ export const translations: Record<Language, Record<string, any>> = {
     'task.stars': 'Stars',
     'task.usd': 'USD',
     'task.category': 'Category',
-    'task.createButton': '🚀 Create Task',
+    'task.createButton': 'Create Task',
     'task.success': 'Task created!',
     'task.error': 'Error creating task',
+    'taskAddress': 'Address',
+    'taskAddressPlaceholder': 'City, street, building',
+    'taskSetOnMap': 'Set on Map',
+    'taskPhone': 'Contact Phone',
+    'taskPhonePlaceholder': '+996 ___ ___ ___',
 
     // Chat
-    'chat.title': 'Support Chat',
+    'chat.title': 'Messages',
     'chat.noChats': 'No conversations',
     'chat.placeholder': 'Type a message...',
     'chat.send': 'Send',
     'chat.contactHidden': 'Contact hidden after completion',
     'chat.call': 'Call',
     'chat.taskCompleted': 'Order completed',
+    'chat.sendMessage': 'Enter message...',
 
     // Language Selector
     'lang.select': 'Select Language',
-    'lang.hint': 'Choose your preferred language',
+    'lang.hint': 'Choose your preferred language to get started',
     'lang.english': 'English',
     'lang.russian': 'Русский',
-    'lang.uzbek': 'O\'zbek',
 
     // Onboarding
     'onboarding.welcome': 'Welcome to TaskHub!',
@@ -121,21 +156,18 @@ export const translations: Record<Language, Record<string, any>> = {
     'onboarding.step3.title': 'Earn Everywhere',
     'onboarding.step3.desc': 'Become part of the global TaskHub network.',
 
-    // Common
-    'common.loading': 'Loading...',
-    'common.close': 'Close',
-    'common.save': 'Save',
-    'common.cancel': 'Cancel',
-    'common.delete': 'Delete',
-    'common.edit': 'Edit',
-    'common.confirm': 'Confirm',
-    'common.share': 'Share',
-    'common.copy': 'Copy',
-    'common.search': 'Search...',
-    'common.noData': 'No data',
-    'common.tryAgain': 'Try Again',
-    'common.back': 'Back',
-    'common.done': 'Done',
+    // Notifications
+    'taskClaimed': 'Task claimed! Contact the task creator to complete.',
+    'minimumWithdrawal': 'Minimum withdrawal is 10 Stars',
+    'withdrawalSubmitted': 'Withdrawal request for {amount} Stars submitted!',
+    'withdrawalInfo': 'In production, this would integrate with Telegram Stars or TON payment.',
+    'longPressHint': 'Long press on map to create a task',
+    'paymentSuccess': 'Payment for "{tariff}" successful!',
+    'paymentTest': 'Telegram WebApp not available. Test payment: {tariff} - {invoiceId}',
+
+    // Common actions
+    'createTaskTitle': 'Create New Task',
+    'createTaskButton': 'Create Task',
 
     // Errors
     'error.title': 'Something went wrong',
@@ -158,26 +190,44 @@ export const translations: Record<Language, Record<string, any>> = {
     'admin.tasks': 'All Tasks',
     'admin.users': 'Users',
     'admin.stats': 'Statistics',
-
-    // Notification
-    'notif.taskCreated': 'Task created successfully!',
-    'notif.taskClaimed': 'Task claimed! Contact the creator to complete.',
-    'notif.paymentSuccess': 'Payment successful!',
-    'notif.newMessage': 'New message received',
-    'notif.referralBonus': 'Your referral earned a reward!',
   },
 
   ru: {
+    // Common
+    loading: 'Загрузка...',
+    close: 'Закрыть',
+    create: 'Создать',
+    cancel: 'Отмена',
+    save: 'Сохранить',
+    confirm: 'Подтвердить',
+    share: 'Поделиться',
+    copy: 'Копировать',
+    search: 'Поиск...',
+    noData: 'Нет данных',
+    tryAgain: 'Попробовать снова',
+    back: 'Назад',
+    done: 'Готово',
+    delete: 'Удалить',
+    edit: 'Редактировать',
+
+    // Nav
     'nav.home': 'Главная',
     'nav.map': 'Карта',
     'nav.tasks': 'Задания',
     'nav.profile': 'Профиль',
+    'nav.chats': 'Чаты',
 
+    // Home
     'home.title': 'Задания рядом',
     'home.subtitle': 'Выберите категорию',
     'home.search': 'Поиск заданий...',
     'home.categories': 'Категории',
+    'home.nearbyTasks': 'Задания рядом',
+    'home.tasksWithin5km': '{count} заданий в радиусе 5км',
+    'home.noTasksNearby': 'Нет заданий рядом',
+    'home.beFirstToCreate': 'Создайте первое задание!',
 
+    // Categories
     'cat.all': 'Все',
     'cat.it': 'IT-услуги',
     'cat.delivery': 'Доставка',
@@ -188,12 +238,17 @@ export const translations: Record<Language, Record<string, any>> = {
     'cat.tutoring': 'Репетиторство',
     'cat.translation': 'Переводы',
     'cat.marketing': 'Маркетинг',
+    'cat.custom': 'Своя',
+    'cat.other': 'Другое',
 
+    // Map
     'map.loading': 'Загрузка карты...',
-    'map.hint': 'Нажмите на карту для создания задания',
+    'map.hint': 'Долгое нажатие для создания задания',
     'map.noTasks': 'Нет заданий рядом',
     'map.zoomIn': 'Приблизьте карту',
+    'map.currentLocation': 'Текущее местоположение',
 
+    // Tasks
     'tasks.title': 'Доступные задания',
     'tasks.filter': 'Фильтр',
     'tasks.sort': 'Сортировка',
@@ -208,7 +263,10 @@ export const translations: Record<Language, Record<string, any>> = {
     'tasks.status.in_progress': 'В работе',
     'tasks.status.completed': 'Выполнено',
     'tasks.status.cancelled': 'Отменено',
+    'tasks.status.claimed': 'Взято',
+    'tasks.status.active': 'Активно',
 
+    // Profile
     'profile.title': 'Профиль',
     'profile.balance': 'Баланс',
     'profile.stars': 'Stars',
@@ -236,7 +294,10 @@ export const translations: Record<Language, Record<string, any>> = {
     'profile.minWithdraw': 'Минимальный вывод 10 Stars',
     'profile.withdrawSubmit': 'Запрос на вывод {amount} Stars отправлен!',
     'profile.withdrawInfo': 'В продакшене интеграция с Telegram Stars или TON.',
+    'profile.currentBalance': 'Текущий баланс',
+    'profile.withdrawFunds': 'Вывести средства',
 
+    // Task Creation
     'task.createTitle': 'Новое задание',
     'task.title': 'Название',
     'task.titlePlaceholder': 'Например, Доставить посылку в центр',
@@ -247,24 +308,32 @@ export const translations: Record<Language, Record<string, any>> = {
     'task.stars': 'Stars',
     'task.usd': 'USD',
     'task.category': 'Категория',
-    'task.createButton': '🚀 Создать задание',
+    'task.createButton': 'Создать задание',
     'task.success': 'Задание создано!',
     'task.error': 'Ошибка создания задания',
+    'taskAddress': 'Адрес',
+    'taskAddressPlaceholder': 'Город, улица, дом',
+    'taskSetOnMap': 'Указать на карте',
+    'taskPhone': 'Контактный телефон',
+    'taskPhonePlaceholder': '+996 ___ ___ ___',
 
-    'chat.title': 'Поддержка',
+    // Chat
+    'chat.title': 'Сообщения',
     'chat.noChats': 'Нет диалогов',
     'chat.placeholder': 'Введите сообщение...',
     'chat.send': 'Отправить',
     'chat.contactHidden': 'Контакт скрыт после завершения',
     'chat.call': 'Позвонить',
     'chat.taskCompleted': 'Заказ завершён',
+    'chat.sendMessage': 'Введите сообщение...',
 
+    // Language Selector
     'lang.select': 'Выберите язык',
-    'lang.hint': 'Выберите предпочитаемый язык',
+    'lang.hint': 'Выберите предпочитаемый язык для начала работы',
     'lang.english': 'English',
     'lang.russian': 'Русский',
-    'lang.uzbek': 'O\'zbek',
 
+    // Onboarding
     'onboarding.welcome': 'Добро пожаловать в TaskHub!',
     'onboarding.skip': 'Пропустить',
     'onboarding.next': 'Далее',
@@ -276,21 +345,20 @@ export const translations: Record<Language, Record<string, any>> = {
     'onboarding.step3.title': 'Зарабатывай везде',
     'onboarding.step3.desc': 'Стань частью глобальной сети помощников.',
 
-    'common.loading': 'Загрузка...',
-    'common.close': 'Закрыть',
-    'common.save': 'Сохранить',
-    'common.cancel': 'Отмена',
-    'common.delete': 'Удалить',
-    'common.edit': 'Редактировать',
-    'common.confirm': 'Подтвердить',
-    'common.share': 'Поделиться',
-    'common.copy': 'Копировать',
-    'common.search': 'Поиск...',
-    'common.noData': 'Нет данных',
-    'common.tryAgain': 'Попробовать снова',
-    'common.back': 'Назад',
-    'common.done': 'Готово',
+    // Notifications
+    'taskClaimed': 'Задание взято! Свяжитесь с создателем для выполнения.',
+    'minimumWithdrawal': 'Минимальный вывод 10 Stars',
+    'withdrawalSubmitted': 'Запрос на вывод {amount} Stars отправлен!',
+    'withdrawalInfo': 'В продакшене это будет интегрировано с Telegram Stars или TON.',
+    'longPressHint': 'Долгое нажатие на карте для создания задания',
+    'paymentSuccess': 'Оплата тарифа "{tariff}" успешна!',
+    'paymentTest': 'Telegram WebApp недоступен. Тест оплаты: {tariff} - {invoiceId}',
 
+    // Common actions
+    'createTaskTitle': 'Создать задание',
+    'createTaskButton': 'Создать задание',
+
+    // Errors
     'error.title': 'Что-то пошло не так',
     'error.message': 'Произошла непредвиденная ошибка',
     'error.network': 'Ошибка сети. Проверьте подключение.',
@@ -298,177 +366,25 @@ export const translations: Record<Language, Record<string, any>> = {
     'error.forbidden': 'Доступ запрещён',
     'error.notFound': 'Не найдено',
 
+    // NeuroChat
     'neuro.title': 'NeuroChat ИИ',
     'neuro.placeholder': 'Спросите о заданиях, ценах или советах...',
     'neuro.welcome': 'Привет! Я ваш ассистент TaskHub. Спрашивайте о заданиях, оплатах или как начать!',
     'neuro.typing': 'ИИ печатает...',
 
+    // Admin
     'admin.title': 'Админ-панель',
     'admin.createTask': 'Создать задание',
     'admin.editTask': 'Редактировать задание',
     'admin.tasks': 'Все задания',
     'admin.users': 'Пользователи',
     'admin.stats': 'Статистика',
-
-    'notif.taskCreated': 'Задание создано!',
-    'notif.taskClaimed': 'Задание взято! Свяжитесь с создателем.',
-    'notif.paymentSuccess': 'Оплата успешна!',
-    'notif.newMessage': 'Новое сообщение',
-    'notif.referralBonus': 'Ваш реферал получил награду!',
   },
+} as const;
 
-  uz: {
-    'nav.home': 'Bosh sahifa',
-    'nav.map': 'Xarita',
-    'nav.tasks': 'Vazifalar',
-    'nav.profile': 'Profil',
+export type TranslationKey = keyof typeof translations.en;
 
-    'home.title': 'Yaqindagi vazifalar',
-    'home.subtitle': 'Boshlash uchun kategoriyani tanlang',
-    'home.search': 'Vazifalarni qidirish...',
-    'home.categories': 'Kategoriyalar',
-
-    'cat.all': 'Hammasi',
-    'cat.it': 'IT xizmatlar',
-    'cat.delivery': 'Yetkazib berish',
-    'cat.cleaning': 'Tozalash',
-    'cat.help': 'Yordam',
-    'cat.photo': 'Foto/Video',
-    'cat.repair': 'Tuzatish',
-    'cat.tutoring': 'Repetitorlik',
-    'cat.translation': 'Tarjima',
-    'cat.marketing': 'Marketing',
-
-    'map.loading': 'Xarita yuklanmoqda...',
-    'map.hint': 'Vazifa yaratish uchun xaritaga bosing',
-    'map.noTasks': 'Yaqinda vazifalar yo\'q',
-    'map.zoomIn': 'Vazifalarni ko\'rish uchun yaqinlashtiring',
-
-    'tasks.title': 'Mavjud vazifalar',
-    'tasks.filter': 'Filtr',
-    'tasks.sort': 'Saralash',
-    'tasks.noTasks': 'Vazifalar topilmadi',
-    'tasks.loading': 'Vazifalar yuklanmoqda...',
-    'tasks.claim': 'Olish',
-    'tasks.claimed': 'Olingan',
-    'tasks.reward': 'Mukofot',
-    'tasks.distance': 'Masofa',
-    'tasks.created': 'Yaratilgan',
-    'tasks.status.open': 'Ochiq',
-    'tasks.status.in_progress': 'Jarayonda',
-    'tasks.status.completed': 'Bajarildi',
-    'tasks.status.cancelled': 'Bekor qilindi',
-
-    'profile.title': 'Profil',
-    'profile.balance': 'Balans',
-    'profile.stars': 'Stars',
-    'profile.completed': 'Bajarilgan',
-    'profile.active': 'Faol',
-    'profile.rating': 'Reyting',
-    'profile.settings': 'Sozlamalar',
-    'profile.language': 'Til',
-    'profile.wallet': 'Hamyonni ulash',
-    'profile.disconnect': 'Hamyonni uzish',
-    'profile.withdraw': 'Mablag\'ni yechib olish',
-    'profile.referral': 'Do\'stni taklif qilish',
-    'profile.referralHint': 'Do\'stingiz 5 ta vazifa bajarganda 24 soatlik premium oling',
-    'profile.referralLink': 'Sizning referal havolangiz',
-    'profile.referralCopied': 'Havola nusxalandi!',
-    'profile.myTasks': 'Mening vazifalarim',
-    'profile.noTasksYet': 'Hali vazifalar yo\'q',
-    'profile.overview': 'Umumiy ko\'rinish',
-    'profile.totalEarned': 'Jami ishlab topilgan',
-    'profile.successRate': 'Muvaffaqiyat darajasi',
-    'profile.support': 'Qo\'llab-quvvatlash',
-    'profile.about': 'Ilova haqida',
-    'profile.logout': 'Chiqish',
-    'profile.taskerSince': 'Ilovada',
-    'profile.minWithdraw': 'Minimal yechib olish 10 Stars',
-    'profile.withdrawSubmit': '{amount} Stars yechib olish so\'rovi yuborildi!',
-    'profile.withdrawInfo': 'Ishlab chiqarishda Telegram Stars yoki TON bilan integratsiya.',
-
-    'task.createTitle': 'Yangi vazifa',
-    'task.title': 'Nomi',
-    'task.titlePlaceholder': 'Masalan, Markazga posilka yetkazish',
-    'task.description': 'Tavsif',
-    'task.descriptionPlaceholder': 'Vazifa tafsilotlarini yozing...',
-    'task.reward': 'Mukofot',
-    'task.currency': 'Valyuta',
-    'task.stars': 'Stars',
-    'task.usd': 'USD',
-    'task.category': 'Kategoriya',
-    'task.createButton': '🚀 Vazifa yaratish',
-    'task.success': 'Vazifa yaratildi!',
-    'task.error': 'Vazifa yaratishda xato',
-
-    'chat.title': 'Qo\'llab-quvvatlash',
-    'chat.noChats': 'Suhbatlar yo\'q',
-    'chat.placeholder': 'Xabar yozing...',
-    'chat.send': 'Yuborish',
-    'chat.contactHidden': 'Bajarilgandan keyin kontakt yashirin',
-    'chat.call': 'Qo\'ng\'iroq',
-    'chat.taskCompleted': 'Buyurtma bajarildi',
-
-    'lang.select': 'Tilni tanlang',
-    'lang.hint': 'Afzal tilni tanlang',
-    'lang.english': 'English',
-    'lang.russian': 'Русский',
-    'lang.uzbek': 'O\'zbek',
-
-    'onboarding.welcome': 'TaskHub-ga xush kelibsiz!',
-    'onboarding.skip': 'O\'tkazish',
-    'onboarding.next': 'Keyingisi',
-    'onboarding.start': 'Boshlash!',
-    'onboarding.step1.title': 'Imkoniyatlar xaritasi',
-    'onboarding.step1.desc': 'Yaqindagi vazifalarni toping yoki o\'z vazifalaringizni topshiring.',
-    'onboarding.step2.title': 'Xavfsiz to\'lovlar',
-    'onboarding.step2.desc': 'Sizning Starlaringiz himoyalangan. To\'lov tasdiqlangandan keyin.',
-    'onboarding.step3.title': 'Hamma joyda ishlash',
-    'onboarding.step3.desc': 'TaskHub global tarmog\'ining bir qismi bo\'ling.',
-
-    'common.loading': 'Yuklanmoqda...',
-    'common.close': 'Yopish',
-    'common.save': 'Saqlash',
-    'common.cancel': 'Bekor qilish',
-    'common.delete': 'O\'chirish',
-    'common.edit': 'Tahrirlash',
-    'common.confirm': 'Tasdiqlash',
-    'common.share': 'Ulashish',
-    'common.copy': 'Nusxalash',
-    'common.search': 'Qidirish...',
-    'common.noData': 'Ma\'lumot yo\'q',
-    'common.tryAgain': 'Qayta urinish',
-    'common.back': 'Orqaga',
-    'common.done': 'Tayyor',
-
-    'error.title': 'Nimadir noto\'g\'ri ketdi',
-    'error.message': 'Kutilmagan xato yuz berdi',
-    'error.network': 'Tarmoq xatosi. Ulanishni tekshiring.',
-    'error.unauthorized': 'Davom etish uchun kiring',
-    'error.forbidden': 'Kirish taqiqlangan',
-    'error.notFound': 'Topilmadi',
-
-    'neuro.title': 'NeuroChat AI',
-    'neuro.placeholder': 'Vazifalar, narxlar yoki maslahatlar haqida so\'rang...',
-    'neuro.welcome': 'Salom! Men sizning TaskHub yordamchingizman. Vazifalar, to\'lovlar yoki boshlash haqida so\'rang!',
-    'neuro.typing': 'AI yozmoqda...',
-
-    'admin.title': 'Admin panel',
-    'admin.createTask': 'Vazifa yaratish',
-    'admin.editTask': 'Vazifani tahrirlash',
-    'admin.tasks': 'Barcha vazifalar',
-    'admin.users': 'Foydalanuvchilar',
-    'admin.stats': 'Statistika',
-
-    'notif.taskCreated': 'Vazifa muvaffaqiyatli yaratildi!',
-    'notif.taskClaimed': 'Vazifa olindi! Yaratuvchi bilan bog\'laning.',
-    'notif.paymentSuccess': 'To\'lov muvaffaqiyatli!',
-    'notif.newMessage': 'Yangi xabar',
-    'notif.referralBonus': 'Sizning referalingiz mukofot oldi!',
-  },
-};
-
-// Translation helper
+// Helper function to get translation with interpolation
 export function t(lang: Language, key: string, params?: Record<string, string | number>): string {
   const keys = key.split('.');
   let value: any = translations[lang];
@@ -477,18 +393,17 @@ export function t(lang: Language, key: string, params?: Record<string, string | 
   }
   if (typeof value !== 'string') return key;
   if (params) {
-    return value.replace(/\{(\w+)\}/g, (match, p) => String(params[p] ?? match));
+    return value.replace(/\{(\w+)\}/g, (match, paramKey) => String(params[paramKey] ?? match));
   }
   return value;
 }
 
-// Default language detection
+// Get default language from localStorage or browser
 export function getDefaultLanguage(): Language {
   if (typeof window === 'undefined') return 'en';
   const saved = localStorage.getItem('language');
-  if (saved === 'en' || saved === 'ru' || saved === 'uz') return saved;
+  if (saved === 'en' || saved === 'ru') return saved;
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith('ru')) return 'ru';
-  if (browserLang.startsWith('uz')) return 'uz';
   return 'en';
 }

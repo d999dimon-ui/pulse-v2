@@ -37,7 +37,7 @@ export function filterKeywords(text: string): { isValid: boolean; foundWords: st
   };
 }
 
-export function getSafetyMessage(language: 'en' | 'ru' | 'uz'): string {
+export function getSafetyMessage(language: 'en' | 'ru'): string {
   return language === 'ru'
     ? 'This task violates our community guidelines / Задача нарушает правила сообщества'
     : 'This task violates our community guidelines / Задача нарушает правила сообщества';

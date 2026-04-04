@@ -18,7 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return;
     try {
       const savedLang = localStorage.getItem('language');
-      if (savedLang === 'en' || savedLang === 'ru' || savedLang === 'uz') {
+      if (savedLang === 'en' || savedLang === 'ru') {
         setLanguageState(savedLang);
       } else {
         setLanguageState(getDefaultLanguage());

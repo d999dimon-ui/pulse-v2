@@ -1,30 +1,21 @@
 "use client";
 
 import { useState } from 'react';
-import { Task } from '@/types/task';
-import { User } from '@/types/task';
+import { Task, User } from '@/types/task';
 import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { t, Language } from '@/utils/translations';
+import { t } from '@/utils/translations';
 import AboutModal from './AboutModal';
 import ConnectWalletButton from './ConnectWalletButton';
 import SupportChat from './SupportChat';
 
 interface UserProfileProps {
-  isOpen: boolean;
-  onClose: () => void;
   user: User | null;
   tasks: Task[];
   onWithdraw: () => void;
 }
 
-export default function UserProfile({
-  isOpen,
-  onClose,
-  user,
-  tasks,
-  onWithdraw
-}: UserProfileProps) {
+export default function UserProfile({ user, tasks, onWithdraw }: UserProfileProps) {
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
   const [showAboutModal, setShowAboutModal] = useState(false);
@@ -34,11 +25,9 @@ export default function UserProfile({
   const completedTasks = myTasks.filter(task => task.status === 'completed');
   const activeTasks = myTasks.filter(task => task.status === 'active');
 
-  // Safety check for SSR
-  if (!isOpen || !user || typeof window === 'undefined') return null;
+  if (!user) return null;
 
-  // Safe date calculation
-  const joinedDate = user.completedTasks > 0 
+  const joinedDate = user.completedTasks > 0
     ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     : new Date();
 
@@ -51,7 +40,7 @@ export default function UserProfile({
       {/* Background overlay */}
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[3500]"
-        onClick={onClose}
+        onClick={() => {}}
       />
 
       {/* Profile Panel */}
@@ -59,11 +48,11 @@ export default function UserProfile({
         <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl
                         border border-purple-500/30 rounded-3xl overflow-hidden
                         shadow-[0_0_40px_rgba(168,85,247,0.2)]">
-          
+
           {/* Header */}
           <div className="relative p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-white/10">
             <button
-              onClick={onClose}
+              onClick={() => {}}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
               aria-label={t(language, 'close')}
             >
@@ -97,7 +86,7 @@ export default function UserProfile({
             <div className="mb-6">
               <ConnectWalletButton />
             </div>
-            
+
             <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30
                             rounded-2xl p-5 mb-6">
               <div className="flex items-center justify-between mb-2">
@@ -204,7 +193,7 @@ export default function UserProfile({
             </div>
           </div>
         </div>
-        
+
         {/* About & Support Buttons */}
         <div className="p-6 space-y-3 border-t border-white/10">
           <button
@@ -217,10 +206,10 @@ export default function UserProfile({
             <Info size={18} className="text-purple-400" />
             <span className="text-white font-medium">About Pulse</span>
           </button>
-          
+
           <button
             onClick={() => setShowSupportChat(true)}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 
+            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20
                        border border-purple-500/50 rounded-xl
                        flex items-center justify-center gap-2
                        hover:from-purple-500/30 hover:to-pink-500/30
@@ -231,7 +220,7 @@ export default function UserProfile({
           </button>
         </div>
       </div>
-      
+
       <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
       <SupportChat isOpen={showSupportChat} onClose={() => setShowSupportChat(false)} userId={user?.id || ''} />
     </>
