@@ -108,12 +108,12 @@ function HomeContent() {
       return;
     }
 
-    const newTask: TaskType = { ...taskData, id: generateId(), created_at: Date.now(), status: moderation.isSafe ? 'open' : 'pending_review', user_id: user.id };
+    const newTask: TaskType = { ...taskData, id: generateId(), created_at: Date.now(), status: 'open', user_id: user.id };
     try {
       await supabase.from('tasks').insert({
         id: newTask.id, title: newTask.title, description: newTask.description,
         reward: newTask.reward, currency: newTask.currency, category: newTask.category,
-        latitude: newTask.latitude, longitude: newTask.longitude, status: newTask.status,
+        latitude: newTask.latitude, longitude: newTask.longitude, status: 'open',
         user_id: user.id, created_at: newTask.created_at,
       });
     } catch { /* ignore */ }
