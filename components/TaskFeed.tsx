@@ -26,7 +26,8 @@ export default function TaskFeed({
   tasks,
   userLatitude,
   userLongitude,
-  onClaimTask
+  onClaimTask,
+  onChatClick
 }: TaskFeedProps) {
   const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
