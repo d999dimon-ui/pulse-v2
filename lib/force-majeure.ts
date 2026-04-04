@@ -80,7 +80,7 @@ Reply format: VERDICT|HOURS|REASONING. Max 1 sentence.`;
     if (response.ok) {
       const data = await response.json();
       const reply = data.choices?.[0]?.message?.content?.trim() || '';
-      const [verdict, hours, reasoning] = reply.split('|').map(s => s.trim());
+      const [verdict, hours, reasoning] = reply.split('|').map((s: string) => s.trim());
 
       const compensationHours = verdict === 'COMPENSATE'
         ? Math.min(144, Math.max(30, parseInt(hours) || 30))
