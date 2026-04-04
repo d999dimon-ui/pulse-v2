@@ -32,7 +32,6 @@ export default function ProfileScreen({ user, tasks, onWithdraw, onClose, onUpda
   const languages: { code: Language; flag: string; label: string }[] = [
     { code: 'en', flag: '🇺🇸', label: 'English' },
     { code: 'ru', flag: '🇷🇺', label: 'Русский' },
-    { code: 'uz', flag: '🇺', label: 'O\'zbek' },
   ];
 
   const referralLink = user ? `https://t.me/PulseTaskHubBot?start=ref_${user.id}` : '';

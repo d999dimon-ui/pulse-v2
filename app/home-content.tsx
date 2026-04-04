@@ -3,7 +3,7 @@
 // TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
-import { Plus, User, ListFilter, Loader2, Map as MapIcon, MessageSquare, Bell } from "lucide-react";
+import { Plus, User, ListFilter, Loader2 } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
@@ -12,11 +12,9 @@ import LanguageSelectorModal from "@/components/LanguageSelectorModal";
 import OnboardingModal from "@/components/OnboardingModal";
 import ChatRoom from "@/components/ChatRoom";
 import TabBar from "@/components/TabBar";
-import Header from "@/components/Header";
 import Splash from "@/components/Splash";
-import PulseLogo from "@/components/PulseLogo";
 import { Task as TaskType, User as UserType } from "@/types/task";
-import { t, initializeLanguage } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 
 const MapComponent = nextDynamic(() => import("@/components/MapComponent"), {
@@ -45,10 +43,10 @@ function HomeContent() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showChatRoom, setShowChatRoom] = useState(false);
 
   // Tab navigation
   const [activeTab, setActiveTab] = useState<'feed' | 'map' | 'chats' | 'profile'>('feed');
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Long press state
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
@@ -169,7 +167,9 @@ function HomeContent() {
       localStorage.setItem('user', JSON.stringify(defaultUser));
     }
 
-    // Show onboarding for first-time users
+    if (!savedLanguage) setShowLanguageSelector(true);
+
+    // Show onboarding for first-time users (after language selection)
     const savedOnboarding = localStorage.getItem('onboarding_completed');
     if (!savedLanguage && savedOnboarding !== 'true') {
       setTimeout(() => {
@@ -180,7 +180,7 @@ function HomeContent() {
       setIsLoading(false);
     }
 
-    // Get user location
+    // Get user location via IP
     getLocationByIP();
 
     // Load tasks
@@ -296,27 +296,29 @@ function HomeContent() {
 
   return (
     <div className="bg-black min-h-screen relative">
-      {/* Header */}
-      <Header
-        activeTab={activeTab}
-        unreadCount={0}
-        onProfileClick={() => setIsProfileOpen(true)}
-        onFeedClick={() => setIsTaskFeedOpen(true)}
-        tasksCount={tasks.filter(t => t.status === 'open').length}
-      />
-
-      {/* Main Content based on active tab */}
+      {/* Tab-based content */}
       {activeTab === 'feed' && (
         <div className="relative w-full h-screen">
           <MapComponent onLongPress={handleMapLongPress} tasks={tasks} userPosition={userPosition} />
 
+          {/* Top Bar */}
+          <div className="absolute top-4 left-4 right-4 z-[1000] flex items-center justify-between">
+            <button onClick={() => setIsProfileOpen(true)} className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-purple-500/50 transition-all duration-300">
+              <User size={20} className="text-white" />
+            </button>
+            <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all duration-300">
+              <ListFilter size={18} className="text-cyan-400" />
+              <span className="text-white font-medium text-sm">{tasks.filter(t => t.status === 'active').length} Tasks</span>
+            </button>
+          </div>
+
           {/* Create Task Button */}
-          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-6 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:shadow-[0_0_25px_rgba(34,211,238,0.9)] hover:bg-cyan-400 hover:text-black transition-all duration-300 active:scale-95" aria-label="Create Task">
+          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:shadow-[0_0_25px_rgba(34,211,238,0.9)] hover:bg-cyan-400 hover:text-black transition-all duration-300 active:scale-95" aria-label="Create Task">
             <Plus size={28} strokeWidth={2.5} />
           </button>
 
           {/* Hint */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[999] px-4 py-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-full text-white text-sm text-center max-w-[280px]">
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[999] px-4 py-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-full text-white text-sm text-center max-w-[280px]">
             {t(language, 'longPressHint')}
           </div>
         </div>
@@ -329,31 +331,27 @@ function HomeContent() {
       )}
 
       {activeTab === 'chats' && (
-        <ChatRoom userId={user?.id || ''} tasks={tasks} />
-      )}
-
-      {activeTab === 'profile' && (
-        <div className="pb-24">
-          <div className="p-4">
-            <UserProfile
-              user={user}
-              tasks={tasks}
-              onWithdraw={handleWithdraw}
-            />
-          </div>
+        <div className="pb-20">
+          <ChatRoom userId={user?.id || ''} tasks={tasks} />
         </div>
       )}
 
-      {/* TabBar */}
+      {activeTab === 'profile' && (
+        <div className="pb-20">
+          <UserProfile user={user} tasks={tasks} onWithdraw={handleWithdraw} />
+        </div>
+      )}
+
+      {/* TabBar Navigation */}
       <TabBar
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onCreateTask={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }}
         onProfileClick={() => setIsProfileOpen(true)}
-        onFeedClick={() => setIsTaskFeedOpen(true)}
+        onFeedClick={() => { setActiveTab('feed'); setIsTaskFeedOpen(true); }}
         onChatClick={() => setActiveTab('chats')}
         tasksCount={tasks.filter(t => t.status === 'open').length}
-        unreadCount={0}
+        unreadCount={unreadCount}
       />
 
       {/* Modals */}
