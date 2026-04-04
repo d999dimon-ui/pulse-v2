@@ -30,54 +30,25 @@ const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9
 
 function HomeContent() {
   const { language } = useLanguage();
-  const [isClient, setIsClient] = useState(false);
+
+  // ========== ALL STATE (must be first) ==========
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-
-  // Modal states
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isTaskFeedOpen, setIsTaskFeedOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-
-  // Tab navigation
   const [activeTab, setActiveTab] = useState<'feed' | 'map' | 'chats' | 'profile'>('feed');
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  // Long press state
+  const [unreadCount] = useState(0);
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
+  const [isClient, setIsClient] = useState(false);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Client-side check
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Show splash on first load, then language selector
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-      // After splash, check if language is set
-      const savedLanguage = localStorage.getItem('language');
-      if (!savedLanguage) {
-        setShowLanguageSelector(true);
-      }
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Пока не смонтировался - показываем черный экран
-  if (!isClient) return <div style={{ background: 'black', minHeight: '100vh' }} />;
-
-  if (showSplash) {
-    return <Splash onFinish={() => setShowSplash(false)} />;
-  }
-
-  // IP-based geolocation
+  // ========== ALL CALLBACKS (must be before effects and returns) ==========
   const getLocationByIP = useCallback(async () => {
     try {
       const response = await fetch('https://ipapi.co/json/');
@@ -88,238 +59,156 @@ function HomeContent() {
           return;
         }
       }
-    } catch (e) {
-      console.log('IP geolocation failed, using browser');
-    }
-    // Fallback to browser geolocation
-    if (navigator.geolocation) {
+    } catch { /* ignore */ }
+    if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => setUserPosition([position.coords.latitude, position.coords.longitude]),
-        () => console.log('Using default position (New York)')
+        () => console.log('Using default position')
       );
     }
   }, []);
 
-  // Load tasks from Supabase
   const loadTasks = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (error) throw error;
-
       if (data) {
-        const localTasks: TaskType[] = data.map(task => ({
-          id: task.id,
-          title: task.title,
-          description: task.description || '',
-          reward: Number(task.reward) || 5,
-          currency: (task.currency as 'stars' | 'usd') || 'stars',
-          category: (task.category as any) || 'help',
-          latitude: task.latitude,
-          longitude: task.longitude,
-          status: (task.status as any) || 'open',
-          created_at: new Date(task.created_at).getTime(),
-          user_id: task.user_id || '',
-          executor_id: task.executor_id,
-          exact_address: task.exact_address,
-        }));
-        setTasks(localTasks);
+        setTasks(data.map(task => ({
+          id: task.id, title: task.title, description: task.description || '',
+          reward: Number(task.reward) || 5, currency: (task.currency as 'stars' | 'usd') || 'stars',
+          category: (task.category as any) || 'help', latitude: task.latitude, longitude: task.longitude,
+          status: (task.status as any) || 'open', created_at: new Date(task.created_at).getTime(),
+          user_id: task.user_id || '', executor_id: task.executor_id, exact_address: task.exact_address,
+        })));
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
-      // Fallback to localStorage
-      const savedTasks = localStorage.getItem('tasks');
-      if (savedTasks) setTasks(JSON.parse(savedTasks));
+      if (typeof window !== 'undefined') {
+        try {
+          const savedTasks = localStorage.getItem('tasks');
+          if (savedTasks) setTasks(JSON.parse(savedTasks));
+        } catch { /* ignore */ }
+      }
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Initialize app
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const tg = (window as any).Telegram?.WebApp;
-
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      tg.setHeaderColor('#000000');
-      tg.setBackgroundColor('#000000');
-    }
-
-    const savedUser = localStorage.getItem('user');
-    const savedLanguage = localStorage.getItem('language');
-
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
-      const defaultUser: UserType = {
-        id: generateId(),
-        username: tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'user_' + Math.random().toString(36).substr(2, 5),
-        balance: 0,
-        completedTasks: 0,
-      };
-      setUser(defaultUser);
-      localStorage.setItem('user', JSON.stringify(defaultUser));
-    }
-
-    if (!savedLanguage) setShowLanguageSelector(true);
-
-    // Show onboarding for first-time users (after language selection)
-    const savedOnboarding = localStorage.getItem('onboarding_completed');
-    if (!savedLanguage && savedOnboarding !== 'true') {
-      setTimeout(() => {
-        setShowOnboarding(true);
-        setIsLoading(false);
-      }, 500);
-    } else {
-      setIsLoading(false);
-    }
-
-    // Get user location via IP
-    getLocationByIP();
-
-    // Load tasks
-    loadTasks();
-  }, [loadTasks, getLocationByIP]);
-
-  // Save tasks to localStorage backup
-  useEffect(() => {
-    if (tasks.length > 0) {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-  }, [tasks]);
-
-  // Save user
-  useEffect(() => {
-    if (user) localStorage.setItem('user', JSON.stringify(user));
-  }, [user]);
-
-  // Handle long press on map
   const handleMapLongPress = useCallback((e: any) => {
     if (!e?.latlng) return;
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    setSelectedPosition([lat, lng]);
+    setSelectedPosition([e.latlng.lat, e.latlng.lng]);
     setIsCreateModalOpen(true);
   }, []);
 
-  // Create task handler
   const handleCreateTask = useCallback(async (taskData: Omit<TaskType, 'id' | 'created_at' | 'status' | 'user_id'>) => {
-    if (!user || typeof window === 'undefined') return;
-
-    const newTask: TaskType = {
-      ...taskData,
-      id: generateId(),
-      created_at: Date.now(),
-      status: 'open',
-      user_id: user.id,
-    };
-
-    // Add to Supabase
+    if (!user) return;
+    const newTask: TaskType = { ...taskData, id: generateId(), created_at: Date.now(), status: 'open', user_id: user.id };
     try {
-      const { error } = await supabase.from('tasks').insert({
-        id: newTask.id,
-        title: newTask.title,
-        description: newTask.description,
-        reward: newTask.reward,
-        currency: newTask.currency,
-        category: newTask.category,
-        latitude: newTask.latitude,
-        longitude: newTask.longitude,
-        status: 'open',
-        user_id: user.id,
-        created_at: newTask.created_at,
+      await supabase.from('tasks').insert({
+        id: newTask.id, title: newTask.title, description: newTask.description,
+        reward: newTask.reward, currency: newTask.currency, category: newTask.category,
+        latitude: newTask.latitude, longitude: newTask.longitude, status: 'open',
+        user_id: user.id, created_at: newTask.created_at,
       });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
-
-    // Update local state
+    } catch { /* ignore */ }
     setTasks(prev => [newTask, ...prev]);
-
-    // Haptic feedback
-    const tg = (window as any).Telegram?.WebApp;
-    tg?.HapticFeedback?.notificationOccurred('success');
   }, [user]);
 
-  // Claim task handler
   const handleClaimTask = useCallback(async (taskId: string) => {
-    if (typeof window === 'undefined') return;
+    try { await supabase.from('tasks').update({ status: 'in_progress' }).eq('id', taskId); } catch { /* ignore */ }
+    setTasks(prev => prev.map(task => task.id === taskId ? { ...task, status: 'claimed' as const } : task));
+  }, []);
 
-    // Update in Supabase
-    try {
-      await supabase
-        .from('tasks')
-        .update({ status: 'in_progress' })
-        .eq('id', taskId);
-    } catch (error) {
-      console.error('Error claiming task:', error);
-    }
-
-    // Update local state
-    setTasks(prev => prev.map(task =>
-      task.id === taskId ? { ...task, status: 'claimed' as const } : task
-    ));
-
-    const tg = (window as any).Telegram?.WebApp;
-    tg?.HapticFeedback?.impactOccurred('light');
-    alert(t(language, 'taskClaimed'));
-  }, [language]);
-
-  // Withdraw handler
   const handleWithdraw = useCallback(() => {
-    if (!user || typeof window === 'undefined') {
-      alert(t(language, 'minimumWithdrawal'));
-      return;
-    }
-    alert(t(language, 'withdrawalSubmitted', { amount: String(user.balance) }) + '\n\n' + t(language, 'withdrawalInfo'));
+    if (!user) { alert('Minimum withdrawal is 10 Stars'); return; }
+    alert(`Withdrawal request for ${user.balance} Stars submitted!`);
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
-  }, [user, language]);
+  }, [user]);
+
+  // ========== ALL EFFECTS (must be before any conditional returns) ==========
+  useEffect(() => { setIsClient(true); }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      if (typeof window !== 'undefined') {
+        const savedLanguage = localStorage.getItem('language');
+        if (!savedLanguage) setShowLanguageSelector(true);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }
+      const savedUser = localStorage.getItem('user');
+      const savedLanguage = localStorage.getItem('language');
+      if (savedUser) { try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ } }
+      else {
+        const def: UserType = { id: generateId(), username: tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'user', balance: 0, completedTasks: 0 };
+        setUser(def);
+        localStorage.setItem('user', JSON.stringify(def));
+      }
+      if (!savedLanguage) setShowLanguageSelector(true);
+      const onboarded = localStorage.getItem('onboarding_completed');
+      if (!savedLanguage && onboarded !== 'true') {
+        setTimeout(() => { setShowOnboarding(true); setIsLoading(false); }, 500);
+      } else { setIsLoading(false); }
+      getLocationByIP();
+      loadTasks();
+    } catch (e) { console.error('Init error:', e); setIsLoading(false); }
+  }, [loadTasks, getLocationByIP]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && tasks.length > 0) {
+      try { localStorage.setItem('tasks', JSON.stringify(tasks)); } catch { /* ignore */ }
+    }
+  }, [tasks]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch { /* ignore */ }
+    }
+  }, [user]);
+
+  // ========== CONDITIONAL RETURNS (only after ALL hooks) ==========
+  if (!isClient) return <div style={{ background: 'black', minHeight: '100vh' }} />;
+  if (showSplash) return <Splash onFinish={() => setShowSplash(false)} />;
 
   if (isLoading) {
     return (
       <div className="bg-black min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
-          <p className="text-white">Loading...</p>
-        </div>
+        <Loader2 className="w-12 h-12 text-cyan-400 animate-spin" />
       </div>
     );
   }
 
+  // ========== MAIN RENDER ==========
   return (
     <div className="bg-black min-h-screen relative">
-      {/* Tab-based content */}
       {activeTab === 'feed' && (
         <div className="relative w-full h-screen">
           <MapComponent onLongPress={handleMapLongPress} tasks={tasks} userPosition={userPosition} />
-
-          {/* Top Bar */}
           <div className="absolute top-4 left-4 right-4 z-[1000] flex items-center justify-between">
-            <button onClick={() => setIsProfileOpen(true)} className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-purple-500/50 transition-all duration-300">
+            <button onClick={() => setIsProfileOpen(true)} className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-purple-500/50 transition-all">
               <User size={20} className="text-white" />
             </button>
-            <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all duration-300">
+            <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all">
               <ListFilter size={18} className="text-cyan-400" />
-              <span className="text-white font-medium text-sm">{tasks.filter(t => t.status === 'active').length} Tasks</span>
+              <span className="text-white font-medium text-sm">{tasks.filter(tk => tk.status === 'open').length} Tasks</span>
             </button>
           </div>
-
-          {/* Create Task Button */}
-          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:shadow-[0_0_25px_rgba(34,211,238,0.9)] hover:bg-cyan-400 hover:text-black transition-all duration-300 active:scale-95" aria-label="Create Task">
+          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:bg-cyan-400 hover:text-black transition-all active:scale-95">
             <Plus size={28} strokeWidth={2.5} />
           </button>
-
-          {/* Hint */}
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[999] px-4 py-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-full text-white text-sm text-center max-w-[280px]">
-            {t(language, 'longPressHint')}
+            {t(language, 'longPressHint') || 'Long press on map to create a task'}
           </div>
         </div>
       )}
@@ -330,31 +219,11 @@ function HomeContent() {
         </div>
       )}
 
-      {activeTab === 'chats' && (
-        <div className="pb-20">
-          <ChatRoom userId={user?.id || ''} tasks={tasks} />
-        </div>
-      )}
+      {activeTab === 'chats' && <div className="pb-20"><ChatRoom userId={user?.id || ''} tasks={tasks} /></div>}
+      {activeTab === 'profile' && <div className="pb-20"><UserProfile user={user} tasks={tasks} onWithdraw={handleWithdraw} /></div>}
 
-      {activeTab === 'profile' && (
-        <div className="pb-20">
-          <UserProfile user={user} tasks={tasks} onWithdraw={handleWithdraw} />
-        </div>
-      )}
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} onCreateTask={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} onProfileClick={() => setIsProfileOpen(true)} onFeedClick={() => { setActiveTab('feed'); setIsTaskFeedOpen(true); }} onChatClick={() => setActiveTab('chats')} tasksCount={tasks.filter(tk => tk.status === 'open').length} unreadCount={unreadCount} />
 
-      {/* TabBar Navigation */}
-      <TabBar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onCreateTask={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }}
-        onProfileClick={() => setIsProfileOpen(true)}
-        onFeedClick={() => { setActiveTab('feed'); setIsTaskFeedOpen(true); }}
-        onChatClick={() => setActiveTab('chats')}
-        tasksCount={tasks.filter(t => t.status === 'open').length}
-        unreadCount={unreadCount}
-      />
-
-      {/* Modals */}
       <LanguageSelectorModal isOpen={showLanguageSelector} onClose={() => setShowLanguageSelector(false)} />
       <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} />
       <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setSelectedPosition(null); }} latitude={selectedPosition?.[0] || userPosition[0]} longitude={selectedPosition?.[1] || userPosition[1]} onSubmit={handleCreateTask} />
@@ -364,5 +233,5 @@ function HomeContent() {
 }
 
 export default function Home() {
-  return (<LanguageProvider><HomeContent /></LanguageProvider>);
+  return <LanguageProvider><HomeContent /></LanguageProvider>;
 }

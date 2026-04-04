@@ -256,7 +256,7 @@ export function detectLanguage(): Language {
 // Initialize language on first load
 export async function initializeLanguage(): Promise<Language> {
   const lang = detectLanguage();
-  localStorage.setItem('language', lang);
+  if (typeof window !== 'undefined') localStorage.setItem('language', lang);
   return lang;
 }
 
@@ -284,7 +284,7 @@ export function t(lang: Language, key: string, params?: Record<string, string>):
 
 // Set language
 export function setLanguage(lang: Language): void {
-  localStorage.setItem('language', lang);
+  if (typeof window !== 'undefined') localStorage.setItem('language', lang);
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('language-change', { detail: lang }));
   }

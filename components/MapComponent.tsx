@@ -90,22 +90,22 @@ export default function MapComponent({ onLongPress, tasks = [], userPosition = [
   const [isMounted, setIsMounted] = useState(false);
   const [surgeInfo, setSurgeInfo] = useState<{ multiplier: number; count: number; isActive: boolean } | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  useEffect(() => { setIsMounted(true); }, []);
 
-  // Calculate surge pricing on client side
+  // Calculate surge pricing - pure computation, no side effects
   const surgeData = useMemo(() => {
     if (!isMounted || tasks.length === 0) return { multiplier: 1, count: 0, isActive: false };
-    
     const count = countTasksInRadius(tasks, userPosition[0], userPosition[1], SURGE_RADIUS_KM);
     const multiplier = getSurgeMultiplier(tasks, userPosition[0], userPosition[1]);
-    const isActive = count > SURGE_THRESHOLD;
-    
-    setSurgeInfo({ multiplier, count, isActive });
-    
-    return { multiplier, count, isActive };
+    return { multiplier, count, isActive: count > SURGE_THRESHOLD };
   }, [tasks, userPosition, isMounted]);
+
+  // Update surge info state AFTER computation
+  useEffect(() => {
+    if (isMounted && tasks.length > 0) {
+      setSurgeInfo(surgeData);
+    }
+  }, [surgeData, isMounted, tasks.length]);
 
   const defaultPosition: [number, number] = userPosition;
 
