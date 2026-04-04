@@ -1,21 +1,21 @@
 "use client";
 
-// TaskHub SaaS - Telegram Mini App with Supabase
 import { useState, useEffect, useCallback, useRef } from "react";
 import nextDynamic from "next/dynamic";
-import { Plus, User, ListFilter, Loader2 } from "lucide-react";
+import { Plus, User, ListFilter, Loader2, MapPin } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
 import UserProfile from "@/components/UserProfile";
 import LanguageSelectorModal from "@/components/LanguageSelectorModal";
 import OnboardingModal from "@/components/OnboardingModal";
-import ChatRoom from "@/components/ChatRoom";
+import UserChat from "@/components/UserChat";
 import TabBar from "@/components/TabBar";
 import Splash from "@/components/Splash";
 import { Task as TaskType, User as UserType } from "@/types/task";
 import { t } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
+import { aiModerateText } from "@/lib/ai-moderation";
 
 const MapComponent = nextDynamic(() => import("@/components/MapComponent"), {
   ssr: false,
@@ -31,7 +31,7 @@ const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9
 function HomeContent() {
   const { language } = useLanguage();
 
-  // ========== ALL STATE (must be first) ==========
+  // ========== ALL STATE ==========
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.0060]);
@@ -47,9 +47,11 @@ function HomeContent() {
   const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedTaskForChat, setSelectedTaskForChat] = useState<TaskType | null>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // ========== ALL CALLBACKS (must be before effects and returns) ==========
+  // ========== ALL CALLBACKS ==========
   const getLocationByIP = useCallback(async () => {
     try {
       const response = await fetch('https://ipapi.co/json/');
@@ -71,10 +73,7 @@ function HomeContent() {
 
   const loadTasks = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('tasks').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       if (data) {
         setTasks(data.map(task => ({
@@ -88,14 +87,9 @@ function HomeContent() {
     } catch (error) {
       console.error('Error loading tasks:', error);
       if (typeof window !== 'undefined') {
-        try {
-          const savedTasks = localStorage.getItem('tasks');
-          if (savedTasks) setTasks(JSON.parse(savedTasks));
-        } catch { /* ignore */ }
+        try { const savedTasks = localStorage.getItem('tasks'); if (savedTasks) setTasks(JSON.parse(savedTasks)); } catch { /* ignore */ }
       }
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   }, []);
 
   const handleMapLongPress = useCallback((e: any) => {
@@ -106,21 +100,29 @@ function HomeContent() {
 
   const handleCreateTask = useCallback(async (taskData: Omit<TaskType, 'id' | 'created_at' | 'status' | 'user_id'>) => {
     if (!user) return;
-    const newTask: TaskType = { ...taskData, id: generateId(), created_at: Date.now(), status: 'open', user_id: user.id };
+
+    // AI Moderation
+    const moderation = await aiModerateText(taskData.title + ' ' + taskData.description, language === 'ru' ? 'ru' : 'en');
+    if (moderation.shouldBlock) {
+      alert(moderation.message || 'Задание заблокировано модерацией');
+      return;
+    }
+
+    const newTask: TaskType = { ...taskData, id: generateId(), created_at: Date.now(), status: moderation.isSafe ? 'open' : 'pending_review', user_id: user.id };
     try {
       await supabase.from('tasks').insert({
         id: newTask.id, title: newTask.title, description: newTask.description,
         reward: newTask.reward, currency: newTask.currency, category: newTask.category,
-        latitude: newTask.latitude, longitude: newTask.longitude, status: 'open',
+        latitude: newTask.latitude, longitude: newTask.longitude, status: newTask.status,
         user_id: user.id, created_at: newTask.created_at,
       });
     } catch { /* ignore */ }
     setTasks(prev => [newTask, ...prev]);
-  }, [user]);
+  }, [user, language]);
 
   const handleClaimTask = useCallback(async (taskId: string) => {
     try { await supabase.from('tasks').update({ status: 'in_progress' }).eq('id', taskId); } catch { /* ignore */ }
-    setTasks(prev => prev.map(task => task.id === taskId ? { ...task, status: 'claimed' as const } : task));
+    setTasks(prev => prev.map(task => task.id === taskId ? { ...task, status: 'in_progress' as const } : task));
   }, []);
 
   const handleWithdraw = useCallback(() => {
@@ -129,15 +131,19 @@ function HomeContent() {
     setUser(prev => prev ? { ...prev, balance: 0 } : null);
   }, [user]);
 
-  // ========== ALL EFFECTS (must be before any conditional returns) ==========
+  const openChat = useCallback((task: TaskType) => {
+    setSelectedTaskForChat(task);
+    setIsChatOpen(true);
+  }, []);
+
+  // ========== ALL EFFECTS ==========
   useEffect(() => { setIsClient(true); }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
       if (typeof window !== 'undefined') {
-        const savedLanguage = localStorage.getItem('language');
-        if (!savedLanguage) setShowLanguageSelector(true);
+        if (!localStorage.getItem('language')) setShowLanguageSelector(true);
       }
     }, 3000);
     return () => clearTimeout(timer);
@@ -153,8 +159,7 @@ function HomeContent() {
       if (savedUser) { try { setUser(JSON.parse(savedUser)); } catch { /* ignore */ } }
       else {
         const def: UserType = { id: generateId(), username: tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || 'user', balance: 0, completedTasks: 0 };
-        setUser(def);
-        localStorage.setItem('user', JSON.stringify(def));
+        setUser(def); localStorage.setItem('user', JSON.stringify(def));
       }
       if (!savedLanguage) setShowLanguageSelector(true);
       const onboarded = localStorage.getItem('onboarding_completed');
@@ -167,28 +172,17 @@ function HomeContent() {
   }, [loadTasks, getLocationByIP]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && tasks.length > 0) {
-      try { localStorage.setItem('tasks', JSON.stringify(tasks)); } catch { /* ignore */ }
-    }
+    if (typeof window !== 'undefined' && tasks.length > 0) { try { localStorage.setItem('tasks', JSON.stringify(tasks)); } catch { /* ignore */ } }
   }, [tasks]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && user) {
-      try { localStorage.setItem('user', JSON.stringify(user)); } catch { /* ignore */ }
-    }
+    if (typeof window !== 'undefined' && user) { try { localStorage.setItem('user', JSON.stringify(user)); } catch { /* ignore */ } }
   }, [user]);
 
-  // ========== CONDITIONAL RETURNS (only after ALL hooks) ==========
+  // ========== CONDITIONAL RETURNS ==========
   if (!isClient) return <div style={{ background: 'black', minHeight: '100vh' }} />;
   if (showSplash) return <Splash onFinish={() => setShowSplash(false)} />;
-
-  if (isLoading) {
-    return (
-      <div className="bg-black min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-cyan-400 animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <div className="bg-black min-h-screen flex items-center justify-center"><Loader2 className="w-12 h-12 text-cyan-400 animate-spin" /></div>;
 
   // ========== MAIN RENDER ==========
   return (
@@ -201,22 +195,10 @@ function HomeContent() {
               <User size={20} className="text-white" />
             </button>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setIsDetectingLocation(true);
-                  getLocationByIP().finally(() => setIsDetectingLocation(false));
-                }}
+              <button onClick={() => { setIsDetectingLocation(true); getLocationByIP().finally(() => setIsDetectingLocation(false)); }}
                 className="w-12 h-12 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center justify-center hover:border-cyan-500/50 transition-all"
-                title={language === 'ru' ? 'Определить местоположение' : 'Detect location'}
-              >
-                {isDetectingLocation ? (
-                  <Loader2 size={20} className="text-cyan-400 animate-spin" />
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-cyan-400">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
-                  </svg>
-                )}
+                title={language === 'ru' ? 'Определить местоположение' : 'Detect location'}>
+                {isDetectingLocation ? <Loader2 size={20} className="text-cyan-400 animate-spin" /> : <MapPin size={20} className="text-cyan-400" />}
               </button>
               <button onClick={() => setIsTaskFeedOpen(true)} className="px-4 py-3 rounded-full bg-black/80 backdrop-blur-md border border-white/20 flex items-center gap-2 hover:border-cyan-500/50 transition-all">
                 <ListFilter size={18} className="text-cyan-400" />
@@ -224,7 +206,8 @@ function HomeContent() {
               </button>
             </div>
           </div>
-          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:bg-cyan-400 hover:text-black transition-all active:scale-95">
+          <button onClick={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }}
+            className="absolute bottom-20 right-6 z-[1000] w-14 h-14 rounded-full bg-black border-2 border-cyan-400 text-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.6)] hover:bg-cyan-400 hover:text-black transition-all active:scale-95">
             <Plus size={28} strokeWidth={2.5} />
           </button>
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[999] px-4 py-3 bg-black/80 backdrop-blur-md border border-white/10 rounded-full text-white text-sm text-center max-w-[280px]">
@@ -235,19 +218,21 @@ function HomeContent() {
 
       {activeTab === 'map' && (
         <div className="relative w-full h-screen">
-          <MapComponent onLongPress={handleMapLongPress} tasks={tasks} userPosition={userPosition} />
+          <MapComponent onLongPress={handleMapLongPress} tasks={tasks} userPosition={userPosition} showHeatmap />
         </div>
       )}
 
-      {activeTab === 'chats' && <div className="pb-20"><ChatRoom userId={user?.id || ''} tasks={tasks} /></div>}
-      {activeTab === 'profile' && <div className="pb-20"><UserProfile user={user} tasks={tasks} onWithdraw={handleWithdraw} /></div>}
+      {activeTab === 'chats' && <div className="pb-20"><UserChat isOpen={true} onClose={() => setActiveTab('feed')} userId={user?.id || ''} taskId="" otherUserId="" taskStatus="" /></div>}
+      {activeTab === 'profile' && <div className="pb-20"><UserProfile user={user} tasks={tasks} onWithdraw={handleWithdraw} onOpenChat={openChat} /></div>}
 
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} onCreateTask={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }} onProfileClick={() => setIsProfileOpen(true)} onFeedClick={() => { setActiveTab('feed'); setIsTaskFeedOpen(true); }} onChatClick={() => setActiveTab('chats')} tasksCount={tasks.filter(tk => tk.status === 'open').length} unreadCount={unreadCount} />
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} onCreateTask={() => { setSelectedPosition(userPosition); setIsCreateModalOpen(true); }}
+        onProfileClick={() => setIsProfileOpen(true)} onFeedClick={() => { setActiveTab('feed'); setIsTaskFeedOpen(true); }} onChatClick={() => setActiveTab('chats')}
+        tasksCount={tasks.filter(tk => tk.status === 'open').length} unreadCount={unreadCount} />
 
       <LanguageSelectorModal isOpen={showLanguageSelector} onClose={() => setShowLanguageSelector(false)} />
       <OnboardingModal isOpen={showOnboarding} onComplete={() => setShowOnboarding(false)} />
       <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setSelectedPosition(null); }} latitude={selectedPosition?.[0] || userPosition[0]} longitude={selectedPosition?.[1] || userPosition[1]} onSubmit={handleCreateTask} />
-      <TaskFeed isOpen={isTaskFeedOpen} onClose={() => setIsTaskFeedOpen(false)} tasks={tasks} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={handleClaimTask} />
+      <TaskFeed isOpen={isTaskFeedOpen} onClose={() => setIsTaskFeedOpen(false)} tasks={tasks} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={handleClaimTask} onChatClick={openChat} />
     </div>
   );
 }

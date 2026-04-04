@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { MapPin, Search, Plus, Clock, DollarSign } from 'lucide-react';
+import { MapPin, Search, Plus, Clock, DollarSign, MessageSquare } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/i18n';
 import { Task as TaskType } from '@/types/task';
@@ -15,6 +15,7 @@ interface TaskFeedProps {
   userLatitude: number;
   userLongitude: number;
   onClaimTask: (taskId: string) => void;
+  onChatClick?: (task: TaskType) => void;
 }
 
 export default function TaskFeed({
@@ -134,6 +135,13 @@ export default function TaskFeed({
                     {task.category}
                   </span>
                 </div>
+                <div className="flex items-center gap-2">
+                  {onChatClick && (
+                    <button onClick={(e) => { e.stopPropagation(); onChatClick(task); }}
+                      className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10">
+                      <MessageSquare size={14} className="text-gray-400" />
+                    </button>
+                  )}
                 
                 {task.exact_address && (
                   <div className="flex items-center gap-1 text-xs text-gray-400">
@@ -141,6 +149,7 @@ export default function TaskFeed({
                     <span className="truncate max-w-[150px]">{task.exact_address}</span>
                   </div>
                 )}
+                </div>
               </div>
             </div>
           ))

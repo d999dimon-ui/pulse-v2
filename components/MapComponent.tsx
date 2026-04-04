@@ -4,9 +4,10 @@ import { useEffect, useState, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from "react-leaflet";
 import L from "leaflet";
 import { Task } from "@/types/task";
-import { 
-  calculateDistance, 
-  countTasksInRadius, 
+import { calculateHeatZones, getHeatIntensityText } from "@/lib/heatmap";
+import {
+  calculateDistance,
+  countTasksInRadius,
   getSurgeMultiplier,
   getSurgeZoneColor,
   getSurgeStatusText,
@@ -83,10 +84,11 @@ interface MapComponentProps {
   onLongPress?: (e: any) => void;
   tasks?: Task[];
   userPosition?: [number, number];
-  activeTaskId?: string; // For real-time tracking
+  activeTaskId?: string;
+  showHeatmap?: boolean;
 }
 
-export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060], activeTaskId }: MapComponentProps) {
+export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060], activeTaskId, showHeatmap }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [surgeInfo, setSurgeInfo] = useState<{ multiplier: number; count: number; isActive: boolean } | null>(null);
 
@@ -129,20 +131,17 @@ export default function MapComponent({ onLongPress, tasks = [], userPosition = [
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       
-      {/* Surge Zone Circle - Visual indicator for high demand area */}
+      {/* Surge Zone Circle */}
       {surgeData.isActive && (
-        <Circle
-          center={userPosition}
-          radius={SURGE_RADIUS_KM * 1000} // Convert to meters
-          pathOptions={{
-            color: getSurgeZoneColor(surgeData.multiplier).replace(/[\d.]+\)$/g, '1)'),
-            fillColor: getSurgeZoneColor(surgeData.multiplier),
-            fillOpacity: 0.3,
-            weight: 2,
-            dashArray: '10, 10',
-          }}
-        />
+        <Circle center={userPosition} radius={SURGE_RADIUS_KM * 1000}
+          pathOptions={{ color: getSurgeZoneColor(surgeData.multiplier).replace(/[\d.]+\)$/g, '1)'), fillColor: getSurgeZoneColor(surgeData.multiplier), fillOpacity: 0.3, weight: 2, dashArray: '10, 10' }} />
       )}
+
+      {/* Heatmap zones for high demand areas */}
+      {showHeatmap && calculateHeatZones(tasks, userPosition).map((zone, i) => (
+        <Circle key={i} center={zone.center} radius={zone.radius * 1000}
+          pathOptions={{ color: zone.color.replace(/[\d.]+\)$/g, '1)'), fillColor: zone.color, fillOpacity: 0.4, weight: 1 }} />
+      ))}
       
       {/* Task markers */}
       {tasks.map((task) => (

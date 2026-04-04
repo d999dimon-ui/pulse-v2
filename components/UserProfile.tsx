@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { Task, User } from '@/types/task';
-import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare } from 'lucide-react';
+import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare, Users, Gift, Link2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/utils/translations';
 import AboutModal from './AboutModal';
 import ConnectWalletButton from './ConnectWalletButton';
 import SupportChat from './SupportChat';
+import { getReferralLink } from '@/lib/referral-system';
 
 interface UserProfileProps {
   user: User | null;
   tasks: Task[];
   onWithdraw: () => void;
+  onOpenChat?: (task: Task) => void;
 }
 
 export default function UserProfile({ user, tasks, onWithdraw }: UserProfileProps) {
@@ -192,6 +194,30 @@ export default function UserProfile({ user, tasks, onWithdraw }: UserProfileProp
               )}
             </div>
           </div>
+        </div>
+
+        {/* Referral Section */}
+        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-4 mb-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+              <Gift size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-sm">{t(language, 'profile.referral')}</h3>
+              <p className="text-[10px] text-gray-400">{t(language, 'profile.referralHint')}</p>
+            </div>
+          </div>
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-300 truncate font-mono">
+                {getReferralLink(user.id)}
+              </div>
+              <button className="p-2 bg-purple-500/20 border border-purple-500/50 rounded-xl"
+                onClick={() => { navigator.clipboard?.writeText(getReferralLink(user.id)); }}>
+                <Link2 size={14} className="text-purple-400" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* About & Support Buttons */}
