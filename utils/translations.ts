@@ -386,24 +386,23 @@ export type TranslationKey = keyof typeof translations.en;
 
 // Helper function to get translation with interpolation
 export function t(lang: Language, key: string, params?: Record<string, string | number>): string {
-  // First try flat key lookup (e.g., 'chat.title')
-  const translationsObj = translations[lang];
-  if (translationsObj && key in translationsObj) {
-    let value = translationsObj[key as keyof typeof translationsObj];
-    if (typeof value === 'string') {
-      if (params) {
-        return value.replace(/\{(\w+)\}/g, (match, paramKey) => String(params[paramKey] ?? match));
-      }
-      return value;
+  const translationsObj = translations[lang] as Record<string, any>;
+  
+  // Direct lookup for flat keys like 'chat.title'
+  let value = translationsObj?.[key];
+  
+  // Fallback: try nested lookup like nav.home -> { nav: { home: '...' } }
+  if (typeof value !== 'string') {
+    const keys = key.split('.');
+    value = translationsObj;
+    for (const k of keys) {
+      if (value == null) break;
+      value = value[k];
     }
   }
-  // Fallback: try nested key lookup (e.g., 'nav.home' -> nav: { home: '...' })
-  const keys = key.split('.');
-  let value: any = translationsObj;
-  for (const k of keys) {
-    value = value?.[k];
-  }
+  
   if (typeof value !== 'string') return key;
+  
   if (params) {
     return value.replace(/\{(\w+)\}/g, (match, paramKey) => String(params[paramKey] ?? match));
   }
