@@ -475,16 +475,16 @@ function HomeContent() {
             <h2 className={`font-bold text-lg mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('categories', language)}</h2>
             <div className="grid grid-cols-2 gap-3">
               {CATEGORIES.map(cat => (
-                <div
+                <button
                   key={cat.value}
                   onClick={() => setSelectedCategory(cat.value === selectedCategory ? null : cat.value)}
-                  className={`group rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] ${darkMode ? 'bg-white/5' : 'bg-gray-100'} ${selectedCategory === cat.value ? 'border-2 border-yellow-400 shadow-lg shadow-yellow-500/20' : 'border-2 border-transparent hover:border-white/10'}`}
+                  type="button"
+                  className={`group rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-left w-full ${darkMode ? 'bg-white/5' : 'bg-gray-100'} ${selectedCategory === cat.value ? 'border-2 border-yellow-400 shadow-lg shadow-yellow-500/20 bg-yellow-500/10' : 'border-2 border-transparent hover:border-yellow-400/30'}`}
                 >
                   <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{cat.icon}</div>
-                  {/* TRANSLATED CATEGORY LABEL */}
                   <div className={`text-sm font-semibold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{getCategoryLabel(cat.value, language)}</div>
                   <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
