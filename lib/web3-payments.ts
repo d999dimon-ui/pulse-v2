@@ -120,23 +120,6 @@ export const getBlockchainBalance = async (walletAddress: string): Promise<numbe
   }
 };
 
-// Convert between currencies (with rate caching)
-const exchangeRates: Record<string, number> = {
-  'TON': 2.5, // Approximate TON to USD rate
-  'USD': 1,
-  'STARS': 0.01,
-};
-
-export const convertCurrency = (
-  amount: number,
-  fromCurrency: string,
-  toCurrency: string
-): number => {
-  const fromRate = exchangeRates[fromCurrency.toUpperCase()] || 1;
-  const toRate = exchangeRates[toCurrency.toUpperCase()] || 1;
-  return (amount / fromRate) * toRate;
-};
-
 // Validate Web3 transaction
 export const validateTransaction = async (
   txHash: string,
@@ -154,15 +137,37 @@ export const validateTransaction = async (
   }
 };
 
-// Calculate platform fee
+// Calculate platform fee (10% commission)
 export const calculatePlatformFee = (amount: number, currency: string): number => {
-  const feePercentage = 0.05; // 5% platform fee
+  const feePercentage = 0.10; // 10% platform fee (Pulse commission)
   return amount * feePercentage;
 };
 
-// Calculate executor payout (after platform fee and taxes)
+// Calculate executor payout (after 10% platform fee)
 export const calculateExecutorPayout = (taskReward: number): number => {
-  const platformFee = calculatePlatformFee(taskReward, 'ton');
-  const tax = taskReward * 0.1; // 10% tax estimation
-  return taskReward - platformFee - tax;
+  const platformFee = calculatePlatformFee(taskReward, 'usdt');
+  return taskReward - platformFee; // 90% goes to executor
 };
+
+// Currency conversion rates
+const exchangeRates: Record<string, number> = {
+  'USDT': 1,
+  'STARS': 0.01, // 1 Star = $0.01 USD
+  'TON': 2.5,
+};
+
+export const convertCurrency = (
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string
+): number => {
+  const fromRate = exchangeRates[fromCurrency.toUpperCase()] || 1;
+  const toRate = exchangeRates[toCurrency.toUpperCase()] || 1;
+  return (amount / fromRate) * toRate;
+};
+
+// Convert USDT to Stars (1 USDT = 100 Stars)
+export const usdtToStars = (usdt: number): number => usdt * 100;
+
+// Convert Stars to USDT (100 Stars = 1 USDT)
+export const starsToUsdt = (stars: number): number => stars / 100;

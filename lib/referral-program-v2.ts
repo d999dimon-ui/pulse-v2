@@ -14,11 +14,11 @@ export const generateReferralCode = (): string => {
   return code;
 };
 
-// Create referral link for user
+// Create referral link for user (pulse.app domain)
 export const createReferralLink = async (referrerId: string): Promise<string | null> => {
   try {
     const referralCode = generateReferralCode();
-    
+
     // Check if user already has a referral code
     const { data: existing } = await supabase
       .from('referrals')
@@ -27,7 +27,7 @@ export const createReferralLink = async (referrerId: string): Promise<string | n
       .limit(1);
 
     if (existing && existing.length > 0) {
-      return `https://taskhub.app/ref/${existing[0].referral_code}`;
+      return `https://pulse.app/ref/${existing[0].referral_code}`;
     }
 
     // Create new referral code entry
@@ -43,7 +43,7 @@ export const createReferralLink = async (referrerId: string): Promise<string | n
 
     if (error) throw error;
 
-    return `https://taskhub.app/ref/${referralCode}`;
+    return `https://pulse.app/ref/${referralCode}`;
   } catch (error) {
     console.error('Error creating referral link:', error);
     return null;
@@ -120,11 +120,11 @@ export const trackReferralTaskCompletion = async (
   }
 };
 
-// Activate VIP promo for referrer
+// Activate VIP promo for referrer (EXECUTOR ONLY - 12 hours no commission)
 export const activateVIPPromo = async (referrerId: string): Promise<boolean> => {
   try {
     const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24); // 24 hour VIP
+    expiryDate.setHours(expiryDate.getHours() + 12); // 12 hours VIP (not 24)
 
     const { error } = await supabase
       .from('referrals')
@@ -137,7 +137,7 @@ export const activateVIPPromo = async (referrerId: string): Promise<boolean> => 
 
     if (error) throw error;
 
-    // Also update user profile VIP status
+    // Update user profile VIP status
     await supabase
       .from('profiles')
       .update({

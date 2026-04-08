@@ -43,7 +43,7 @@ export type TaskCategory =
 
 export type TaskStatus = 'open' | 'claimed' | 'in_progress' | 'completed' | 'cancelled' | 'expired';
 export type TaskPriority = 'normal' | 'urgent' | 'asap';
-export type Currency = 'ton' | 'usd' | 'stars';
+export type Currency = 'stars' | 'usdt' | 'ton';
 
 export interface Task {
   id: string;
