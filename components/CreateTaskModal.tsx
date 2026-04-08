@@ -112,6 +112,9 @@ export default function CreateTaskModal({
   const [currency, setCurrency] = useState<Currency>('usdt');
   const [category, setCategory] = useState<TaskCategory>('it');
   const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
+  const [receiverPhone, setReceiverPhone] = useState('');
   const [priority, setPriority] = useState<'normal' | 'urgent' | 'asap'>('normal');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -147,6 +150,9 @@ export default function CreateTaskModal({
         latitude: userPosition[0],
         longitude: userPosition[1],
         street_address: address,
+        phone,
+        sender_phone: senderPhone,
+        receiver_phone: receiverPhone,
         priority,
       });
 
@@ -156,6 +162,9 @@ export default function CreateTaskModal({
       setCurrency('usdt');
       setCategory('it');
       setAddress('');
+      setPhone('');
+      setSenderPhone('');
+      setReceiverPhone('');
       setPriority('normal');
       onClose();
     } catch (error) {
@@ -324,6 +333,39 @@ export default function CreateTaskModal({
                 {t.addressFromMap}
               </button>
             </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="flex items-center text-sm font-semibold text-white mb-2">
+                <Phone className="w-4 h-4 mr-1" />
+                {language === 'ru' ? 'Номер телефона *' : 'Phone Number *'}
+              </label>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                placeholder={language === 'ru' ? '+996 ___ ___ ___' : '+1 (___) ___-____'}
+                className="w-full bg-white/5 rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-white/10 focus:border-yellow-400 focus:outline-none transition" />
+            </div>
+
+            {/* Delivery-specific phones */}
+            {(category === 'delivery' || category === 'couriers') && (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-semibold text-white mb-2 block">
+                    {language === 'ru' ? 'Телефон отправителя' : 'Sender Phone'}
+                  </label>
+                  <input type="tel" value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)}
+                    placeholder={language === 'ru' ? '+996 ___ ___ ___' : '+1 (___) ___-____'}
+                    className="w-full bg-white/5 rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-white/10 focus:border-yellow-400 focus:outline-none transition" />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-white mb-2 block">
+                    {language === 'ru' ? 'Телефон получателя' : 'Receiver Phone'}
+                  </label>
+                  <input type="tel" value={receiverPhone} onChange={(e) => setReceiverPhone(e.target.value)}
+                    placeholder={language === 'ru' ? '+996 ___ ___ ___' : '+1 (___) ___-____'}
+                    className="w-full bg-white/5 rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-white/10 focus:border-yellow-400 focus:outline-none transition" />
+                </div>
+              </div>
+            )}
 
             {/* Submit Button */}
             <button type="submit" disabled={isSubmitting}

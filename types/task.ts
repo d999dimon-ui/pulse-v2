@@ -70,6 +70,11 @@ export interface Task {
   escrow_contract_id?: string;
   payment_tx_hash?: string;
   flash_xp_bonus?: number;
+  
+  // Contact info (visible only during active order)
+  phone?: string;
+  sender_phone?: string;
+  receiver_phone?: string;
 }
 
 // ============================================
