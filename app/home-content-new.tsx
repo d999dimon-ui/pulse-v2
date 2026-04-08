@@ -184,8 +184,19 @@ function HomeContent() {
     loadTasks();
   };
 
-  const filtered = selectedCat ? tasks.filter(tk => tk.category === selectedCat) : tasks;
-  const searched = query ? filtered.filter(tk => tk.title.toLowerCase().includes(query.toLowerCase()) || tk.description?.toLowerCase().includes(query.toLowerCase())) : filtered;
+  const handleCategoryClick = (catValue: string) => {
+    setSelectedCat(prev => prev === catValue ? null : catValue);
+  };
+
+  // Filter by category FIRST, then by search query
+  const categoryFiltered = selectedCat ? tasks.filter(tk => tk.category === selectedCat) : tasks;
+  const filtered = categoryFiltered;
+  const searched = query 
+    ? filtered.filter(tk => 
+        tk.title?.toLowerCase().includes(query.toLowerCase()) || 
+        tk.description?.toLowerCase().includes(query.toLowerCase())
+      )
+    : filtered;
   const bg = darkMode ? 'bg-[#0a0a1a]' : 'bg-gradient-to-br from-[#f8f9ff] via-[#eef1ff] to-[#f0f4ff]';
   const cardBg = darkMode ? 'bg-white/5 border border-white/10' : 'bg-white/80 backdrop-blur-xl border border-yellow-200/50 shadow-lg shadow-yellow-500/5';
   const textPrimary = darkMode ? 'text-white' : 'text-gray-900';
@@ -231,7 +242,7 @@ function HomeContent() {
             <h2 className={`${textPrimary} font-bold text-lg mb-3`}>{t('categories', language)}</h2>
             <div className="grid grid-cols-2 gap-3 mb-5">
               {CATEGORIES.map(cat => (
-                <button key={cat.value} onClick={() => setSelectedCat(cat.value === selectedCat ? null : cat.value)} type="button"
+                <button key={cat.value} onClick={() => handleCategoryClick(cat.value)} type="button"
                   className={`rounded-2xl p-3 text-left transition-all active:scale-95 ${cardBg} ${selectedCat === cat.value ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20 bg-yellow-500/10' : 'hover:shadow-md hover:shadow-yellow-400/10'}`}>
                   <div className="text-2xl mb-1">{cat.icon}</div>
                   <div className={`${textPrimary} text-sm font-semibold`}>{catLabel(cat.value, language)}</div>
@@ -244,8 +255,9 @@ function HomeContent() {
             {selectedCat && (
               <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
                 <Filter className="w-4 h-4 text-yellow-400" />
-                <span className={`text-sm ${textSecondary}`}>{t('filterBy', language)}: <span className="text-yellow-400">{catLabel(selectedCat, language)}</span></span>
-                <button onClick={() => setSelectedCat(null)} className="ml-auto"><X className="w-4 h-4 text-gray-400" /></button>
+                <span className={`text-sm ${textSecondary}`}>{t('filterBy', language)}: <span className="text-yellow-400 font-medium">{catLabel(selectedCat, language)}</span></span>
+                <span className={`text-xs ${textSecondary}`}>({searched.length})</span>
+                <button onClick={() => { setSelectedCat(null); setQuery(''); }} className="ml-auto"><X className="w-4 h-4 text-gray-400" /></button>
               </div>
             )}
 
