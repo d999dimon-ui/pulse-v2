@@ -33,8 +33,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
       try { localStorage.setItem('language', lang); } catch (e) {}
+      window.dispatchEvent(new CustomEvent('language-change', { detail: lang }));
     }
   };
+
+  if (!isLoaded) return null;
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
