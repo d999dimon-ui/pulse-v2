@@ -30,7 +30,10 @@
       "Bash(type *)",
       "Bash(node *)",
       "Bash(vercel *)",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(cmd *)",
+      "Bash(tasklist)",
+      "Bash(typescript)"
     ]
   },
   "$version": 3

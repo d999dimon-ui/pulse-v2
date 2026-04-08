@@ -1,159 +1,208 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import { MapPin, Search, Plus, Clock, DollarSign, MessageSquare } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { t } from '@/lib/i18n';
-import { Task as TaskType } from '@/types/task';
+import { useState, useMemo, useCallback } from 'react';
+import { MapPin, Star, AlertCircle, Zap, Search } from 'lucide-react';
+import { Task, CATEGORIES } from '@/types/task';
 
 interface TaskFeedProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskClick?: (task: TaskType) => void;
-  onCreateTask?: () => void;
-  tasks: TaskType[];
+  tasks: Task[];
   userLatitude: number;
   userLongitude: number;
-  onClaimTask: (taskId: string) => void;
-  onChatClick?: (task: TaskType) => void;
+  onClaimTask: (taskId: string) => Promise<void>;
 }
 
 export default function TaskFeed({
   isOpen,
   onClose,
-  onTaskClick,
-  onCreateTask,
   tasks,
   userLatitude,
   userLongitude,
   onClaimTask,
-  onChatClick
 }: TaskFeedProps) {
-  const { language } = useLanguage();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'distance' | 'reward' | 'newest'>('distance');
+  const [claimingId, setClaimingId] = useState<string | null>(null);
 
-  // Массив категорий должен быть внутри компонента для доступа к пропсам
-  const categories = useMemo(() => [
-    { value: 'all', label: t(language, 'categories.all'), icon: '📋' },
-    { value: 'it', label: t(language, 'categories.it'), icon: '💻' },
-    { value: 'repair', label: t(language, 'categories.repair'), icon: '🔧' },
-    { value: 'translation', label: t(language, 'categories.translation'), icon: '📝' },
-    { value: 'delivery', label: t(language, 'categories.delivery'), icon: '📦' },
-    { value: 'cleaning', label: t(language, 'categories.cleaning'), icon: '🧹' },
-    { value: 'tutoring', label: t(language, 'categories.tutoring'), icon: '📚' },
-    { value: 'marketing', label: t(language, 'categories.marketing'), icon: '📊' },
-    { value: 'photo', label: t(language, 'categories.photo'), icon: '📸' },
-  ], [language]);
+  const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }, []);
 
-  // Фильтрация заданий
-  const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
-      if (!searchQuery) return true;
-      return task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             task.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredAndSortedTasks = useMemo(() => {
+    let filtered = tasks.filter(task => {
+      const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           (task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+      const matchesCategory = !selectedCategory || task.category === selectedCategory;
+      return task.status === 'open' && matchesSearch && matchesCategory;
     });
-  }, [tasks, searchQuery]);
+
+    return filtered.sort((a, b) => {
+      if (sortBy === 'distance') {
+        const distA = calculateDistance(userLatitude, userLongitude, a.latitude, a.longitude);
+        const distB = calculateDistance(userLatitude, userLongitude, b.latitude, b.longitude);
+        return distA - distB;
+      } else if (sortBy === 'reward') {
+        return b.reward - a.reward;
+      } else {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+  }, [tasks, searchQuery, selectedCategory, sortBy, userLatitude, userLongitude, calculateDistance]);
+
+  const handleClaim = async (taskId: string) => {
+    setClaimingId(taskId);
+    try {
+      await onClaimTask(taskId);
+    } catch (error) {
+      console.error('Error claiming task:', error);
+    } finally {
+      setClaimingId(null);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="pb-24">
-      {/* Search Bar */}
-      <div className="sticky top-0 z-[1000] p-4 bg-black/80 backdrop-blur-xl border-b border-white/10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t(language, 'feed.search')}
-              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                         text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50"
-            />
-          </div>
+    <div className="flex-1 pb-24 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-dark-bg border-b border-dark-border p-4 space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-bold text-white">Available Tasks</h2>
           <button
-            onClick={() => onCreateTask?.()}
-            className="p-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl hover:opacity-90 transition-all"
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition"
           >
-            <Plus size={24} className="text-white" />
+            ✕
           </button>
         </div>
 
+        {/* Search */}
+        <div className="glass rounded-xl px-4 py-3 flex items-center gap-2">
+          <Search className="w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-transparent text-sm flex-1 outline-none text-white placeholder-gray-400"
+          />
+        </div>
+
         {/* Category Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((cat) => (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition ${
+              selectedCategory === null
+                ? 'bg-neon-cyan text-dark-bg'
+                : 'glass text-gray-300 hover:text-white'
+            }`}
+          >
+            All
+          </button>
+          {CATEGORIES.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setSelectedCategory(cat.value)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl font-medium whitespace-nowrap transition-all ${
+              className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition ${
                 selectedCategory === cat.value
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  ? 'bg-neon-cyan text-dark-bg'
+                  : 'glass text-gray-300 hover:text-white'
               }`}
             >
-              <span>{cat.icon}</span>
-              <span className="text-xs">{cat.label}</span>
+              {cat.icon} {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort Options */}
+        <div className="flex gap-2">
+          {(['distance', 'reward', 'newest'] as const).map((option) => (
+            <button
+              key={option}
+              onClick={() => setSortBy(option)}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                sortBy === option
+                  ? 'bg-neon-purple text-white'
+                  : 'glass text-gray-300 hover:text-white'
+              }`}
+            >
+              {option === 'distance' ? '📍' : option === 'reward' ? '💰' : '⏰'} {option}
             </button>
           ))}
         </div>
       </div>
 
       {/* Task List */}
-      <div className="p-4 space-y-3">
-        {filteredTasks.length === 0 ? (
-          <div className="text-center text-gray-400 py-12">
-            <Search size={48} className="mx-auto mb-4 opacity-50" />
-            <p>{t(language, 'feed.noTasks')}</p>
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        {filteredAndSortedTasks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center py-12">
+            <AlertCircle className="w-12 h-12 text-gray-600 mb-3" />
+            <p className="text-gray-400">No tasks found</p>
+            <p className="text-gray-500 text-sm">Try adjusting your filters</p>
           </div>
         ) : (
-          filteredTasks.map((task) => (
-            <div
-              key={task.id}
-              onClick={() => onTaskClick?.(task)}
-              className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:border-cyan-500/30 transition-all cursor-pointer"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h3 className="font-bold text-white mb-1">{task.title}</h3>
-                  <p className="text-sm text-gray-400 line-clamp-2">{task.description}</p>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-cyan-400 font-bold">
-                    <DollarSign size={16} />
-                    <span>{task.reward}</span>
-                  </div>
-                  <span className="text-xs text-gray-500">{task.currency}</span>
-                </div>
-              </div>
+          filteredAndSortedTasks.map((task) => {
+            const distance = calculateDistance(userLatitude, userLongitude, task.latitude, task.longitude);
+            const category = CATEGORIES.find(c => c.value === task.category);
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-xs text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Clock size={12} />
-                    {new Date(task.created_at).toLocaleDateString()}
-                  </span>
-                  <span className="px-2 py-1 bg-white/5 rounded-full capitalize">
-                    {task.category}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {onChatClick && (
-                    <button onClick={(e) => { e.stopPropagation(); onChatClick(task); }}
-                      className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10">
-                      <MessageSquare size={14} className="text-gray-400" />
-                    </button>
-                  )}
-                
-                {task.exact_address && (
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <MapPin size={12} />
-                    <span className="truncate max-w-[150px]">{task.exact_address}</span>
+            return (
+              <div
+                key={task.id}
+                className="glass rounded-2xl p-4 border border-dark-border hover:border-neon-cyan transition-all"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">{category?.icon}</span>
+                      <span className="text-xs font-semibold text-neon-cyan uppercase">
+                        {category?.label}
+                      </span>
+                      {task.priority === 'urgent' && <Zap className="w-4 h-4 text-orange-400" />}
+                      {task.priority === 'asap' && <Zap className="w-4 h-4 text-red-400" />}
+                    </div>
+                    <h3 className="text-white font-bold text-sm">{task.title}</h3>
+                    <p className="text-gray-400 text-xs mt-1 line-clamp-2">{task.description}</p>
                   </div>
-                )}
+                  <div className="text-right ml-3">
+                    <div className="text-lg font-bold text-neon-gold">{task.reward}</div>
+                    <div className="text-xs text-gray-400">{task.currency.toUpperCase()}</div>
+                  </div>
                 </div>
+
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {distance.toFixed(1)} km away
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3 h-3" />
+                    Task #{task.id.slice(0, 6)}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => handleClaim(task.id)}
+                  disabled={claimingId === task.id}
+                  className="w-full bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-2 rounded-lg hover:shadow-neon-cyan transition-all disabled:opacity-50"
+                >
+                  {claimingId === task.id ? 'Claiming...' : 'Claim Task'}
+                </button>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

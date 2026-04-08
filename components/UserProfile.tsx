@@ -1,254 +1,193 @@
 "use client";
 
 import { useState } from 'react';
-import { Task, User } from '@/types/task';
-import { X, Wallet, Star, TrendingUp, Globe, Info, MessageSquare, Users, Gift, Link2 } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { t } from '@/utils/translations';
-import AboutModal from './AboutModal';
-import ConnectWalletButton from './ConnectWalletButton';
-import SupportChat from './SupportChat';
-import { getReferralLink } from '@/lib/referral-system';
+import { User, Award, Copy, LogOut, Settings, BarChart3 } from 'lucide-react';
+import { UserProfile as UserProfileType } from '@/types/task';
 
 interface UserProfileProps {
-  user: User | null;
-  tasks: Task[];
-  onWithdraw: () => void;
-  onOpenChat?: (task: Task) => void;
+  user: UserProfileType;
+  onClose: () => void;
 }
 
-export default function UserProfile({ user, tasks, onWithdraw }: UserProfileProps) {
-  const { language, setLanguage } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'overview' | 'my-tasks'>('overview');
-  const [showAboutModal, setShowAboutModal] = useState(false);
-  const [showSupportChat, setShowSupportChat] = useState(false);
+export default function UserProfile({ user, onClose }: UserProfileProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'referral'>('overview');
+  const [referralCopied, setReferralCopied] = useState(false);
 
-  const myTasks = tasks.filter(task => task.user_id === user?.id);
-  const completedTasks = myTasks.filter(task => task.status === 'completed');
-  const activeTasks = myTasks.filter(task => task.status === 'active');
+  const handleCopyReferral = () => {
+    const referralLink = `https://taskhub.app?ref=${user.id}`;
+    navigator.clipboard.writeText(referralLink);
+    setReferralCopied(true);
+    setTimeout(() => setReferralCopied(false), 2000);
+  };
 
-  if (!user) return null;
-
-  const joinedDate = user.completedTasks > 0
-    ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    : new Date();
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'ru' : 'en');
+  const getRatingStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={i < Math.floor(rating) ? '⭐' : '☆'} />
+    ));
   };
 
   return (
-    <>
-      {/* Background overlay */}
-      <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[3500]"
-        onClick={() => {}}
-      />
+    <div className="flex-1 pb-24 overflow-y-auto bg-dark-bg">
+      {/* Header Background */}
+      <div className="h-32 bg-gradient-to-b from-neon-cyan/20 to-transparent" />
 
-      {/* Profile Panel */}
-      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-[3501]">
-        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl
-                        border border-purple-500/30 rounded-3xl overflow-hidden
-                        shadow-[0_0_40px_rgba(168,85,247,0.2)]">
-
-          {/* Header */}
-          <div className="relative p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-white/10">
-            <button
-              onClick={() => {}}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
-              aria-label={t(language, 'close')}
-            >
-              <X size={20} className="text-white" />
-            </button>
-
-            {/* Language Toggle */}
-            <button
-              onClick={toggleLanguage}
-              className="absolute top-4 left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              aria-label={t(language, 'language')}
-            >
-              <Globe size={18} className="text-white" />
-            </button>
-
-            <div className="flex items-center gap-4 mt-8">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500
-                              flex items-center justify-center text-2xl font-bold text-white">
-                {user.username.charAt(0).toUpperCase()}
+      {/* Profile Card */}
+      <div className="px-4 -mt-20 relative z-10">
+        <div className="glass rounded-2xl p-6 mb-6 border border-dark-border">
+          <div className="flex items-start gap-4">
+            {user.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.display_name}
+                className="w-16 h-16 rounded-full border-2 border-neon-cyan object-cover"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                <User className="w-8 h-8 text-white" />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">@{user.username}</h2>
-                <p className="text-sm text-gray-400">{t(language, 'taskerSince')} {joinedDate.toLocaleDateString()}</p>
+            )}
+
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-xl font-bold text-white">{user.display_name}</h2>
+                {user.is_verified && <span className="text-neon-cyan text-lg">✓</span>}
+              </div>
+              <p className="text-gray-400 text-sm">@{user.username}</p>
+              <div className="flex items-center gap-1 mt-2">
+                {getRatingStars(user.rating)}
+                <span className="text-gray-400 text-sm ml-2">{user.rating}/5</span>
               </div>
             </div>
           </div>
 
-          {/* Balance Card */}
-          <div className="p-6">
-            {/* Web3 Connect */}
-            <div className="mb-6">
-              <ConnectWalletButton />
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-dark-border">
+            <div>
+              <p className="text-gray-400 text-xs">Completed</p>
+              <p className="text-neon-cyan font-bold text-lg">
+                {user.completed_tasks_as_executor + user.completed_tasks_as_customer}
+              </p>
             </div>
+            <div>
+              <p className="text-gray-400 text-xs">Rating</p>
+              <p className="text-neon-gold font-bold text-lg">{user.rating.toFixed(1)}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-xs">Balance</p>
+              <p className="text-neon-cyan font-bold text-lg">{user.balance.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
 
-            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30
-                            rounded-2xl p-5 mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">{t(language, 'currentBalance')}</span>
-                <Wallet size={18} className="text-cyan-400" />
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-dark-border sticky top-0 bg-dark-bg/80 backdrop-blur -mx-4 px-4 py-2">
+          {(['overview', 'reviews', 'referral'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 font-semibold text-sm transition ${
+                activeTab === tab
+                  ? 'text-neon-cyan border-b-2 border-neon-cyan'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {tab === 'overview' ? 'Overview' : tab === 'reviews' ? 'Reviews' : 'Referral'}
+            </button>
+          ))}
+        </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-4">
+            {/* Balance Card */}
+            <div className="glass rounded-2xl p-5 border border-dark-border">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-gray-400 text-sm">Total Balance</p>
+                <button className="px-4 py-2 bg-gradient-to-r from-neon-cyan to-neon-purple text-white text-sm rounded-lg hover:shadow-neon-cyan transition">
+                  Connect Wallet
+                </button>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">{user.balance.toFixed(2)}</span>
-                <span className="text-cyan-400 font-semibold">Stars</span>
-              </div>
-              <button
-                onClick={onWithdraw}
-                className="mt-4 w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500
-                           text-white font-semibold rounded-xl
-                           hover:from-cyan-600 hover:to-blue-600
-                           shadow-[0_0_15px_rgba(34,211,238,0.3)]
-                           transition-all duration-300 active:scale-98"
-              >
-                {t(language, 'withdrawFunds')}
-              </button>
+              <div className="text-3xl font-bold text-neon-cyan">{user.balance.toFixed(2)} TON</div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-white">{user.completedTasks}</div>
-                <div className="text-xs text-gray-400 mt-1">{t(language, 'completed')}</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="glass rounded-xl p-4 border border-dark-border">
+                <BarChart3 className="w-5 h-5 text-neon-purple mb-2" />
+                <p className="text-gray-400 text-xs">As Executor</p>
+                <p className="text-white font-bold text-lg">{user.completed_tasks_as_executor}</p>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-white">{activeTasks.length}</div>
-                <div className="text-xs text-gray-400 mt-1">{t(language, 'active')}</div>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-cyan-400">{(user.completedTasks * 0.95).toFixed(0)}</div>
-                <div className="text-xs text-gray-400 mt-1">{t(language, 'rating')}</div>
+              <div className="glass rounded-xl p-4 border border-dark-border">
+                <Award className="w-5 h-5 text-neon-gold mb-2" />
+                <p className="text-gray-400 text-xs">As Customer</p>
+                <p className="text-white font-bold text-lg">{user.completed_tasks_as_customer}</p>
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
-                  activeTab === 'overview'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                    : 'bg-white/5 text-gray-400 border border-white/10'
-                }`}
-              >
-                {t(language, 'overview')}
-              </button>
-              <button
-                onClick={() => setActiveTab('my-tasks')}
-                className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
-                  activeTab === 'my-tasks'
-                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                    : 'bg-white/5 text-gray-400 border border-white/10'
-                }`}
-              >
-                {t(language, 'myTasks')} ({myTasks.length})
-              </button>
-            </div>
+            {/* VIP Status */}
+            {user.vip_status && user.vip_status !== 'none' && (
+              <div className="glass rounded-2xl p-4 border border-neon-purple bg-neon-purple/10">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-2xl">👑</span>
+                  <p className="text-neon-purple font-bold">VIP Status: {user.vip_status.toUpperCase()}</p>
+                </div>
+                <p className="text-gray-400 text-xs">Enjoy premium features and benefits</p>
+              </div>
+            )}
+          </div>
+        )}
 
-            {/* Tab Content */}
-            <div className="max-h-48 overflow-y-auto space-y-2">
-              {activeTab === 'overview' ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <TrendingUp size={18} className="text-green-400" />
-                      <span className="text-sm text-gray-300">{t(language, 'totalEarned')}</span>
-                    </div>
-                    <span className="text-white font-semibold">+{user.balance} ⭐</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Star size={18} className="text-yellow-400" />
-                      <span className="text-sm text-gray-300">{t(language, 'successRate')}</span>
-                    </div>
-                    <span className="text-white font-semibold">95%</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {myTasks.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">{t(language, 'noTasksYet')}</p>
-                  ) : (
-                    myTasks.slice(0, 5).map(task => (
-                      <div key={task.id} className="p-3 bg-white/5 rounded-xl">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-white truncate flex-1">{task.title}</span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            task.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                            task.status === 'claimed' ? 'bg-yellow-500/20 text-yellow-400' :
-                            'bg-blue-500/20 text-blue-400'
-                          }`}>
-                            {t(language, `status.${task.status}`)}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
+        {/* Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-3">
+            <div className="glass rounded-2xl p-4 border border-dark-border text-center py-8">
+              <p className="text-gray-400 text-sm">No reviews yet</p>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Referral Section */}
-        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-4 mb-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-              <Gift size={20} className="text-white" />
+        {/* Referral Tab */}
+        {activeTab === 'referral' && (
+          <div className="space-y-4">
+            <div className="glass rounded-2xl p-4 border border-dark-border">
+              <p className="text-gray-400 text-sm mb-3">Referral Link</p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={`https://taskhub.app?ref=${user.id}`}
+                  readOnly
+                  className="flex-1 glass rounded-xl px-3 py-2 text-white text-sm bg-dark-bg border border-dark-border"
+                />
+                <button
+                  onClick={handleCopyReferral}
+                  className="p-2 bg-neon-cyan/20 text-neon-cyan rounded-xl hover:bg-neon-cyan/30 transition"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+              {referralCopied && <p className="text-neon-cyan text-xs mt-2">✓ Copied!</p>}
             </div>
-            <div>
-              <h3 className="text-white font-semibold text-sm">{t(language, 'profile.referral')}</h3>
-              <p className="text-[10px] text-gray-400">{t(language, 'profile.referralHint')}</p>
+
+            <div className="glass rounded-2xl p-4 border border-dark-border">
+              <p className="text-gray-400 text-sm mb-2">Referral Stats</p>
+              <div className="text-white font-bold text-lg">0 referrals</div>
+              <p className="text-gray-400 text-xs mt-1">Invite friends for 5% bonus</p>
             </div>
           </div>
-          {user && (
-            <div className="flex items-center gap-2">
-              <div className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-300 truncate font-mono">
-                {getReferralLink(user.id)}
-              </div>
-              <button className="p-2 bg-purple-500/20 border border-purple-500/50 rounded-xl"
-                onClick={() => { navigator.clipboard?.writeText(getReferralLink(user.id)); }}>
-                <Link2 size={14} className="text-purple-400" />
-              </button>
-            </div>
-          )}
-        </div>
+        )}
 
-        {/* About & Support Buttons */}
-        <div className="p-6 space-y-3 border-t border-white/10">
-          <button
-            onClick={() => setShowAboutModal(true)}
-            className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-xl
-                       flex items-center justify-center gap-2
-                       hover:bg-white/10 hover:border-purple-500/50
-                       transition-all duration-300"
-          >
-            <Info size={18} className="text-purple-400" />
-            <span className="text-white font-medium">About Pulse</span>
+        {/* Action Buttons */}
+        <div className="mt-8 flex gap-3 pb-4">
+          <button className="flex-1 glass rounded-xl px-4 py-3 text-white font-semibold flex items-center justify-center gap-2 hover:border-neon-cyan transition border border-dark-border">
+            <Settings className="w-4 h-4" />
+            Settings
           </button>
-
-          <button
-            onClick={() => setShowSupportChat(true)}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20
-                       border border-purple-500/50 rounded-xl
-                       flex items-center justify-center gap-2
-                       hover:from-purple-500/30 hover:to-pink-500/30
-                       transition-all duration-300"
-          >
-            <MessageSquare size={18} className="text-purple-400" />
-            <span className="text-white font-medium">Support Chat</span>
+          <button className="flex-1 glass rounded-xl px-4 py-3 text-white font-semibold flex items-center justify-center gap-2 hover:border-red-500 transition border border-dark-border text-red-400 hover:text-red-400">
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </button>
         </div>
       </div>
-
-      <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
-      <SupportChat isOpen={showSupportChat} onClose={() => setShowSupportChat(false)} userId={user?.id || ''} />
-    </>
+    </div>
   );
 }

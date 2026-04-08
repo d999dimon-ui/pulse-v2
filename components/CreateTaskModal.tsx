@@ -1,361 +1,239 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Task, CATEGORIES, CATEGORY_COLORS } from '@/types/task';
+import { useState } from 'react';
+import { CATEGORIES, TaskCategory, Currency } from '@/types/task';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { t } from '@/utils/translations';
-import { calculateRewardWithSurge, getSurgeStatusText } from '@/lib/surge-pricing';
-import { filterKeywords, getSafetyMessage } from '@/lib/safety-filter';
-import { AlertTriangle, CheckSquare, Square } from 'lucide-react';
+import { Plus, X, MapPin } from 'lucide-react';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  latitude: number;
-  longitude: number;
-  onSubmit: (task: Omit<Task, 'id' | 'created_at' | 'status' | 'user_id'>) => void;
+  userPosition: [number, number];
+  onCreateTask: (taskData: {
+    title: string;
+    description: string;
+    reward: number;
+    currency: Currency;
+    category: TaskCategory;
+    latitude: number;
+    longitude: number;
+    street_address: string;
+    priority: 'normal' | 'urgent' | 'asap';
+  }) => Promise<void>;
 }
 
 export default function CreateTaskModal({
   isOpen,
   onClose,
-  latitude,
-  longitude,
-  onSubmit
+  userPosition,
+  onCreateTask,
 }: CreateTaskModalProps) {
   const { language } = useLanguage();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [baseReward, setBaseReward] = useState('5');
-  const [currency, setCurrency] = useState<'stars' | 'usd'>('stars');
-  const [category, setCategory] = useState<typeof CATEGORIES[0]['value']>('delivery');
-  const [isAutoCategorizing, setIsAutoCategorizing] = useState(false);
-  
-  // Load tasks for surge calculation
-  const [tasks, setTasks] = useState<any[]>([]);
-  
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) setTasks(JSON.parse(savedTasks));
-  }, []);
-  
-  // Calculate reward with surge pricing
-  const surgeMultiplier = calculateRewardWithSurge(Number(baseReward) || 5, tasks, latitude, longitude);
-  const surgeActive = surgeMultiplier > Number(baseReward);
-  
-  // Legal checkbox state
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [safetyError, setSafetyError] = useState<string | null>(null);
+  const [reward, setReward] = useState('10');
+  const [currency, setCurrency] = useState<Currency>('ton');
+  const [category, setCategory] = useState<TaskCategory>('it');
+  const [address, setAddress] = useState('');
+  const [priority, setPriority] = useState<'normal' | 'urgent' | 'asap'>('normal');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // AI Auto-categorization
-  const autoCategorize = async () => {
-    if (!title.trim() || !description.trim()) return;
-    
-    setIsAutoCategorizing(true);
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'TaskHub Auto-Categorize',
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a task categorizer. Categorize tasks into one of: delivery, cleaning, help, photo. Respond with ONLY the category name, nothing else.`
-            },
-            {
-              role: 'user',
-              content: `Title: "${title}"\nDescription: "${description}"\n\nCategory:`
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 10,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const aiCategory = data.choices[0]?.message?.content?.trim().toLowerCase();
-        
-        if (aiCategory && ['delivery', 'cleaning', 'help', 'photo'].includes(aiCategory)) {
-          setCategory(aiCategory as typeof category);
-        }
-      }
-    } catch (error) {
-      console.error('Auto-categorize error:', error);
-    } finally {
-      setIsAutoCategorizing(false);
-    }
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!title.trim()) newErrors.title = 'Title required';
+    if (!description.trim()) newErrors.description = 'Description required';
+    if (Number(reward) <= 0) newErrors.reward = 'Reward must be > 0';
+    if (!category) newErrors.category = 'Category required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check legal agreement
-    if (!agreedToTerms) {
-      alert(language === 'ru' 
-        ? 'Вы должны согласиться с условиями использования'
-        : 'You must agree to the Terms of Service');
-      return;
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    try {
+      await onCreateTask({
+        title,
+        description,
+        reward: Number(reward),
+        currency,
+        category,
+        latitude: userPosition[0],
+        longitude: userPosition[1],
+        street_address: address,
+        priority,
+      });
+
+      setTitle('');
+      setDescription('');
+      setReward('10');
+      setCurrency('ton');
+      setCategory('it');
+      setAddress('');
+      setPriority('normal');
+      onClose();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      setErrors({ submit: 'Failed to create task' });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Safety filter check
-    const titleCheck = filterKeywords(title);
-    const descCheck = filterKeywords(description || '');
-    
-    if (!titleCheck.isValid || !descCheck.isValid) {
-      setSafetyError(getSafetyMessage(language));
-      alert(getSafetyMessage(language));
-      return;
-    }
-    
-    setSafetyError(null);
-
-    onSubmit({
-      title,
-      description,
-      reward: surgeMultiplier,
-      currency,
-      category,
-      latitude,
-      longitude,
-    });
-
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setBaseReward('5');
-    setCurrency('stars');
-    setCategory('delivery');
-    setAgreedToTerms(false);
-    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Background overlay */}
-      <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[3000]"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-[3001]">
-        <div className="bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-xl
-                        border border-cyan-500/30 rounded-3xl p-6 shadow-[0_0_40px_rgba(34,211,238,0.2)]">
-
-          {/* Header */}
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl z-50">
+        <div className="glass rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">{t(language, 'createTaskTitle')}</h2>
+            <h2 className="text-2xl font-bold text-white">Create New Task</h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
-              aria-label={t(language, 'close')}
+              className="p-2 hover:bg-white/10 rounded-full transition"
             >
-              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6 text-gray-400" />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                {t(language, 'taskTitle')}
+              <label className="block text-sm font-semibold text-white mb-2">
+                Task Title *
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder={t(language, 'taskTitlePlaceholder')}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                           text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50
-                           focus:ring-1 focus:ring-cyan-500/50 transition-all"
-                required
+                placeholder="Enter task title..."
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-dark-border focus:border-neon-cyan focus:outline-none transition"
               />
+              {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                {t(language, 'description')}
+              <label className="block text-sm font-semibold text-white mb-2">
+                Description *
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={t(language, 'descriptionPlaceholder')}
-                rows={3}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                           text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50
-                           focus:ring-1 focus:ring-cyan-500/50 transition-all resize-none"
-                required
+                placeholder="Describe the task in detail..."
+                rows={4}
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-dark-border focus:border-neon-cyan focus:outline-none transition resize-none"
               />
-            </div>
-
-            {/* Reward & Currency */}
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
-                  {t(language, 'reward')}
-                </label>
-                <input
-                  type="number"
-                  value={baseReward}
-                  onChange={(e) => setBaseReward(e.target.value)}
-                  min="1"
-                  step="0.5"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl
-                             text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50
-                             focus:ring-1 focus:ring-cyan-500/50 transition-all"
-                  required
-                />
-              </div>
-              
-              {/* Surge Pricing Indicator */}
-              {surgeActive && (
-                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-red-400 text-sm font-semibold">
-                      {getSurgeStatusText(surgeMultiplier / Number(baseReward), language)}
-                    </span>
-                    <span className="text-red-400 font-bold text-lg">x{(surgeMultiplier / Number(baseReward)).toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-400">Base: {baseReward}</span>
-                    <span className="text-gray-400">With Surge:</span>
-                    <span className="text-red-400 font-bold">{surgeMultiplier} ⭐</span>
-                  </div>
-                </div>
-              )}
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
-                  {t(language, 'currency')}
-                </label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setCurrency('stars')}
-                    className={`flex-1 py-3 px-3 rounded-xl font-medium transition-all ${
-                      currency === 'stars'
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/30'
-                        : 'bg-white/5 text-gray-400 border border-white/10'
-                    }`}
-                  >
-                    ⭐ {t(language, 'stars')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrency('usd')}
-                    className={`flex-1 py-3 px-3 rounded-xl font-medium transition-all ${
-                      currency === 'usd'
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30'
-                        : 'bg-white/5 text-gray-400 border border-white/10'
-                    }`}
-                  >
-                    💵 {t(language, 'usd')}
-                  </button>
-                </div>
-              </div>
+              {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                {t(language, 'category')}
+              <label className="block text-sm font-semibold text-white mb-2">
+                Category *
               </label>
-              <div className="grid grid-cols-4 gap-2 mb-2">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as TaskCategory)}
+                className="w-full glass rounded-xl px-4 py-3 text-white border border-dark-border focus:border-neon-cyan focus:outline-none transition"
+              >
                 {CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value} className="bg-dark-bg">
+                    {cat.icon} {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Reward & Currency */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Reward Amount *
+                </label>
+                <input
+                  type="number"
+                  value={reward}
+                  onChange={(e) => setReward(e.target.value)}
+                  min="1"
+                  step="0.1"
+                  className="w-full glass rounded-xl px-4 py-3 text-white border border-dark-border focus:border-neon-cyan focus:outline-none transition"
+                />
+                {errors.reward && <p className="text-red-400 text-xs mt-1">{errors.reward}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">
+                  Currency
+                </label>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value as Currency)}
+                  className="w-full glass rounded-xl px-4 py-3 text-white border border-dark-border focus:border-neon-cyan focus:outline-none transition"
+                >
+                  <option value="ton" className="bg-dark-bg">TON</option>
+                  <option value="usd" className="bg-dark-bg">USD</option>
+                  <option value="stars" className="bg-dark-bg">STARS</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Priority */}
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Priority
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {(['normal', 'urgent', 'asap'] as const).map((p) => (
                   <button
-                    key={cat.value}
+                    key={p}
                     type="button"
-                    onClick={() => setCategory(cat.value)}
-                    className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${
-                      category === cat.value
-                        ? `bg-gradient-to-r ${CATEGORY_COLORS[cat.value]} text-white shadow-lg`
-                        : 'bg-white/5 text-gray-400 border border-white/10 hover:border-white/30'
+                    onClick={() => setPriority(p)}
+                    className={`py-2 rounded-lg font-medium transition text-sm ${
+                      priority === p
+                        ? 'bg-gradient-to-r from-neon-cyan to-neon-purple text-white'
+                        : 'glass text-gray-300 hover:text-white'
                     }`}
                   >
-                    <span className="text-xl">{cat.icon}</span>
-                    <span className="text-xs font-medium">{t(language, `categories.${cat.value}`)}</span>
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
                   </button>
                 ))}
               </div>
-              {/* AI Auto-categorize Button */}
-              <button
-                type="button"
-                onClick={autoCategorize}
-                disabled={isAutoCategorizing || !title.trim() || !description.trim()}
-                className="w-full py-2 px-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 
-                           border border-purple-500/50 rounded-xl text-purple-400 text-sm font-medium
-                           hover:from-purple-500/30 hover:to-pink-500/30
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                {isAutoCategorizing ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                    {language === 'ru' ? '🤖 ИИ выбирает...' : '🤖 AI choosing...'}
-                  </>
-                ) : (
-                  <>
-                    ✨ {language === 'ru' ? 'Авто-категория (ИИ)' : 'Auto-Category (AI)'}
-                  </>
-                )}
-              </button>
             </div>
 
-            {/* Legal Checkbox */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <button
-                  type="button"
-                  onClick={() => setAgreedToTerms(!agreedToTerms)}
-                  className="mt-0.5 flex-shrink-0"
-                >
-                  {agreedToTerms ? (
-                    <CheckSquare size={20} className="text-green-400" />
-                  ) : (
-                    <Square size={20} className="text-gray-400" />
-                  )}
-                </button>
-                <span className="text-xs text-gray-400 leading-relaxed">
-                  {language === 'ru'
-                    ? 'Я согласен с Условиями использования. Я понимаю, что незаконная деятельность приведёт к перманентному бану.'
-                    : 'I agree to the Terms of Service. I understand that illegal activities lead to a permanent ban.'}
-                </span>
+            {/* Address */}
+            <div>
+              <label className="flex items-center text-sm font-semibold text-white mb-2">
+                <MapPin className="w-4 h-4 mr-1" />
+                Address (Optional)
               </label>
-              {safetyError && (
-                <div className="mt-3 flex items-center gap-2 text-red-400 text-xs">
-                  <AlertTriangle size={14} />
-                  <span>{safetyError}</span>
-                </div>
-              )}
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Street address..."
+                className="w-full glass rounded-xl px-4 py-3 text-white placeholder-gray-500 border border-dark-border focus:border-neon-cyan focus:outline-none transition"
+              />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={!agreedToTerms}
-              className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500
-                         text-white font-bold rounded-xl
-                         hover:from-cyan-600 hover:to-blue-600
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         shadow-[0_0_20px_rgba(34,211,238,0.4)]
-                         hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]
-                         transition-all duration-300 active:scale-98"
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-3 rounded-xl hover:shadow-neon-cyan disabled:opacity-50 transition flex items-center justify-center gap-2"
             >
-              {t(language, 'createTaskButton')}
+              <Plus className="w-5 h-5" />
+              {isSubmitting ? 'Creating...' : 'Create Task'}
             </button>
+
+            {errors.submit && <p className="text-red-400 text-sm text-center">{errors.submit}</p>}
+            <p className="text-xs text-gray-400 text-center">
+              By creating a task, you agree to our Terms of Service
+            </p>
           </form>
         </div>
       </div>

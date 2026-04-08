@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Wallet, Bell, Search, TrendingUp, MapPin, Loader2 } from "lucide-react";
+import { Plus, Wallet, Bell, Search, TrendingUp, MapPin } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
 import TaskFeed from "@/components/TaskFeed";
@@ -12,17 +12,24 @@ import Splash from "@/components/Splash";
 import { Task as TaskType, UserProfile as UserProfileType, CATEGORIES } from "@/types/task";
 import { supabase } from "@/lib/supabase";
 
-const LiveTaskMap = dynamic(() => import("@/components/LiveTaskMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-dark-bg min-h-screen flex items-center justify-center">
-      <div className="flex items-center gap-2 text-neon-cyan">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        <span>Loading map...</span>
-      </div>
+// Loader Component
+const Loader = () => (
+  <div className="bg-dark-bg min-h-screen flex items-center justify-center">
+    <div className="flex items-center gap-2 text-neon-cyan">
+      <div className="w-4 h-4 rounded-full border-2 border-neon-cyan border-t-transparent animate-spin" />
+      <span>Loading...</span>
     </div>
-  ),
-});
+  </div>
+);
+
+// Dynamic import for LiveTaskMap (client-side only)
+const LiveTaskMap = dynamic(
+  () => import("@/components/LiveTaskMap"),
+  {
+    ssr: false,
+    loading: () => <Loader />,
+  }
+);
 
 function HomeContent() {
   const { language } = useLanguage();
@@ -42,7 +49,7 @@ function HomeContent() {
   // ========== EFFECTS ==========
   useEffect(() => {
     setIsClient(true);
-    const timer = setTimeout(() => setShowSplash(false), 1500);
+    const timer = setTimeout(() => setShowSplash(false), 2000);
     loadUserProfile();
     loadTasks();
     getUserLocation();
@@ -51,6 +58,7 @@ function HomeContent() {
       clearTimeout(timer);
       unsubscribe?.();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ========== FUNCTIONS ==========
@@ -108,13 +116,12 @@ function HomeContent() {
         .select('*')
         .eq('visibility', true)
         .eq('is_hidden', false)
-        .order('created_at', { ascending: false })
-        .limit(50);
-      
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
-      
+
       if (data) {
-        setTasks(data.map(task => ({
+        setTasks(data.map((task: any) => ({
           id: task.id,
           title: task.title,
           description: task.description || '',
@@ -169,7 +176,7 @@ function HomeContent() {
         .single();
 
       if (error) throw error;
-      
+
       if (data) {
         setTasks(prev => [{
           id: data.id,
@@ -200,7 +207,7 @@ function HomeContent() {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ 
+        .update({
           status: 'claimed',
           executor_id: userProfile?.id,
         })
@@ -213,28 +220,25 @@ function HomeContent() {
     }
   };
 
+  // ========== RENDER FUNCTIONS ==========
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
   }
 
   if (!isClient) {
-    return (
-      <div className="bg-dark-bg min-h-screen flex items-center justify-center">
-        <div className="flex items-center gap-2 text-neon-cyan">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
+  // ========== TABS CONTENT ==========
   return (
     <div className="bg-dark-bg min-h-screen flex flex-col">
       {/* HOME TAB */}
       {activeTab === 'home' && (
         <div className="flex-1 pb-24 overflow-y-auto">
+          {/* Header with Balance */}
           <div className="sticky top-0 z-10 bg-gradient-dark border-b border-dark-border p-4">
             <div className="max-w-md mx-auto">
+              {/* User Balance Card */}
               <div className="glass rounded-2xl p-4 mb-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -254,22 +258,24 @@ function HomeContent() {
                 </div>
               </div>
 
+              {/* Search Bar */}
               <div className="glass rounded-xl px-4 py-3 flex items-center gap-2">
                 <Search className="w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Search tasks..." 
+                <input
+                  type="text"
+                  placeholder="Search tasks..."
                   className="bg-transparent text-sm flex-1 outline-none text-white placeholder-gray-400"
                 />
               </div>
             </div>
           </div>
 
+          {/* Categories Grid */}
           <div className="max-w-md mx-auto px-4 py-6">
             <div className="mb-4">
               <h2 className="text-lg font-bold text-white mb-4">Available Services</h2>
               <div className="grid grid-cols-2 gap-3">
-                {CATEGORIES.map(category => (
+                {CATEGORIES.map((category) => (
                   <div
                     key={category.value}
                     onClick={() => {
@@ -281,13 +287,14 @@ function HomeContent() {
                     <div className="text-3xl mb-2">{category.icon}</div>
                     <div className="text-sm font-semibold text-white">{category.label}</div>
                     <div className="text-xs text-gray-400 mt-1">
-                      {tasks.filter(t => t.category === category.value).length} available
+                      {tasks.filter((t) => t.category === category.value).length} available
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Create Task Button */}
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="w-full bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:shadow-neon-cyan transition-all"
@@ -296,11 +303,15 @@ function HomeContent() {
               Create New Task
             </button>
 
+            {/* Recent Tasks Section */}
             <div className="mt-8">
               <h3 className="text-lg font-bold text-white mb-3">Recent Tasks</h3>
               <div className="space-y-3">
-                {tasks.slice(0, 5).map(task => (
-                  <div key={task.id} className="glass rounded-xl p-4 cursor-pointer hover:border-neon-cyan border border-transparent transition-all">
+                {tasks.slice(0, 5).map((task) => (
+                  <div
+                    key={task.id}
+                    className="glass rounded-xl p-4 cursor-pointer hover:border-neon-cyan border border-transparent transition-all"
+                  >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="text-sm text-neon-cyan font-semibold">{task.category}</div>
@@ -329,7 +340,7 @@ function HomeContent() {
         <TaskFeed
           isOpen={true}
           onClose={() => setActiveTab('home')}
-          tasks={selectedCategory ? tasks.filter(t => t.category === selectedCategory) : tasks}
+          tasks={selectedCategory ? tasks.filter((t) => t.category === selectedCategory) : tasks}
           userLatitude={userPosition[0]}
           userLongitude={userPosition[1]}
           onClaimTask={handleClaimTask}
@@ -339,7 +350,7 @@ function HomeContent() {
       {/* MAP TAB */}
       {activeTab === 'map' && (
         <div className="flex-1">
-          <LiveTaskMap 
+          <LiveTaskMap
             userPosition={userPosition}
             selectedCategory={selectedCategory || undefined}
             tasks={tasks}
@@ -373,6 +384,7 @@ function HomeContent() {
         />
       )}
 
+      {/* TAB BAR */}
       <TabBar
         activeTab={activeTab}
         onTabChange={setActiveTab}
