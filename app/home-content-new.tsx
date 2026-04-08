@@ -197,6 +197,15 @@ function HomeContent() {
         tk.description?.toLowerCase().includes(query.toLowerCase())
       )
     : filtered;
+  
+  // Scroll to tasks when category is selected
+  const tasksListRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (selectedCat && tasksListRef.current) {
+      tasksListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selectedCat]);
   const bg = darkMode ? 'bg-[#0a0a1a]' : 'bg-gradient-to-br from-[#f8f9ff] via-[#eef1ff] to-[#f0f4ff]';
   const cardBg = darkMode ? 'bg-white/5 border border-white/10' : 'bg-white/80 backdrop-blur-xl border border-yellow-200/50 shadow-lg shadow-yellow-500/5';
   const textPrimary = darkMode ? 'text-white' : 'text-gray-900';
@@ -224,11 +233,18 @@ function HomeContent() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg">⚡</div>
-                <div><h1 className={`${textPrimary} font-bold text-base`}>Pulse</h1><p className={`${textSecondary} text-xs`}>{t('subtitle', language)}</p></div>
+                <div>
+                  <h1 className={`${textPrimary} font-bold text-base`}>Pulse</h1>
+                  <p className={`${textSecondary} text-xs`}>{t('subtitle', language)}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className="p-2 rounded-xl bg-white/5"><Globe className="w-5 h-5 text-yellow-400" /></button>
-                <button onClick={() => setShowChat(true)} className="p-2 rounded-xl bg-white/5"><MessageSquare className="w-5 h-5 text-gray-300" /></button>
+                <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className="p-2 rounded-xl bg-white/5">
+                  <Globe className="w-5 h-5 text-yellow-400" />
+                </button>
+                <button onClick={() => setShowChat(true)} className="p-2 rounded-xl bg-white/5">
+                  <MessageSquare className="w-5 h-5 text-gray-300" />
+                </button>
               </div>
             </div>
 
@@ -238,26 +254,64 @@ function HomeContent() {
               <input value={query} onChange={e => setQuery(e.target.value)} placeholder={t('search', language)} className={`bg-transparent text-sm flex-1 outline-none ${textPrimary} placeholder-gray-400`} />
             </div>
 
-            {/* Categories */}
-            <h2 className={`${textPrimary} font-bold text-lg mb-3`}>{t('categories', language)}</h2>
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              {CATEGORIES.map(cat => (
-                <button key={cat.value} onClick={() => handleCategoryClick(cat.value)} type="button"
-                  className={`rounded-2xl p-3 text-left transition-all active:scale-95 ${cardBg} ${selectedCat === cat.value ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20 bg-yellow-500/10' : 'hover:shadow-md hover:shadow-yellow-400/10'}`}>
-                  <div className="text-2xl mb-1">{cat.icon}</div>
-                  <div className={`${textPrimary} text-sm font-semibold`}>{catLabel(cat.value, language)}</div>
-                  <div className={`${textSecondary} text-xs`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
-                </button>
-              ))}
-            </div>
+            {/* Category Grid - Only show when no category selected */}
+            {!selectedCat && (
+              <>
+                <h2 className={`${textPrimary} font-bold text-lg mb-3`}>{t('categories', language)}</h2>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  {CATEGORIES.map(cat => (
+                    <button key={cat.value} onClick={() => { setSelectedCat(cat.value); setQuery(''); }} type="button"
+                      className={`rounded-2xl p-3 text-left transition-all active:scale-95 ${cardBg} hover:shadow-md hover:shadow-yellow-400/10`}>
+                      <div className="text-2xl mb-1">{cat.icon}</div>
+                      <div className={`${textPrimary} text-sm font-semibold`}>{catLabel(cat.value, language)}</div>
+                      <div className={`${textSecondary} text-xs`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
-            {/* Filter badge */}
+            {/* Category View - Horizontal Filter + Tasks */}
             {selectedCat && (
-              <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                <Filter className="w-4 h-4 text-yellow-400" />
-                <span className={`text-sm ${textSecondary}`}>{t('filterBy', language)}: <span className="text-yellow-400 font-medium">{catLabel(selectedCat, language)}</span></span>
-                <span className={`text-xs ${textSecondary}`}>({searched.length})</span>
-                <button onClick={() => { setSelectedCat(null); setQuery(''); }} className="ml-auto"><X className="w-4 h-4 text-gray-400" /></button>
+              <div ref={tasksListRef}>
+                {/* Header with back button */}
+                <div className="flex items-center justify-between mb-4">
+                  <button onClick={() => { setSelectedCat(null); setQuery(''); }} className={`flex items-center gap-2 px-3 py-2 rounded-xl ${cardBg} active:scale-95`}>
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                    <span className={`text-sm ${textPrimary}`}>{language === 'ru' ? 'Назад' : 'Back'}</span>
+                  </button>
+                  <h2 className={`${textPrimary} font-bold`}>{catLabel(selectedCat, language)}</h2>
+                </div>
+
+                {/* Horizontal Category Filter */}
+                <div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-4 px-4" style={{ scrollbarWidth: 'none' }}>
+                  <button onClick={() => setSelectedCat(null)} type="button"
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${!selectedCat ? 'bg-yellow-500 text-black' : `${cardBg} ${textPrimary}`}`}>
+                    {language === 'ru' ? 'Все' : 'All'}
+                  </button>
+                  {CATEGORIES.map(cat => (
+                    <button key={cat.value} onClick={() => setSelectedCat(cat.value)} type="button"
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${selectedCat === cat.value ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : `${cardBg} ${textPrimary}`}`}>
+                      <span>{cat.icon}</span>
+                      <span>{catLabel(cat.value, language)}</span>
+                      <span className={`text-xs ${selectedCat === cat.value ? 'text-black/60' : textSecondary}`}>
+                        ({tasks.filter(tk => tk.category === cat.value).length})
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Task Count */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className={`${textSecondary} text-sm`}>
+                    {searched.length} {t('available', language)}
+                  </p>
+                  {query && (
+                    <button onClick={() => setQuery('')} className={`flex items-center gap-1 px-3 py-1 rounded-lg ${cardBg} text-sm`}>
+                      <X className="w-3 h-3" /> {t('search', language)}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -268,24 +322,40 @@ function HomeContent() {
 
             {/* Tasks */}
             <div className="space-y-3">
-              {searched.length === 0 ? <div className="text-center py-10"><p className={textSecondary}>{t('noTasks', language)}</p></div>
-                : searched.map(task => {
-                  const cat = CATEGORIES.find(c => c.value === task.category);
-                  return (
-                    <div key={task.id} className={`${cardBg} rounded-2xl p-4 hover:shadow-md hover:shadow-yellow-400/5 transition-all`}>
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl">{cat?.icon}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1"><span className="text-xs text-yellow-400 font-medium">{catLabel(task.category, language)}</span>{task.priority === 'urgent' && <Zap className="w-3 h-3 text-orange-400" />}</div>
-                          <h4 className={`${textPrimary} font-semibold text-sm truncate`}>{task.title}</h4>
-                          <p className={`${textSecondary} text-xs mt-1 truncate`}>{task.description}</p>
+              {searched.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-3">📭</div>
+                  <p className={`${textPrimary} font-medium mb-1`}>{t('noTasks', language)}</p>
+                  <p className={`${textSecondary} text-sm`}>{language === 'ru' ? 'Попробуйте другую категорию' : 'Try a different category'}</p>
+                </div>
+              ) : searched.map(task => {
+                const cat = CATEGORIES.find(c => c.value === task.category);
+                return (
+                  <div key={task.id} className={`${cardBg} rounded-2xl p-4 hover:shadow-md hover:shadow-yellow-400/5 transition-all active:scale-[0.98]`}>
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">{cat?.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-yellow-400 font-medium">{catLabel(task.category, language)}</span>
+                          {task.priority === 'urgent' && <Zap className="w-3 h-3 text-orange-400" />}
                         </div>
-                        <div className="text-right"><div className="text-lg font-bold text-yellow-400">{task.reward}</div><div className={`text-xs ${textSecondary}`}>{task.currency?.toUpperCase()}</div></div>
+                        <h4 className={`${textPrimary} font-semibold text-sm truncate`}>{task.title}</h4>
+                        <p className={`${textSecondary} text-xs mt-1 truncate`}>{task.description}</p>
                       </div>
-                      {task.street_address && <div className={`flex items-center gap-1.5 mt-2 text-xs ${textSecondary}`}><MapPin className="w-3 h-3" /><span>{task.street_address}</span></div>}
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-yellow-400">{task.reward}</div>
+                        <div className={`text-xs ${textSecondary}`}>{task.currency?.toUpperCase()}</div>
+                      </div>
                     </div>
-                  );
-                })}
+                    {task.street_address && (
+                      <div className={`flex items-center gap-1.5 mt-2 text-xs ${textSecondary}`}>
+                        <MapPin className="w-3 h-3" />
+                        <span>{task.street_address}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
