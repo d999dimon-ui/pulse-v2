@@ -186,11 +186,10 @@ function HomeContent() {
 
   const filtered = selectedCat ? tasks.filter(tk => tk.category === selectedCat) : tasks;
   const searched = query ? filtered.filter(tk => tk.title.toLowerCase().includes(query.toLowerCase()) || tk.description?.toLowerCase().includes(query.toLowerCase())) : filtered;
-  const bg = darkMode ? 'bg-[#0a0a1a]' : 'bg-gray-50';
-  const cardBg = darkMode ? 'bg-white/5' : 'bg-white';
+  const bg = darkMode ? 'bg-[#0a0a1a]' : 'bg-gradient-to-br from-[#f8f9ff] via-[#eef1ff] to-[#f0f4ff]';
+  const cardBg = darkMode ? 'bg-white/5 border border-white/10' : 'bg-white/80 backdrop-blur-xl border border-yellow-200/50 shadow-lg shadow-yellow-500/5';
   const textPrimary = darkMode ? 'text-white' : 'text-gray-900';
   const textSecondary = darkMode ? 'text-gray-400' : 'text-gray-500';
-  const borderColor = darkMode ? 'border-white/10' : 'border-gray-200';
 
   if (showSplash) return <Splash onFinish={() => setShowSplash(false)} />;
   if (!isClient) return <Loader />;
@@ -198,7 +197,10 @@ function HomeContent() {
   return (
     <div className={`min-h-screen ${bg}`}>
       {/* Background glow */}
-      {darkMode && <div className="fixed inset-0 pointer-events-none"><div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl" /><div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" /></div>}
+      {darkMode 
+        ? <div className="fixed inset-0 pointer-events-none"><div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl" /><div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" /></div>
+        : <div className="fixed inset-0 pointer-events-none"><div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl" /><div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-400/20 rounded-full blur-3xl" /><div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-400/10 rounded-full blur-3xl" /></div>
+      }
 
       {/* Offline */}
       {offline && <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500/20 px-4 py-2 text-center"><p className="text-orange-400 text-sm">⚡ {language === 'ru' ? 'Оффлайн' : 'Offline'}</p></div>}
@@ -222,7 +224,7 @@ function HomeContent() {
             {/* Search */}
             <div className={`${cardBg} rounded-xl px-4 py-3 flex items-center gap-3 mb-5`}>
               <Search className={`w-4 h-4 ${textSecondary}`} />
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder={t('search', language)} className={`bg-transparent text-sm flex-1 outline-none ${textPrimary} placeholder-gray-500`} />
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder={t('search', language)} className={`bg-transparent text-sm flex-1 outline-none ${textPrimary} placeholder-gray-400`} />
             </div>
 
             {/* Categories */}
@@ -230,7 +232,7 @@ function HomeContent() {
             <div className="grid grid-cols-2 gap-3 mb-5">
               {CATEGORIES.map(cat => (
                 <button key={cat.value} onClick={() => setSelectedCat(cat.value === selectedCat ? null : cat.value)} type="button"
-                  className={`rounded-2xl p-3 text-left transition-all active:scale-95 ${cardBg} ${selectedCat === cat.value ? 'ring-2 ring-yellow-400 bg-yellow-500/10' : ''}`}>
+                  className={`rounded-2xl p-3 text-left transition-all active:scale-95 ${cardBg} ${selectedCat === cat.value ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20 bg-yellow-500/10' : 'hover:shadow-md hover:shadow-yellow-400/10'}`}>
                   <div className="text-2xl mb-1">{cat.icon}</div>
                   <div className={`${textPrimary} text-sm font-semibold`}>{catLabel(cat.value, language)}</div>
                   <div className={`${textSecondary} text-xs`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
@@ -258,7 +260,7 @@ function HomeContent() {
                 : searched.map(task => {
                   const cat = CATEGORIES.find(c => c.value === task.category);
                   return (
-                    <div key={task.id} className={`${cardBg} rounded-2xl p-4`}>
+                    <div key={task.id} className={`${cardBg} rounded-2xl p-4 hover:shadow-md hover:shadow-yellow-400/5 transition-all`}>
                       <div className="flex items-start gap-3">
                         <span className="text-2xl">{cat?.icon}</span>
                         <div className="flex-1 min-w-0">
@@ -317,7 +319,7 @@ function HomeContent() {
             </div>
 
             {/* Balance - HERE in profile */}
-            <div className={`${cardBg} rounded-2xl p-5 border ${borderColor} mb-4`}>
+            <div className={`rounded-2xl p-5 mb-4 bg-gradient-to-br ${darkMode ? 'from-white/5 to-white/5 border border-white/10' : 'from-yellow-50 via-orange-50 to-yellow-50 border border-yellow-200/50 shadow-xl shadow-yellow-400/10'}`}>
               <div className="flex items-center gap-2 mb-3"><Wallet className="w-5 h-5 text-yellow-400" /><span className={`${textPrimary} font-semibold`}>{t('balance', language)}</span></div>
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div><p className={`${textSecondary} text-xs mb-1`}>⭐ {t('stars', language)}</p><p className="text-2xl font-bold text-yellow-400">{((userProfile?.balance || 0) * 10).toFixed(0)}</p></div>
@@ -331,19 +333,19 @@ function HomeContent() {
 
             {/* Settings */}
             <div className="space-y-3">
-              <button onClick={() => setDarkMode(!darkMode)} className={`w-full ${cardBg} rounded-xl p-4 flex items-center justify-between ${borderColor}`}>
-                <div className="flex items-center gap-3">{darkMode ? <Moon className="w-5 h-5 text-yellow-400" /> : <Sun className="w-5 h-5 text-yellow-400" />}<span className={textPrimary}>{darkMode ? t('darkMode', language) : t('lightMode', language)}</span></div>
-                <div className={`w-10 h-5 rounded-full relative ${darkMode ? 'bg-yellow-500' : 'bg-gray-400'}`}><div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${darkMode ? 'translate-x-5' : 'translate-x-0.5'}`} /></div>
+              <button onClick={() => setDarkMode(!darkMode)} className={`w-full rounded-xl p-4 flex items-center justify-between ${cardBg}`}>
+                <div className="flex items-center gap-3">{darkMode ? <Moon className="w-5 h-5 text-yellow-400" /> : <Sun className="w-5 h-5 text-yellow-500" />}<span className={textPrimary}>{darkMode ? t('darkMode', language) : t('lightMode', language)}</span></div>
+                <div className={`w-10 h-5 rounded-full relative transition-colors ${darkMode ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : 'bg-gradient-to-r from-blue-400 to-cyan-400'}`}><div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-all ${darkMode ? 'translate-x-5' : 'translate-x-0.5'}`} /></div>
               </button>
-              <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className={`w-full ${cardBg} rounded-xl p-4 flex items-center justify-between ${borderColor}`}>
+              <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className={`w-full rounded-xl p-4 flex items-center justify-between ${cardBg}`}>
                 <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-yellow-400" /><span className={textPrimary}>{t('language', language)}</span></div>
-                <span className="text-yellow-400 text-sm">{language === 'ru' ? 'English' : 'Русский'}</span>
+                <span className="text-yellow-500 text-sm font-medium">{language === 'ru' ? 'English' : 'Русский'}</span>
               </button>
-              <button onClick={() => setShowChat(true)} className={`w-full ${cardBg} rounded-xl p-4 flex items-center justify-between ${borderColor}`}>
+              <button onClick={() => setShowChat(true)} className={`w-full rounded-xl p-4 flex items-center justify-between ${cardBg}`}>
                 <div className="flex items-center gap-3"><MessageSquare className="w-5 h-5 text-yellow-400" /><span className={textPrimary}>{t('support', language)}</span></div>
                 <ChevronRight className={`w-5 h-5 ${textSecondary}`} />
               </button>
-              <button className={`w-full ${cardBg} rounded-xl p-4 flex items-center justify-between text-red-400 ${borderColor}`}>
+              <button className={`w-full rounded-xl p-4 flex items-center justify-between text-red-400 ${cardBg}`}>
                 <div className="flex items-center gap-3"><LogOut className="w-5 h-5" /><span>{t('logout', language)}</span></div>
               </button>
             </div>
