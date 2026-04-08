@@ -120,7 +120,7 @@ export default function CreateTaskModal({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Filter suggestions based on input
-  const filteredSuggestions = address.filter(a => a.toLowerCase().includes(address.toLowerCase()));
+  const filteredSuggestions = addressSuggestions.filter(a => a.toLowerCase().includes(address.toLowerCase()));
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -308,7 +308,7 @@ export default function CreateTaskModal({
               {/* Address suggestions */}
               {showAddressSuggestions && address.length > 2 && (
                 <div className="absolute z-10 w-full mt-1 bg-[#1a1f3a] border border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto">
-                  {addressSuggestions.filter(a => a.toLowerCase().includes(address.toLowerCase())).slice(0, 5).map((a, i) => (
+                  {filteredSuggestions.slice(0, 5).map((a, i) => (
                     <button key={i} type="button"
                       onMouseDown={() => { setAddress(a); setShowAddressSuggestions(false); }}
                       className="w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
