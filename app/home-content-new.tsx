@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Search, MessageSquare, Navigation, Loader2, Wallet, Globe, Bell, MapPin, Zap, Filter, X, Moon, Sun, ArrowUpRight, ChevronRight, LogOut, Star, CheckCircle } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
