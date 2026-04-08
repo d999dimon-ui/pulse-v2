@@ -612,7 +612,7 @@ function HomeContent() {
       <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} lang={language} darkMode={darkMode} setDarkMode={setDarkMode} sounds={sounds} setSounds={setSounds} />
 
       {/* TAB BAR - fixed at bottom */}
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} unreadCount={unreadCount} />
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} unreadCount={unreadCount} language={language} />
     </div>
   );
 }
