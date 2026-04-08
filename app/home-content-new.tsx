@@ -271,6 +271,7 @@ function HomeContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [profileSection, setProfileSection] = useState('overview');
 
   useEffect(() => {
