@@ -8,12 +8,12 @@ import {
   Send, X, ChevronDown, Shield, CheckCircle, AlertCircle,
   ArrowUpRight, Copy, Users, Gift, AlertTriangle, Settings,
   LogOut, User, Camera, CreditCard, Navigation, Map,
-  Filter, Repeat, AlertOctagon, Gift as GiftIcon, BarChart3,
+  Filter, Repeat, AlertOctagon, BarChart3,
   ChevronRight, Edit3, Save, Loader2, Target, Sparkles,
   Sun, Moon, CreditCard as Card, Award, Package, Users2,
   TrendingDown, Hash, Calendar, Award as Trophy, ShieldCheck,
   Heart, ThumbsUp, MessageCircle, Volume2, VolumeX, Moon as MoonIcon,
-  WifiOff
+  WifiOff, Wallet as WalletIcon
 } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
@@ -23,12 +23,12 @@ import Splash from "@/components/Splash";
 import { Task as TaskType, UserProfile as UserProfileType } from "@/types/task";
 import { supabase } from "@/lib/supabase";
 
-// ===== ПОЛНАЯ i18n =====
+// ===== i18n =====
 const i18n: Record<string, Record<string, any>> = {
   ru: {
     app: 'Pulse', subtitle: 'Маркетплейс услуг', balance: 'Ваши балансы', stars: 'Stars',
     usdt: 'USDT', withdraw: 'Вывести', search: 'Поиск задач...', categories: 'Категории',
-    available: 'доступно', createTask: '➕ Создать заказ', recent: 'Последние заказы',
+    available: 'доступно', createTask: 'Создать заказ', recent: 'Последние заказы',
     support: 'Поддержка', supportDesc: 'Мы на связи 24/7', startChat: 'Начать чат',
     profile: 'Профиль', settings: 'Настройки', logout: 'Выйти', rating: 'Рейтинг',
     completed: 'задач', vip: 'VIP', inviteFriend: 'Пригласи друга',
@@ -77,16 +77,17 @@ const i18n: Record<string, Record<string, any>> = {
     responseTime: 'Время ответа', ordersPerDay: 'Заказов в день',
     topCourier: 'Топ курьер', fastDelivery: 'Быстрая доставка',
     reliable: 'Надёжный', fiveStars: '5 звёзд',
-    // Categories (translated!)
     cat_it: 'IT Услуги', cat_couriers: 'Курьеры', cat_household_services: 'Бытовые услуги',
     cat_marketing: 'Маркетинг', cat_delivery: 'Доставка', cat_cleaning: 'Уборка',
     cat_photo: 'Фото', cat_translation: 'Переводы', cat_tutoring: 'Репетиторство',
     cat_repair: 'Ремонт',
+    home: 'Главная', feed: 'Лента', map: 'Карта', chats: 'Чаты',
+    allTasks: 'Все заказы', filterBy: 'Фильтр',
   },
   en: {
     app: 'Pulse', subtitle: 'Service Marketplace', balance: 'Your Balances', stars: 'Stars',
     usdt: 'USDT', withdraw: 'Withdraw', search: 'Search tasks...', categories: 'Categories',
-    available: 'available', createTask: '➕ Create Task', recent: 'Recent Orders',
+    available: 'available', createTask: 'Create Task', recent: 'Recent Orders',
     support: 'Support', supportDesc: 'We\'re online 24/7', startChat: 'Start Chat',
     profile: 'Profile', settings: 'Settings', logout: 'Logout', rating: 'Rating',
     completed: 'tasks', vip: 'VIP', inviteFriend: 'Invite a Friend',
@@ -135,61 +136,46 @@ const i18n: Record<string, Record<string, any>> = {
     responseTime: 'Response Time', ordersPerDay: 'Orders/Day',
     topCourier: 'Top Courier', fastDelivery: 'Fast Delivery',
     reliable: 'Reliable', fiveStars: '5 Stars',
-    // Categories
     cat_it: 'IT Services', cat_couriers: 'Couriers', cat_household_services: 'Household Services',
     cat_marketing: 'Marketing', cat_delivery: 'Delivery', cat_cleaning: 'Cleaning',
     cat_photo: 'Photo', cat_translation: 'Translation', cat_tutoring: 'Tutoring',
     cat_repair: 'Repair',
+    home: 'Home', feed: 'Feed', map: 'Map', chats: 'Chats',
+    allTasks: 'All Tasks', filterBy: 'Filter',
   }
 };
 
-const t = (key: string, lang: string) => {
-  const val = i18n[lang]?.[key];
-  if (val !== undefined) return val;
-  return i18n.en[key] || key;
-};
+const t = (key: string, lang: string) => i18n[lang]?.[key] || i18n.en[key] || key;
 
-// Categories with translated labels
 const CATEGORIES = [
-  { value: 'it', icon: '💻', color: 'from-cyan-500 to-blue-500' },
-  { value: 'couriers', icon: '🚴', color: 'from-orange-500 to-red-500' },
-  { value: 'household_services', icon: '🏠', color: 'from-green-500 to-emerald-500' },
-  { value: 'marketing', icon: '📊', color: 'from-pink-500 to-red-500' },
-  { value: 'delivery', icon: '📦', color: 'from-amber-500 to-orange-500' },
-  { value: 'cleaning', icon: '🧹', color: 'from-green-500 to-teal-500' },
-  { value: 'photo', icon: '📸', color: 'from-purple-500 to-pink-500' },
-  { value: 'translation', icon: '📝', color: 'from-blue-500 to-indigo-500' },
-  { value: 'tutoring', icon: '📚', color: 'from-indigo-500 to-purple-500' },
-  { value: 'repair', icon: '🔧', color: 'from-yellow-500 to-orange-500' },
+  { value: 'it', icon: '💻' }, { value: 'couriers', icon: '🚴' },
+  { value: 'household_services', icon: '🏠' }, { value: 'marketing', icon: '📊' },
+  { value: 'delivery', icon: '📦' }, { value: 'cleaning', icon: '🧹' },
+  { value: 'photo', icon: '📸' }, { value: 'translation', icon: '📝' },
+  { value: 'tutoring', icon: '📚' }, { value: 'repair', icon: '🔧' },
 ];
 
 const getCategoryLabel = (value: string, lang: string) => t(`cat_${value}`, lang);
 
-// Loader
 const Loader = () => (
-  <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0f1729] to-[#0a0a1a] flex items-center justify-center">
+  <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
     <div className="flex flex-col items-center gap-4">
-      <div className="relative">
-        <div className="w-16 h-16 rounded-full border-4 border-yellow-400/20 border-t-yellow-400 animate-spin" />
-        <div className="absolute inset-2 rounded-full border-4 border-blue-400/20 border-b-blue-400 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-      </div>
-      <p className="text-yellow-400 font-medium animate-pulse">Loading Pulse...</p>
+      <div className="w-16 h-16 rounded-full border-4 border-yellow-400/20 border-t-yellow-400 animate-spin" />
+      <p className="text-yellow-400 font-medium">Loading Pulse...</p>
     </div>
   </div>
 );
 
 const LiveTaskMap = dynamic(() => import("@/components/LiveTaskMap"), { ssr: false, loading: () => <Loader /> });
 
-// Language Selector
 function LanguageSelector({ language, setLanguage }: { language: string; setLanguage: (l: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const langs = [{ code: 'ru', label: 'Русский', flag: '🇷' }, { code: 'en', label: 'English', flag: '🇬🇧' }];
   const current = langs.find(l => l.code === language) || langs[0];
   return (
     <div className="relative">
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition">
+      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10">
         <Globe className="w-4 h-4 text-yellow-400" /><span className="text-sm text-white">{current.flag}</span>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       {isOpen && (<>
         <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
@@ -204,7 +190,6 @@ function LanguageSelector({ language, setLanguage }: { language: string; setLang
   );
 }
 
-// Support Chat
 function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () => void; lang: string }) {
   const [messages, setMessages] = useState<{ text: string; isBot: boolean; time: string }[]>([]);
   const [input, setInput] = useState('');
@@ -224,24 +209,20 @@ function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () =
     if (!input.trim()) return;
     const re = /(\+?\d[\d\s\-()]{7,}\d|@\w+|t\.me\/\w+|telegram\.me|wa\.me|whatsapp|[\w.+-]+@[\w-]+\.[\w.]+)/gi;
     if (re.test(input)) return;
-
     setMessages(prev => [...prev, { text: input, isBot: false, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
     setInput(''); setIsTyping(true);
-
     const responses = lang === 'ru'
-      ? { order: 'Понял ваш вопрос. Дайте пару минут, проверю статус.', payment: 'Оплата обычно 5-10 минут. Если дольше — напишите номер заказа.', problem: 'Опишите проблему подробнее? Постараюсь помочь.', default: 'Хорошо, понял. Уточню и вернусь.' }
-      : { order: 'Got it. Let me check the status.', payment: 'Payment usually 5-10 min. Send order number if longer.', problem: 'Describe the issue? I\'ll help.', default: 'Alright, I understand. Let me check.' };
-
+      ? { order: 'Понял ваш вопрос. Дайте пару минут, проверю статус.', payment: 'Оплата обычно 5-10 минут. Если дольше — напишите номер заказа.', problem: 'Опишите проблему подробнее?', default: 'Хорошо, понял. Уточню и вернусь.' }
+      : { order: 'Got it. Let me check.', payment: 'Payment usually 5-10 min.', problem: 'Describe the issue?', default: 'Alright, let me check.' };
     const lower = input.toLowerCase();
     let cat = 'default';
     if (lower.includes('order') || lower.includes('заказ')) cat = 'order';
     if (lower.includes('pay') || lower.includes('оплат')) cat = 'payment';
     if (lower.includes('problem') || lower.includes('проблем')) cat = 'problem';
-
     setTimeout(() => {
       setMessages(prev => [...prev, { text: responses[cat as keyof typeof responses], isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
       setIsTyping(false);
-    }, 2000 + Math.random() * 1000);
+    }, 2000);
   };
 
   if (!isOpen) return null;
@@ -251,16 +232,13 @@ function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () =
     <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50">
       <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
         <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><MessageSquare className="w-5 h-5 text-white" /></div>
-            <div><p className="text-white font-bold">{t('support', lang)}</p><p className="text-green-400 text-xs">{lang === 'ru' ? 'Онлайн' : 'Online'}</p></div>
-          </div>
+          <div><p className="text-white font-bold">{t('support', lang)}</p></div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-400" /></button>
         </div>
         <div className="h-80 overflow-y-auto p-4 space-y-3">
           {messages.map((m, i) => (<div key={i} className={`flex ${m.isBot ? 'justify-start' : 'justify-end'}`}>
-            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${m.isBot ? 'bg-white/5 text-gray-300 rounded-bl-md' : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-br-md'}`}>
-              <p className="text-sm">{m.text}</p><p className="text-[10px] opacity-50 mt-1">{m.time}</p>
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${m.isBot ? 'bg-white/5 text-gray-300' : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'}`}>
+              <p className="text-sm">{m.text}</p>
             </div>
           </div>))}
           {isTyping && <div className="flex justify-start"><div className="bg-white/5 rounded-2xl px-4 py-3"><div className="flex gap-1"><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" /><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} /><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} /></div></div></div>}
@@ -268,7 +246,7 @@ function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () =
         </div>
         <div className="p-4 border-t border-white/5">
           <div className="flex gap-2">
-            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={t('messagePlaceholder', lang)} className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none focus:ring-2 focus:ring-yellow-400/50" />
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={t('messagePlaceholder', lang)} className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-white text-sm outline-none" />
             <button onClick={handleSend} className="p-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl"><Send className="w-5 h-5 text-white" /></button>
           </div>
         </div>
@@ -277,43 +255,9 @@ function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () =
   </>);
 }
 
-// Settings Panel
-function SettingsPanel({ isOpen, onClose, lang, darkMode, setDarkMode, sounds, setSounds }: any) {
-  if (!isOpen) return null;
-  return (<>
-    <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-    <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-50">
-      <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl p-6 border border-white/10 shadow-2xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-white font-bold text-xl">{t('settings', lang)}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-6 h-6 text-gray-400" /></button>
-        </div>
-        <div className="space-y-4">
-          {[
-            { icon: Globe, label: t('language', lang), value: lang === 'ru' ? 'Русский' : 'English' },
-            { icon: darkMode ? MoonIcon : Sun, label: t('darkMode', lang), toggle: true, state: darkMode, setState: setDarkMode },
-            { icon: sounds ? Volume2 : VolumeX, label: t('sounds', lang), toggle: true, state: sounds, setState: setSounds },
-            { icon: Shield, label: t('about', lang), value: 'v4.0' },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-              <div className="flex items-center gap-3"><item.icon className="w-5 h-5 text-yellow-400" /><span className="text-white">{item.label}</span></div>
-              {item.toggle ? (
-                <div className={`w-12 h-6 rounded-full relative cursor-pointer ${item.state ? 'bg-yellow-500' : 'bg-gray-600'}`} onClick={() => item.setState(!item.state)}>
-                  <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${item.state ? 'translate-x-6' : 'translate-x-0.5'}`} />
-                </div>
-              ) : <span className="text-gray-400">{item.value}</span>}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </>);
-}
-
-// ===== MAIN HOME CONTENT =====
+// ===== MAIN =====
 function HomeContent() {
   const { language, setLanguage } = useLanguage();
-
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.006]);
@@ -324,24 +268,14 @@ function HomeContent() {
   const [isClient, setIsClient] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showSupport, setShowSupport] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [profileTab, setProfileTab] = useState('profile');
   const [isDetecting, setIsDetecting] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
-  const [sounds, setSounds] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
-  const mainRef = useRef<HTMLDivElement>(null);
-
-  const surgeMultiplier = useMemo(() => {
-    if (tasks.length === 0) return 1;
-    const nearby = tasks.filter(tk => Math.sqrt(Math.pow(tk.latitude - userPosition[0], 2) + Math.pow(tk.longitude - userPosition[1], 2)) * 111 < 5).length;
-    return nearby > 10 ? 2 : nearby > 5 ? 1.5 : 1;
-  }, [tasks, userPosition]);
+  const [profileSection, setProfileSection] = useState('overview');
 
   useEffect(() => {
     setIsClient(true);
-    setTimeout(() => setShowSplash(false), 2000);
+    setTimeout(() => setShowSplash(false), 1500);
     loadUserProfile();
     loadTasks();
     detectLocation();
@@ -388,230 +322,198 @@ function HomeContent() {
     } catch (e) { console.error(e); }
   };
 
-  // Filter tasks by selected category
   const filteredTasks = selectedCategory ? tasks.filter(tk => tk.category === selectedCategory) : tasks;
   const searched = searchQuery ? filteredTasks.filter(tk => tk.title.toLowerCase().includes(searchQuery.toLowerCase()) || tk.description?.toLowerCase().includes(searchQuery.toLowerCase())) : filteredTasks;
 
   if (showSplash) return <Splash onFinish={() => setShowSplash(false)} />;
   if (!isClient) return <Loader />;
 
-  return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-[#0a0a1a] via-[#0f1729] to-[#0a0a1a]' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'}`}>
-      {/* Animated Background */}
-      {darkMode && <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-orange-500/[0.03] rounded-full blur-[100px]" />
-      </div>}
-
-      {/* Offline Banner */}
-      {isOffline && <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500/20 border-b border-orange-500/20 px-4 py-2 text-center">
-        <p className="text-orange-400 text-sm flex items-center justify-center gap-2"><WifiOff className="w-4 h-4" />{language === 'ru' ? 'Оффлайн - кэшированные данные' : 'Offline - cached data'}</p>
-      </div>}
-
-      {/* MAIN SCROLLABLE CONTENT */}
-      <div ref={mainRef} className="relative pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 70px)', WebkitOverflowScrolling: 'touch' as any }}>
-
-        {/* HEADER */}
-        <div className={`sticky top-0 z-30 backdrop-blur-xl ${darkMode ? 'bg-[#0a0a1a]/90' : 'bg-white/90'} border-b border-white/5`}>
-          <div className="max-w-lg mx-auto px-4 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg shadow-yellow-500/20"><span className="text-2xl">⚡</span></div>
-                <div>
-                  <h1 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>Pulse</h1>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('subtitle', language)}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <LanguageSelector language={language} setLanguage={(l) => setLanguage(l as any)} />
-                <button className="relative p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><Bell className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">{unreadCount}</span>}</button>
-                <button onClick={() => setShowSupport(true)} className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><MessageSquare className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} /></button>
-              </div>
-            </div>
-
-            {/* Balance Card */}
-            <div className={`relative overflow-hidden rounded-2xl p-5 mb-4 border ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-100 border-gray-200'}`}>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-full blur-2xl" />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2"><Wallet className="w-5 h-5 text-yellow-400" /><span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('balance', language)}</span></div>
-                  {userProfile?.vip_status !== 'none' && <span className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 rounded-full"><Crown className="w-3 h-3 text-purple-400" /><span className="text-purple-400 text-xs">{t('vip', language)}</span></span>}
-                </div>
-                <div className="grid grid-cols-2 gap-4 mb-3">
-                  <div><p className={`text-xs mb-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>⭐ {t('stars', language)}</p><p className="text-2xl font-bold text-yellow-400">{((userProfile?.balance || 0) * 10).toFixed(0)}</p></div>
-                  <div><p className={`text-xs mb-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>💵 {t('usdt', language)}</p><p className="text-2xl font-bold text-green-400">{(userProfile?.balance || 0).toFixed(2)}</p></div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-3 text-xs">
-                    <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}><TrendingUp className="w-3 h-3" />{userProfile?.rating || 5}/5 ⭐</span>
-                    <span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>•</span>
-                    <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{userProfile?.completed_tasks_as_executor || 0} {t('completed', language)}</span>
-                  </div>
-                  <button className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg text-white text-xs font-medium"><ArrowUpRight className="w-3 h-3" />{t('withdraw', language)}</button>
-                </div>
-              </div>
-            </div>
-
-            {/* Surge Indicator */}
-            {surgeMultiplier > 1 && (
-              <div className={`rounded-xl p-3 mb-4 flex items-center justify-between ${surgeMultiplier >= 2 ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20' : 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20'}`}>
-                <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-400 animate-pulse" /><span className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{surgeMultiplier >= 2 ? t('extremeSurge', language) : t('highSurge', language)}</span></div>
-                <span className="text-yellow-400 text-xs">×{surgeMultiplier.toFixed(1)}</span>
-              </div>
-            )}
-
-            {/* Search */}
-            <div className={`rounded-xl px-4 py-3 flex items-center gap-3 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-              <Search className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('search', language)} className={`bg-transparent text-sm flex-1 outline-none ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`} />
-            </div>
+  // ===== HOME TAB =====
+  const renderHome = () => (
+    <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 65px)' }}>
+      <div className="max-w-lg mx-auto px-4 py-4">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center"><span className="text-xl">⚡</span></div>
+            <div><h1 className="text-white font-bold">Pulse</h1><p className="text-gray-500 text-xs">{t('subtitle', language)}</p></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <LanguageSelector language={language} setLanguage={(l) => setLanguage(l as any)} />
+            <button onClick={() => setShowSupport(true)} className="p-2 bg-white/5 rounded-xl"><MessageSquare className="w-5 h-5 text-gray-300" /></button>
           </div>
         </div>
 
-        {/* CONTENT */}
-        <div className="max-w-lg mx-auto px-4 py-6">
-          {/* Categories Grid - TRANSLATED */}
-          <div className="mb-6">
-            <h2 className={`font-bold text-lg mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('categories', language)}</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat.value}
-                  onClick={() => setSelectedCategory(cat.value === selectedCategory ? null : cat.value)}
-                  type="button"
-                  className={`group rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] text-left w-full ${darkMode ? 'bg-white/5' : 'bg-gray-100'} ${selectedCategory === cat.value ? 'border-2 border-yellow-400 shadow-lg shadow-yellow-500/20 bg-yellow-500/10' : 'border-2 border-transparent hover:border-yellow-400/30'}`}
-                >
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{cat.icon}</div>
-                  <div className={`text-sm font-semibold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{getCategoryLabel(cat.value, language)}</div>
-                  <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
-                </button>
-              ))}
-            </div>
+        {/* Compact Search */}
+        <div className="bg-white/5 rounded-xl px-4 py-3 flex items-center gap-3 mb-6">
+          <Search className="w-4 h-4 text-gray-400" />
+          <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('search', language)} className="bg-transparent text-sm flex-1 outline-none text-white placeholder-gray-500" />
+        </div>
+
+        {/* Categories */}
+        <h2 className="text-white font-bold text-lg mb-4">{t('categories', language)}</h2>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {CATEGORIES.map(cat => (
+            <button key={cat.value} onClick={() => setSelectedCategory(cat.value === selectedCategory ? null : cat.value)} type="button"
+              className={`rounded-2xl p-4 text-left transition-all active:scale-[0.98] ${darkMode ? 'bg-white/5' : 'bg-gray-100'} ${selectedCategory === cat.value ? 'border-2 border-yellow-400 bg-yellow-500/10' : 'border-2 border-transparent'}`}>
+              <div className="text-2xl mb-2">{cat.icon}</div>
+              <div className="text-sm font-semibold text-white">{getCategoryLabel(cat.value, language)}</div>
+              <div className="text-xs text-gray-500">{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Create Task Button */}
+        <button onClick={() => setIsCreateModalOpen(true)} className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all mb-6">
+          <Plus className="w-5 h-5" />{t('createTask', language)}
+        </button>
+
+        {/* Filter Indicator */}
+        {selectedCategory && (
+          <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+            <Filter className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm text-gray-300">{t('filterBy', language)}: <span className="text-yellow-400 font-medium">{getCategoryLabel(selectedCategory, language)}</span></span>
+            <button onClick={() => setSelectedCategory(null)} className="ml-auto text-gray-400"><X className="w-4 h-4" /></button>
           </div>
+        )}
 
-          {/* CREATE TASK BUTTON - ALWAYS VISIBLE */}
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-yellow-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] mb-8"
-          >
-            <Plus className="w-5 h-5" />
-            {t('createTask', language)}
-          </button>
-
-          {/* Selected Category Filter Indicator */}
-          {selectedCategory && (
-            <div className="flex items-center gap-2 mb-4 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-              <Filter className="w-4 h-4 text-yellow-400" />
-              <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                {language === 'ru' ? 'Фильтр:' : 'Filter:'} <span className="text-yellow-400 font-medium">{getCategoryLabel(selectedCategory, language)}</span>
-              </span>
-              <button onClick={() => setSelectedCategory(null)} className="ml-auto text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
-            </div>
-          )}
-
-          {/* Task List */}
-          <div className="space-y-3">
-            {searched.length === 0 ? (
-              <div className="text-center py-12">
-                <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('noTasks', language)}</p>
-                <p className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{language === 'ru' ? 'Создайте первый заказ!' : 'Create the first task!'}</p>
-              </div>
-            ) : (
-              searched.map(task => {
-                const cat = CATEGORIES.find(c => c.value === task.category);
-                return (
-                  <div key={task.id} className={`rounded-2xl p-4 cursor-pointer hover:border-yellow-400/50 border-2 border-transparent transition-all ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">{cat?.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-yellow-400">{getCategoryLabel(task.category, language)}</span>
-                          {task.priority === 'urgent' && <Zap className="w-3 h-3 text-orange-400" />}
-                        </div>
-                        <h4 className={`font-semibold text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>{task.title}</h4>
-                        <p className={`text-xs mt-1 truncate ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{task.description}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-yellow-400">{task.reward}</div>
-                        <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{task.currency?.toUpperCase()}</div>
-                      </div>
+        {/* Task List */}
+        <div className="space-y-3">
+          {searched.length === 0 ? (
+            <div className="text-center py-12"><p className="text-gray-400">{t('noTasks', language)}</p></div>
+          ) : searched.map(task => {
+            const cat = CATEGORIES.find(c => c.value === task.category);
+            return (
+              <div key={task.id} className="bg-white/5 rounded-2xl p-4 border-2 border-transparent">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{cat?.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium text-yellow-400">{getCategoryLabel(task.category, language)}</span>
+                      {task.priority === 'urgent' && <Zap className="w-3 h-3 text-orange-400" />}
                     </div>
-                    {task.street_address && <div className={`flex items-center gap-1.5 mt-3 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}><MapPin className="w-3 h-3" /><span>{task.street_address}</span></div>}
+                    <h4 className="text-white font-semibold text-sm truncate">{task.title}</h4>
+                    <p className="text-gray-500 text-xs mt-1 truncate">{task.description}</p>
                   </div>
-                );
-              })
-            )}
-          </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-yellow-400">{task.reward}</div>
+                    <div className="text-xs text-gray-500">{task.currency?.toUpperCase()}</div>
+                  </div>
+                </div>
+                {task.street_address && <div className="flex items-center gap-1.5 mt-3 text-xs text-gray-500"><MapPin className="w-3 h-3" /><span>{task.street_address}</span></div>}
+              </div>
+            );
+          })}
         </div>
       </div>
+    </div>
+  );
 
-      {/* FEED TAB */}
-      {activeTab === 'feed' && (
-        <div className="relative pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 70px)' }}>
-          <TaskFeed isOpen={true} onClose={() => setActiveTab('home')} tasks={searched} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={async (id) => { await supabase.from('tasks').update({ status: 'claimed', executor_id: userProfile?.id }).eq('id', id); loadTasks(); }} />
+  // ===== FEED TAB =====
+  const renderFeed = () => (
+    <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 65px)' }}>
+      <TaskFeed isOpen={true} onClose={() => setActiveTab('home')} tasks={searched} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={async (id) => { await supabase.from('tasks').update({ status: 'claimed', executor_id: userProfile?.id }).eq('id', id); loadTasks(); }} />
+    </div>
+  );
+
+  // ===== MAP TAB =====
+  const renderMap = () => (
+    <div className="h-screen relative">
+      <LiveTaskMap userPosition={userPosition} selectedCategory={selectedCategory || undefined} tasks={filteredTasks} />
+      {/* Location Button */}
+      <button onClick={detectLocation} disabled={isDetecting} className="absolute bottom-24 right-4 z-20 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg text-white disabled:opacity-50">
+        {isDetecting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}
+      </button>
+    </div>
+  );
+
+  // ===== CHATS TAB =====
+  const renderChats = () => (
+    <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 65px)' }}>
+      <div className="max-w-lg mx-auto px-4 py-6">
+        <div className="text-center mb-6">
+          <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-4"><MessageSquare className="w-10 h-10 text-yellow-400" /></div>
+          <h2 className="text-white font-bold text-xl mb-2">{t('support', language)}</h2>
+          <p className="text-gray-400 text-sm">{t('supportDesc', language)}</p>
         </div>
-      )}
+        <button onClick={() => setShowSupport(true)} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2"><MessageSquare className="w-5 h-5" />{t('startChat', language)}</button>
+      </div>
+    </div>
+  );
 
-      {/* MAP TAB */}
-      {activeTab === 'map' && (
-        <div className="h-screen relative">
-          <LiveTaskMap userPosition={userPosition} selectedCategory={selectedCategory || undefined} tasks={filteredTasks} />
-          <button onClick={detectLocation} disabled={isDetecting} className="absolute bottom-24 right-4 z-20 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg shadow-yellow-500/25 text-white disabled:opacity-50">
-            {isDetecting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}
+  // ===== PROFILE TAB =====
+  const renderProfile = () => (
+    <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 65px)' }}>
+      <div className="max-w-lg mx-auto px-4 py-6">
+        {/* Avatar */}
+        <div className="text-center mb-6">
+          <img src={userProfile?.avatar_url} alt="" className="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-yellow-400" />
+          <h2 className="text-white font-bold text-xl">{userProfile?.display_name}</h2>
+          <p className="text-gray-400 text-sm">@{userProfile?.username}</p>
+          <div className="flex justify-center gap-1 mt-2">{Array.from({ length: 5 }, (_, i) => <span key={i}>{i < Math.floor(userProfile?.rating || 5) ? '⭐' : '☆'}</span>)}</div>
+        </div>
+
+        {/* Balance Card - MOVED HERE */}
+        <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl p-5 border border-yellow-500/20 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <WalletIcon className="w-5 h-5 text-yellow-400" />
+            <span className="text-white font-semibold">{t('balance', language)}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div><p className="text-gray-500 text-xs mb-1">⭐ {t('stars', language)}</p><p className="text-2xl font-bold text-yellow-400">{((userProfile?.balance || 0) * 10).toFixed(0)}</p></div>
+            <div><p className="text-gray-500 text-xs mb-1">💵 {t('usdt', language)}</p><p className="text-2xl font-bold text-green-400">{(userProfile?.balance || 0).toFixed(2)}</p></div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex gap-3 text-xs text-gray-400">
+              <span>{userProfile?.rating || 5}/5 ⭐</span>
+              <span>•</span>
+              <span>{userProfile?.completed_tasks_as_executor || 0} {t('completed', language)}</span>
+            </div>
+            <button className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg text-white text-xs font-medium"><ArrowUpRight className="w-3 h-3" />{t('withdraw', language)}</button>
+          </div>
+        </div>
+
+        {/* Settings */}
+        <div className="space-y-3">
+          <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className="w-full bg-white/5 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-yellow-400" /><span className="text-white">{t('language', language)}</span></div>
+            <span className="text-yellow-400 text-sm">{language === 'ru' ? 'English' : 'Русский'}</span>
+          </button>
+          <button onClick={() => setShowSupport(true)} className="w-full bg-white/5 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3"><MessageSquare className="w-5 h-5 text-yellow-400" /><span className="text-white">{t('support', language)}</span></div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+          <button className="w-full bg-white/5 rounded-xl p-4 flex items-center justify-between text-red-400">
+            <div className="flex items-center gap-3"><LogOut className="w-5 h-5" /><span>{t('logout', language)}</span></div>
           </button>
         </div>
-      )}
+      </div>
+    </div>
+  );
 
-      {/* CHATS TAB */}
-      {activeTab === 'chats' && (
-        <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 70px)' }}>
-          <div className="max-w-lg mx-auto px-4 py-6">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-4"><MessageSquare className="w-10 h-10 text-yellow-400" /></div>
-              <h2 className={`font-bold text-xl mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('support', language)}</h2>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('supportDesc', language)}</p>
-            </div>
-            <button onClick={() => setShowSupport(true)} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2"><MessageSquare className="w-5 h-5" />{t('startChat', language)}</button>
-          </div>
-        </div>
-      )}
+  return (
+    <div className="min-h-screen bg-[#0a0a1a]">
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-orange-500/[0.03] rounded-full blur-[100px]" />
+      </div>
 
-      {/* PROFILE TAB */}
-      {activeTab === 'profile' && userProfile && (
-        <div className="pb-24 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 70px)' }}>
-          <div className="max-w-lg mx-auto px-4 py-6">
-            <div className="text-center mb-6">
-              <div className="relative inline-block">
-                <img src={userProfile.avatar_url} alt="" className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-yellow-400" />
-                {userProfile.is_verified && <div className="absolute bottom-4 right-0 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0a0a1a]"><CheckCircle className="w-4 h-4 text-white" /></div>}
-              </div>
-              <h2 className={`font-bold text-xl ${darkMode ? 'text-white' : 'text-gray-900'}`}>{userProfile.display_name}</h2>
-              <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>@{userProfile.username}</p>
-              <div className="flex justify-center gap-1 mt-2">{Array.from({ length: 5 }, (_, i) => <span key={i}>{i < Math.floor(userProfile.rating || 5) ? '⭐' : '☆'}</span>)}</div>
-            </div>
-            <div className="space-y-4">
-              <div className={`rounded-xl p-4 flex items-center justify-between ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                <div className="flex items-center gap-3"><Settings className="w-5 h-5 text-yellow-400" /><span className={darkMode ? 'text-white' : 'text-gray-900'}>{t('settings', language)}</span></div>
-                <ChevronRight className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-              </div>
-              <button onClick={() => setShowSettings(true)} className={`w-full rounded-xl p-4 flex items-center justify-between ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-yellow-400" /><span className={darkMode ? 'text-white' : 'text-gray-900'}>{t('language', language)}</span></div>
-                <span className="text-yellow-400 text-sm">{language === 'ru' ? 'Русский' : 'English'}</span>
-              </button>
-              <button className={`w-full rounded-xl p-4 flex items-center justify-between text-red-400 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
-                <div className="flex items-center gap-3"><LogOut className="w-5 h-5" /><span>{t('logout', language)}</span></div>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Offline Banner */}
+      {isOffline && <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500/20 px-4 py-2 text-center">
+        <p className="text-orange-400 text-sm flex items-center justify-center gap-2"><WifiOff className="w-4 h-4" />{language === 'ru' ? 'Оффлайн' : 'Offline'}</p>
+      </div>}
 
-      {/* MODALS */}
+      {/* Tab Content */}
+      {activeTab === 'home' && renderHome()}
+      {activeTab === 'feed' && renderFeed()}
+      {activeTab === 'map' && renderMap()}
+      {activeTab === 'chats' && renderChats()}
+      {activeTab === 'profile' && renderProfile()}
+
+      {/* Modals */}
       {isCreateModalOpen && <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreateTask={handleCreateTask} userPosition={userPosition} />}
       <SupportChat isOpen={showSupport} onClose={() => setShowSupport(false)} lang={language} />
-      <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} lang={language} darkMode={darkMode} setDarkMode={setDarkMode} sounds={sounds} setSounds={setSounds} />
-
-      {/* TAB BAR - fixed at bottom */}
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} unreadCount={unreadCount} language={language} />
     </div>
   );
