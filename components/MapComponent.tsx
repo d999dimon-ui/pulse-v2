@@ -57,6 +57,47 @@ const createTaskIcon = (category: string) => {
   });
 };
 
+// User position icon
+const createUserIcon = () => {
+  return L.divIcon({
+    className: 'user-marker',
+    html: `
+      <div style="position: relative;">
+        <div style="
+          width: 20px;
+          height: 20px;
+          background: #3b82f6;
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(0,0,0,0.3);
+          position: relative;
+          z-index: 2;
+        "></div>
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 40px;
+          height: 40px;
+          background: rgba(59, 130, 246, 0.2);
+          border-radius: 50%;
+          animation: pulse-blue 2s ease-in-out infinite;
+          z-index: 1;
+        "></div>
+      </div>
+      <style>
+        @keyframes pulse-blue {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+          50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+      </style>
+    `,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+};
+
 // Component to handle map events
 function MapEventHandler({ onLongPress }: { onLongPress: (e: any) => void }) {
   const [pressTimer, setPressTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -86,9 +127,10 @@ interface MapComponentProps {
   userPosition?: [number, number];
   activeTaskId?: string;
   showHeatmap?: boolean;
+  language?: string;
 }
 
-export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060], activeTaskId, showHeatmap }: MapComponentProps) {
+export default function MapComponent({ onLongPress, tasks = [], userPosition = [40.7128, -74.0060], activeTaskId, showHeatmap, language = 'ru' }: MapComponentProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [surgeInfo, setSurgeInfo] = useState<{ multiplier: number; count: number; isActive: boolean } | null>(null);
 
@@ -167,9 +209,18 @@ export default function MapComponent({ onLongPress, tasks = [], userPosition = [
         </Marker>
       ))}
       
+      {/* User position marker */}
+      <Marker position={userPosition} icon={createUserIcon()}>
+        <Popup>
+          <div className="p-2 text-center">
+            <p className="font-bold text-gray-900 text-sm">📍 {language === 'ru' ? 'Вы здесь' : 'You are here'}</p>
+          </div>
+        </Popup>
+      </Marker>
+
       {/* Executor real-time marker */}
       {activeTaskId && <ExecutorMarker taskId={activeTaskId} userPosition={userPosition} />}
-      
+
       {/* Handle long press events */}
       {onLongPress && <MapEventHandler onLongPress={onLongPress} />}
     </MapContainer>

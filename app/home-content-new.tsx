@@ -363,13 +363,13 @@ function HomeContent() {
 
       {tab === 'feed' && (
         <div className="pb-20 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 64px)' }}>
-          <TaskFeed isOpen={true} onClose={() => setTab('home')} tasks={searched} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={claimTask} />
+          <TaskFeed isOpen={true} onClose={() => setTab('home')} tasks={searched} userLatitude={userPosition[0]} userLongitude={userPosition[1]} onClaimTask={claimTask} language={language} />
         </div>
       )}
 
       {tab === 'map' && (
         <div className="h-screen relative">
-          <LiveTaskMap userPosition={userPosition} selectedCategory={selectedCat || undefined} tasks={filtered} />
+          <LiveTaskMap userPosition={userPosition} selectedCategory={selectedCat || undefined} tasks={filtered} language={language} />
           <button onClick={getLocation} disabled={detecting} className="absolute bottom-24 right-4 z-20 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg text-white disabled:opacity-50 active:scale-95">
             {detecting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}
           </button>
