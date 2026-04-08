@@ -9,7 +9,11 @@ import {
   ArrowUpRight, Copy, Users, Gift, AlertTriangle, Settings,
   LogOut, User, Camera, CreditCard, Navigation, Map,
   Filter, Repeat, AlertOctagon, Gift as GiftIcon, BarChart3,
-  ChevronRight, Edit3, Save, Loader2, Target, Sparkles
+  ChevronRight, Edit3, Save, Loader2, Target, Sparkles,
+  Sun, Moon, CreditCard as Card, Award, Package, Users2,
+  TrendingDown, Hash, Calendar, Award as Trophy, ShieldCheck,
+  Heart, ThumbsUp, MessageCircle, Volume2, VolumeX, Moon as MoonIcon,
+  WifiOff
 } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import CreateTaskModal from "@/components/CreateTaskModal";
@@ -19,255 +23,155 @@ import Splash from "@/components/Splash";
 import { Task as TaskType, UserProfile as UserProfileType, CATEGORIES } from "@/types/task";
 import { supabase } from "@/lib/supabase";
 
-// Translation helper - ВСЁ на русском при выборе RU
-const i18n = {
+// ===== ПОЛНАЯ i18n - ВСЁ на русском при RU, ВСЁ на английском при EN =====
+const i18n: Record<string, Record<string, string>> = {
   ru: {
-    app: 'Pulse',
-    subtitle: 'Маркетплейс услуг',
-    balance: 'Ваши балансы',
-    stars: 'Stars',
-    usdt: 'USDT',
-    withdraw: 'Вывести',
-    search: 'Поиск задач...',
-    categories: 'Категории',
-    available: 'доступно',
-    createTask: 'Создать заказ',
-    recent: 'Последние',
-    support: 'Поддержка',
-    supportDesc: 'Поддержка на русском и английском',
-    startChat: 'Начать чат',
-    profile: 'Профиль',
-    settings: 'Настройки',
-    logout: 'Выйти',
-    rating: 'Рейтинг',
-    completed: 'задач',
-    vip: 'VIP',
-    inviteFriend: 'Пригласи друга',
-    inviteDesc: '5 заказов друга = 12ч без комиссии',
-    invited: 'Приглашено',
-    tasks: 'Заказов',
-    bonus: 'Бонус',
-    referralLink: 'Реферальная ссылка',
-    copied: 'Скопировано!',
-    location: 'Местоположение',
-    detecting: 'Определяю...',
-    myOrders: 'Мои заказы',
-    active: 'Активные',
-    completedOrders: 'Завершённые',
-    cancelled: 'Отменённые',
-    repeat: 'Повторить',
-    phone: 'Телефон',
-    phonePlaceholder: '+996 ___ ___ ___',
-    fullName: 'Полное имя',
-    bio: 'О себе',
-    save: 'Сохранить',
-    cancel: 'Отмена',
-    selfie: 'Селфи',
-    passport: 'Паспортные данные',
-    verified: 'Проверен',
-    notVerified: 'Не проверен',
-    upload: 'Загрузить',
-    comment: 'Комментарий',
-    addComment: 'Добавить отзыв',
-    aiChecking: 'AI проверяет отзыв...',
-    reviewSubmitted: 'Отзыв отправлен',
-    notifications: 'Уведомления',
-    language: 'Язык',
-    darkMode: 'Тёмная тема',
-    sounds: 'Звуки',
-    about: 'О приложении',
-    help: 'Помощь',
-    surge: 'Повышенный спрос',
-    extremeSurge: 'Экстремальный спрос',
-    highSurge: 'Высокий спрос',
-    fee: 'Комиссия Pulse',
-    youEarn: 'Вы получите',
-    accept: 'Принять заказ',
-    priorityPickup: 'Быстрая подача',
-    skipQueue: 'Без очереди',
-    priorityDesc: 'Курьер приедет быстрее',
-    vipPriority: 'VIP приоритет',
-    customerContact: 'Контакт заказчика',
-    contactHidden: 'Доступен после принятия',
-    paymentDetails: 'Детали оплаты',
-    noCommission: 'Без комиссии',
-    promoActive: 'Промокод активен',
-    promoExpired: 'Промокод истёк',
-    orderHistory: 'История заказов',
-    filterStatus: 'Фильтр по статусу',
-    allOrders: 'Все заказы',
-    statistics: 'Статистика',
-    earnings: 'Заработок',
-    today: 'Сегодня',
-    thisWeek: 'На этой неделе',
-    thisMonth: 'В этом месяце',
-    rank: 'Рейтинг среди курьеров',
-    subscriptions: 'Подписки',
-    monthlyVIP: 'Monthly VIP',
-    vipDesc: 'Сниженная комиссия 5%',
-    prioritySupport: 'Приоритетная поддержка',
-    exclusiveOrders: 'Эксклюзивные заказы',
-    subscribe: 'Подписаться',
-    promos: 'Промокоды',
-    firstOrder: 'Скидка на первый заказ',
-    seasonal: 'Сезонные акции',
-    complaints: 'Жалобы',
-    report: 'Пожаловаться',
-    reportDesc: 'Модерация админом',
-    banned: 'Заблокирован',
-    verification: 'Верификация',
-    phoneVerify: 'Подтверждение телефона',
-    kyc: 'KYC для курьеров',
-    verifiedBadge: 'Бейдж "Проверен"',
-    liveTracking: 'GPS трекинг',
-    eta: 'Время прибытия',
-    route: 'Маршрут',
-    chatWithCourier: 'Чат с курьером',
-    chatWithCustomer: 'Чат с заказчиком',
-    messagePlaceholder: 'Введите сообщение...',
-    send: 'Отправить',
-    contactWarning: '⚠️ Обмен контактами запрещён до принятия заказа!',
-    noTasks: 'Заданий не найдено',
-    loading: 'Загрузка...',
-    error: 'Ошибка',
-    success: 'Успешно',
-    confirm: 'Подтвердить',
-    close: 'Закрыть',
-    back: 'Назад',
-    next: 'Далее',
-    skip: 'Пропустить',
-    welcome: 'Добро пожаловать в Pulse!',
-    howItWorks: 'Как это работает',
-    createFirst: 'Создайте первый заказ',
-    findCourier: 'Найдите курьера',
-    paySecurely: 'Безопасная оплата',
-    getStarted: 'Начать!',
+    app: 'Pulse', subtitle: 'Маркетплейс услуг', balance: 'Ваши балансы', stars: 'Stars',
+    usdt: 'USDT', withdraw: 'Вывести', search: 'Поиск задач...', categories: 'Категории',
+    available: 'доступно', createTask: 'Создать заказ', recent: 'Последние',
+    support: 'Поддержка', supportDesc: 'Мы на связи 24/7', startChat: 'Начать чат',
+    profile: 'Профиль', settings: 'Настройки', logout: 'Выйти', rating: 'Рейтинг',
+    completed: 'задач', vip: 'VIP', inviteFriend: 'Пригласи друга',
+    inviteDesc: '5 заказов друга = 12ч без комиссии', invited: 'Приглашено',
+    tasks: 'Заказов', bonus: 'Бонус', referralLink: 'Реферальная ссылка',
+    copied: 'Скопировано!', location: 'Местоположение', detecting: 'Определяю...',
+    myOrders: 'Заказы', active: 'Активные', completedOrders: 'Завершённые',
+    cancelled: 'Отменённые', repeat: 'Повторить', phone: 'Телефон',
+    phonePlaceholder: '+996 ___ ___ ___', fullName: 'Полное имя', bio: 'О себе',
+    save: 'Сохранить', cancel: 'Отмена', selfie: 'Селфи', passport: 'Паспорт',
+    verified: 'Проверен', notVerified: 'Не проверен', upload: 'Загрузить',
+    comment: 'Комментарий', addComment: 'Добавить отзыв', aiChecking: 'AI проверяет...',
+    reviewSubmitted: 'Отзыв отправлен', notifications: 'Уведомления', language: 'Язык',
+    darkMode: 'Тёмная тема', sounds: 'Звуки', about: 'О приложении', help: 'Помощь',
+    surge: 'Повышенный спрос', extremeSurge: '🔴 Экстремальный спрос',
+    highSurge: '🟠 Высокий спрос', fee: 'Комиссия Pulse', youEarn: 'Вы получите',
+    accept: 'Принять заказ', priorityPickup: '⚡ Быстрая подача',
+    skipQueue: '👑 Без очереди', priorityDesc: 'Курьер приедет быстрее',
+    vipPriority: 'VIP приоритет', customerContact: 'Контакт заказчика',
+    contactHidden: 'Доступен после принятия', paymentDetails: 'Детали оплаты',
+    noCommission: 'Без комиссии', promoActive: 'Промокод активен',
+    orderHistory: 'История заказов', filterStatus: 'Фильтр', allOrders: 'Все',
+    statistics: 'Статистика', earnings: 'Заработок', today: 'Сегодня',
+    thisWeek: 'Неделя', thisMonth: 'Месяц', rank: 'Рейтинг',
+    subscriptions: 'Подписки', monthlyVIP: 'Monthly VIP', vipDesc: 'Комиссия 5%',
+    prioritySupport: 'Приоритетная поддержка', exclusiveOrders: 'Эксклюзивные заказы',
+    subscribe: 'Подписаться', promos: 'Промокоды', firstOrder: 'Скидка на первый заказ',
+    seasonal: 'Сезонные акции', complaints: 'Жалобы', report: 'Пожаловаться',
+    reportDesc: 'Модерация админом', banned: 'Заблокирован', verification: 'Верификация',
+    phoneVerify: 'Телефон', kyc: 'KYC', verifiedBadge: 'Бейдж', liveTracking: 'GPS',
+    eta: 'Время прибытия', route: 'Маршрут', chatWithCourier: 'Чат с курьером',
+    chatWithCustomer: 'Чат с заказчиком', messagePlaceholder: 'Сообщение...',
+    send: 'Отправить', contactWarning: '⚠️ Обмен контактами запрещён!',
+    noTasks: 'Заданий нет', loading: 'Загрузка...', error: 'Ошибка',
+    success: 'Успешно', confirm: 'Подтвердить', close: 'Закрыть', back: 'Назад',
+    next: 'Далее', skip: 'Пропустить', welcome: 'Добро пожаловать в Pulse!',
+    howItWorks: 'Как это работает', createFirst: 'Создайте заказ',
+    findCourier: 'Найдите курьера', paySecurely: 'Безопасная оплата',
+    getStarted: 'Начать!', groupOrder: 'Групповой заказ', auction: 'Аукцион',
+    subscribeCourier: 'Подписка на курьера', aiPrice: 'AI оценка',
+    guarantee: 'Гарантия возврата', districtRank: 'Рейтинг районов',
+    seasonalBonus: 'Сезонные бонусы', achievements: 'Достижения',
+    lightMode: 'Светлая тема', offline: 'Оффлайн', cached: 'Кэшировано',
+    myReviews: 'Мои отзывы', asExecutor: 'Как исполнитель', asCustomer: 'Как заказчик',
+    totalEarned: 'Всего заработано', successRate: 'Успешность',
+    responseTime: 'Время ответа', ordersPerDay: 'Заказов в день',
+    topCourier: 'Топ курьер', fastDelivery: 'Быстрая доставка',
+    reliable: 'Надёжный', fiveStars: '5 звёзд',
   },
   en: {
-    app: 'Pulse',
-    subtitle: 'Service Marketplace',
-    balance: 'Your Balances',
-    stars: 'Stars',
-    usdt: 'USDT',
-    withdraw: 'Withdraw',
-    search: 'Search tasks...',
-    categories: 'Categories',
-    available: 'available',
-    createTask: 'Create Task',
-    recent: 'Recent',
-    support: 'Support',
-    supportDesc: 'Support in Russian and English',
-    startChat: 'Start Chat',
-    profile: 'Profile',
-    settings: 'Settings',
-    logout: 'Logout',
-    rating: 'Rating',
-    completed: 'tasks',
-    vip: 'VIP',
-    inviteFriend: 'Invite a Friend',
-    inviteDesc: 'Friend completes 5 tasks = 12h no fee',
-    invited: 'Invited',
-    tasks: 'Tasks',
-    bonus: 'Bonus',
-    referralLink: 'Referral Link',
-    copied: 'Copied!',
-    location: 'Location',
-    detecting: 'Detecting...',
-    myOrders: 'My Orders',
-    active: 'Active',
-    completedOrders: 'Completed',
-    cancelled: 'Cancelled',
-    repeat: 'Repeat',
-    phone: 'Phone',
-    phonePlaceholder: '+996 ___ ___ ___',
-    fullName: 'Full Name',
-    bio: 'About',
-    save: 'Save',
-    cancel: 'Cancel',
-    selfie: 'Selfie',
-    passport: 'Passport Data',
-    verified: 'Verified',
-    notVerified: 'Not Verified',
-    upload: 'Upload',
-    comment: 'Comment',
-    addComment: 'Add Review',
-    aiChecking: 'AI checking review...',
-    reviewSubmitted: 'Review submitted',
-    notifications: 'Notifications',
-    language: 'Language',
-    darkMode: 'Dark Mode',
-    sounds: 'Sounds',
-    about: 'About',
-    help: 'Help',
-    surge: 'Elevated Demand',
-    extremeSurge: 'Extreme Demand',
-    highSurge: 'High Demand',
-    fee: 'Pulse Fee',
-    youEarn: 'You Earn',
-    accept: 'Accept Task',
-    priorityPickup: 'Priority Pickup',
-    skipQueue: 'Skip Queue',
-    priorityDesc: 'Courier arrives faster',
-    vipPriority: 'VIP priority',
-    customerContact: 'Customer Contact',
-    contactHidden: 'Available after accepting',
-    paymentDetails: 'Payment Details',
-    noCommission: 'No commission',
-    promoActive: 'Promo active',
-    promoExpired: 'Promo expired',
-    orderHistory: 'Order History',
-    filterStatus: 'Filter by status',
-    allOrders: 'All Orders',
-    statistics: 'Statistics',
-    earnings: 'Earnings',
-    today: 'Today',
-    thisWeek: 'This Week',
-    thisMonth: 'This Month',
-    rank: 'Rank among couriers',
-    subscriptions: 'Subscriptions',
-    monthlyVIP: 'Monthly VIP',
-    vipDesc: 'Reduced 5% commission',
-    prioritySupport: 'Priority Support',
-    exclusiveOrders: 'Exclusive Orders',
-    subscribe: 'Subscribe',
-    promos: 'Promo Codes',
-    firstOrder: 'First order discount',
-    seasonal: 'Seasonal promotions',
-    complaints: 'Complaints',
-    report: 'Report',
-    reportDesc: 'Admin moderation',
-    banned: 'Banned',
-    verification: 'Verification',
-    phoneVerify: 'Phone verification',
-    kyc: 'KYC for couriers',
-    verifiedBadge: '"Verified" badge',
-    liveTracking: 'GPS Tracking',
-    eta: 'ETA',
-    route: 'Route',
-    chatWithCourier: 'Chat with courier',
-    chatWithCustomer: 'Chat with customer',
-    messagePlaceholder: 'Type a message...',
-    send: 'Send',
-    contactWarning: '⚠️ Contact exchange prohibited before accepting!',
-    noTasks: 'No tasks found',
-    loading: 'Loading...',
-    error: 'Error',
-    success: 'Success',
-    confirm: 'Confirm',
-    close: 'Close',
-    back: 'Back',
-    next: 'Next',
-    skip: 'Skip',
-    welcome: 'Welcome to Pulse!',
-    howItWorks: 'How it works',
-    createFirst: 'Create your first task',
-    findCourier: 'Find a courier',
-    paySecurely: 'Secure payment',
-    getStarted: 'Get Started!',
+    app: 'Pulse', subtitle: 'Service Marketplace', balance: 'Your Balances', stars: 'Stars',
+    usdt: 'USDT', withdraw: 'Withdraw', search: 'Search tasks...', categories: 'Categories',
+    available: 'available', createTask: 'Create Task', recent: 'Recent',
+    support: 'Support', supportDesc: 'We\'re online 24/7', startChat: 'Start Chat',
+    profile: 'Profile', settings: 'Settings', logout: 'Logout', rating: 'Rating',
+    completed: 'tasks', vip: 'VIP', inviteFriend: 'Invite a Friend',
+    inviteDesc: 'Friend completes 5 tasks = 12h no fee', invited: 'Invited',
+    tasks: 'Tasks', bonus: 'Bonus', referralLink: 'Referral Link',
+    copied: 'Copied!', location: 'Location', detecting: 'Detecting...',
+    myOrders: 'Orders', active: 'Active', completedOrders: 'Completed',
+    cancelled: 'Cancelled', repeat: 'Repeat', phone: 'Phone',
+    phonePlaceholder: '+996 ___ ___ ___', fullName: 'Full Name', bio: 'About',
+    save: 'Save', cancel: 'Cancel', selfie: 'Selfie', passport: 'Passport',
+    verified: 'Verified', notVerified: 'Not Verified', upload: 'Upload',
+    comment: 'Comment', addComment: 'Add Review', aiChecking: 'AI checking...',
+    reviewSubmitted: 'Review submitted', notifications: 'Notifications', language: 'Language',
+    darkMode: 'Dark Mode', sounds: 'Sounds', about: 'About', help: 'Help',
+    surge: 'Elevated Demand', extremeSurge: '🔴 Extreme Demand',
+    highSurge: '🟠 High Demand', fee: 'Pulse Fee', youEarn: 'You Earn',
+    accept: 'Accept Task', priorityPickup: '⚡ Priority Pickup',
+    skipQueue: '👑 Skip Queue', priorityDesc: 'Courier arrives faster',
+    vipPriority: 'VIP priority', customerContact: 'Customer Contact',
+    contactHidden: 'Available after accepting', paymentDetails: 'Payment Details',
+    noCommission: 'No commission', promoActive: 'Promo active',
+    orderHistory: 'Order History', filterStatus: 'Filter', allOrders: 'All',
+    statistics: 'Statistics', earnings: 'Earnings', today: 'Today',
+    thisWeek: 'Week', thisMonth: 'Month', rank: 'Rank',
+    subscriptions: 'Subscriptions', monthlyVIP: 'Monthly VIP', vipDesc: '5% commission',
+    prioritySupport: 'Priority Support', exclusiveOrders: 'Exclusive Orders',
+    subscribe: 'Subscribe', promos: 'Promo Codes', firstOrder: 'First order discount',
+    seasonal: 'Seasonal promotions', complaints: 'Complaints', report: 'Report',
+    reportDesc: 'Admin moderation', banned: 'Banned', verification: 'Verification',
+    phoneVerify: 'Phone', kyc: 'KYC', verifiedBadge: 'Badge', liveTracking: 'GPS',
+    eta: 'ETA', route: 'Route', chatWithCourier: 'Chat with courier',
+    chatWithCustomer: 'Chat with customer', messagePlaceholder: 'Message...',
+    send: 'Send', contactWarning: '⚠️ Contact exchange prohibited!',
+    noTasks: 'No tasks', loading: 'Loading...', error: 'Error',
+    success: 'Success', confirm: 'Confirm', close: 'Close', back: 'Back',
+    next: 'Next', skip: 'Skip', welcome: 'Welcome to Pulse!',
+    howItWorks: 'How it works', createFirst: 'Create a task',
+    findCourier: 'Find a courier', paySecurely: 'Secure payment',
+    getStarted: 'Get Started!', groupOrder: 'Group Order', auction: 'Auction',
+    subscribeCourier: 'Courier Subscription', aiPrice: 'AI Price Estimate',
+    guarantee: 'Money Back Guarantee', districtRank: 'District Rankings',
+    seasonalBonus: 'Seasonal Bonuses', achievements: 'Achievements',
+    lightMode: 'Light Mode', offline: 'Offline', cached: 'Cached',
+    myReviews: 'My Reviews', asExecutor: 'As Executor', asCustomer: 'As Customer',
+    totalEarned: 'Total Earned', successRate: 'Success Rate',
+    responseTime: 'Response Time', ordersPerDay: 'Orders/Day',
+    topCourier: 'Top Courier', fastDelivery: 'Fast Delivery',
+    reliable: 'Reliable', fiveStars: '5 Stars',
   }
 };
 
-const t = (key: string, lang: string) => i18n[lang as keyof typeof i18n]?.[key as keyof (typeof i18n)['ru']] || key;
+const t = (key: string, lang: string) => i18n[lang]?.[key] || i18n.en[key] || key;
+
+// ===== SUB-CATEGORIES =====
+const SUB_CATEGORIES: Record<string, { value: string; label: string; icon: string }[]> = {
+  it: [
+    { value: 'dev', label: 'Разработка', icon: '💻' },
+    { value: 'design', label: 'Дизайн', icon: '🎨' },
+    { value: 'smm', label: 'SMM', icon: '📱' },
+  ],
+  delivery: [
+    { value: 'food', label: 'Еда', icon: '🍕' },
+    { value: 'packages', label: 'Посылки', icon: '📦' },
+    { value: 'docs', label: 'Документы', icon: '📄' },
+  ],
+  cleaning: [
+    { value: 'home', label: 'Дом', icon: '🏠' },
+    { value: 'office', label: 'Офис', icon: '🏢' },
+    { value: 'car', label: 'Авто', icon: '🚗' },
+  ],
+};
+
+// ===== ACHIEVEMENTS =====
+const ACHIEVEMENTS = [
+  { id: 'top_courier', icon: '🏆', name: 'Топ курьер', desc: '100+ заказов', lang: { ru: 'Топ курьер', en: 'Top Courier' } },
+  { id: 'fast', icon: '⚡', name: 'Быстрый', desc: '50+ за день', lang: { ru: 'Быстрый', en: 'Fast' } },
+  { id: 'reliable', icon: '🛡️', name: 'Надёжный', desc: '99% успешных', lang: { ru: 'Надёжный', en: 'Reliable' } },
+  { id: 'five_stars', icon: '⭐', name: '5 звёзд', desc: 'Рейтинг 5.0', lang: { ru: '5 звёзд', en: '5 Stars' } },
+  { id: 'early_bird', icon: '🌅', name: 'Ранняя пташка', desc: '5 заказов до 9:00', lang: { ru: 'Ранняя пташка', en: 'Early Bird' } },
+  { id: 'night_owl', icon: '🦉', name: 'Сова', desc: '5 заказов после 22:00', lang: { ru: 'Сова', en: 'Night Owl' } },
+];
+
+// ===== DISTRICT RANKINGS =====
+const DISTRICT_RANKINGS = [
+  { name: 'Центр', orders: 1250, multiplier: 1.5 },
+  { name: 'Юг', orders: 890, multiplier: 1.2 },
+  { name: 'Север', orders: 670, multiplier: 1.0 },
+  { name: 'Запад', orders: 450, multiplier: 0.8 },
+  { name: 'Восток', orders: 320, multiplier: 0.6 },
+];
 
 // Loader
 const Loader = () => (
@@ -287,498 +191,420 @@ const LiveTaskMap = dynamic(() => import("@/components/LiveTaskMap"), { ssr: fal
 // Language Selector
 function LanguageSelector({ language, setLanguage }: { language: string; setLanguage: (l: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
-  const langs = [
-    { code: 'ru', label: 'Русский', flag: '🇷' },
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-  ];
+  const langs = [{ code: 'ru', label: 'Русский', flag: '🇷' }, { code: 'en', label: 'English', flag: '🇬🇧' }];
   const current = langs.find(l => l.code === language) || langs[0];
-
   return (
     <div className="relative">
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition">
-        <Globe className="w-4 h-4 text-yellow-400" />
-        <span className="text-sm text-white">{current.flag}</span>
+        <Globe className="w-4 h-4 text-yellow-400" /><span className="text-sm text-white">{current.flag}</span>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-40 bg-[#1a1f3a] rounded-xl overflow-hidden z-50 shadow-2xl border border-white/10">
-            {langs.map(l => (
-              <button key={l.code} onClick={() => { setLanguage(l.code); setIsOpen(false); }}
-                className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 ${language === l.code ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-300 hover:bg-white/5'}`}>
-                <span>{l.flag}</span><span>{l.label}</span>
-                {language === l.code && <CheckCircle className="w-4 h-4 ml-auto" />}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      {isOpen && (<>
+        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+        <div className="absolute right-0 top-full mt-2 w-40 bg-[#1a1f3a] rounded-xl overflow-hidden z-50 shadow-2xl border border-white/10">
+          {langs.map(l => (<button key={l.code} onClick={() => { setLanguage(l.code); setIsOpen(false); }}
+            className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 ${language === l.code ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-300 hover:bg-white/5'}`}>
+            <span>{l.flag}</span><span>{l.label}</span>{language === l.code && <CheckCircle className="w-4 h-4 ml-auto" />}
+          </button>))}
+        </div>
+      </>)}
     </div>
   );
 }
 
 // Contact Protection
 function protectContact(text: string): { safe: boolean; warning: string } {
-  const phoneRe = /(\+?\d[\d\s\-()]{7,}\d)/g;
-  const tgRe = /(@\w+|t\.me\/\w+|telegram\.me\/\w+)/gi;
-  const waRe = /(wa\.me\/\d+|whatsapp\.com)/gi;
-  const emailRe = /[\w.+-]+@[\w-]+\.[\w.]+/g;
-
-  if (phoneRe.test(text) || tgRe.test(text) || waRe.test(text) || emailRe.test(text)) {
-    return { safe: false, warning: '⚠️ Обмен контактами запрещён до принятия заказа!' };
-  }
+  const re = /(\+?\d[\d\s\-()]{7,}\d|@\w+|t\.me\/\w+|telegram\.me|wa\.me|whatsapp|[\w.+-]+@[\w-]+\.[\w.]+)/gi;
+  if (re.test(text)) return { safe: false, warning: '⚠️ Обмен контактами запрещён до принятия заказа!' };
   return { safe: true, warning: '' };
 }
 
-// AI Chat Bot - отвечает как человек за 1-2 минуты
+// AI Chat
 function useAIChat(lang: string) {
   const responses = useMemo(() => ({
     ru: {
       greeting: 'Привет! Я из поддержки Pulse. Чем могу помочь? 😊',
-      thinking: ['Сейчас посмотрю...', 'Дайте секунду...', 'Проверяю информацию...', 'Так, сейчас разберёмся...'],
+      thinking: ['Сейчас посмотрю...', 'Дайте секунду...', 'Проверяю...', 'Так, сейчас разберёмся...'],
       answers: {
-        'order': 'Понял ваш вопрос по заказу. Дайте мне пару минут, проверю статус и напишу вам.',
-        'payment': 'По оплате — обычно зачисление происходит в течение 5-10 минут. Если дольше — напишите номер заказа, я проверю.',
-        'problem': 'Опишите проблему подробнее? Я постараюсь помочь прямо сейчас.',
-        'default': 'Хорошо, я понял. Сейчас уточню у коллег и вернусь с ответом. Это займёт буквально пару минут.',
+        order: 'Понял ваш вопрос по заказу. Дайте пару минут, проверю статус.',
+        payment: 'По оплате — зачисление обычно 5-10 минут. Если дольше — напишите номер заказа.',
+        problem: 'Опишите проблему подробнее? Постараюсь помочь прямо сейчас.',
+        default: 'Хорошо, понял. Уточню у коллег и вернусь. Пара минут.',
       }
     },
     en: {
       greeting: 'Hi! I\'m from Pulse support. How can I help? 😊',
-      thinking: ['Let me check...', 'Give me a sec...', 'Looking into it...', 'Alright, let\'s figure this out...'],
+      thinking: ['Let me check...', 'Give me a sec...', 'Looking into it...', 'Alright...'],
       answers: {
-        'order': 'Got your question about the order. Let me check the status and get back to you in a few minutes.',
-        'payment': 'Regarding payment — usually it processes within 5-10 minutes. If longer, send me the order number.',
-        'problem': 'Could you describe the issue in more detail? I\'ll try to help right away.',
-        'default': 'Alright, I understand. Let me check with the team and get back to you. Just a couple minutes.',
+        order: 'Got your question. Let me check the status and get back to you.',
+        payment: 'Payment usually processes in 5-10 min. If longer, send order number.',
+        problem: 'Describe the issue? I\'ll help right away.',
+        default: 'Alright, I understand. Let me check and get back to you.',
       }
     }
   }), [lang]);
 
-  const getAIResponse = useCallback((userMsg: string): { response: string; delay: number; needsAdmin: boolean } => {
-    const msg = userMsg.toLowerCase();
-    let category = 'default';
-    let needsAdmin = false;
-
-    if (msg.includes('order') || msg.includes('заказ') || msg.includes('task')) category = 'order';
-    if (msg.includes('pay') || msg.includes('оплат') || msg.includes('money') || msg.includes('stars') || msg.includes('usdt')) category = 'payment';
-    if (msg.includes('problem') || msg.includes('проблем') || msg.includes('error') || msg.includes('bug')) { category = 'problem'; needsAdmin = true; }
-    if (msg.includes('complaint') || msg.includes('жалоб') || msg.includes('report')) needsAdmin = true;
-
-    const thinking = responses[lang as keyof typeof responses]?.thinking || responses.en.thinking;
-    const answer = (responses[lang as keyof typeof responses]?.answers || responses.en.answers)[category as keyof typeof responses.en.answers];
-    const delay = 60000 + Math.random() * 60000; // 1-2 minutes like a real person
-
-    return { response: answer, delay, needsAdmin };
+  const getAIResponse = useCallback((msg: string) => {
+    const lower = msg.toLowerCase();
+    let cat = 'default', needsAdmin = false;
+    if (lower.includes('order') || lower.includes('заказ')) cat = 'order';
+    if (lower.includes('pay') || lower.includes('оплат')) cat = 'payment';
+    if (lower.includes('problem') || lower.includes('проблем') || lower.includes('error')) { cat = 'problem'; needsAdmin = true; }
+    if (lower.includes('complaint') || lower.includes('жалоб')) needsAdmin = true;
+    const r = responses[lang as keyof typeof responses] || responses.en;
+    return { response: r.answers[cat as keyof typeof r.answers] || r.answers.default, delay: 60000 + Math.random() * 60000, needsAdmin };
   }, [lang, responses]);
 
   return { getAIResponse, responses };
 }
 
-// Settings Panel
-function SettingsPanel({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () => void; lang: string }) {
-  const [darkMode, setDarkMode] = useState(true);
-  const [sounds, setSounds] = useState(true);
-
-  if (!isOpen) return null;
-
-  return (
-    <>
-      <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-50">
-        <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl p-6 border border-white/10 shadow-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-white font-bold text-xl">{t('settings', lang)}</h2>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-6 h-6 text-gray-400" /></button>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Globe className="w-5 h-5 text-yellow-400" />
-                <span className="text-white">{t('language', lang)}</span>
-              </div>
-              <span className="text-gray-400">{lang === 'ru' ? 'Русский' : 'English'}</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Bell className="w-5 h-5 text-yellow-400" />
-                <span className="text-white">{t('notifications', lang)}</span>
-              </div>
-              <div className="w-12 h-6 bg-yellow-500 rounded-full relative cursor-pointer" onClick={() => setDarkMode(!darkMode)}>
-                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-0.5'}`} />
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                <span className="text-white">{t('sounds', lang)}</span>
-              </div>
-              <div className="w-12 h-6 bg-yellow-500 rounded-full relative cursor-pointer" onClick={() => setSounds(!sounds)}>
-                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${sounds ? 'translate-x-6' : 'translate-x-0.5'}`} />
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-yellow-400" />
-                <span className="text-white">{t('about', lang)}</span>
-              </div>
-              <span className="text-gray-400">v2.0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-// Support Chat with AI
+// Support Chat
 function SupportChat({ isOpen, onClose, lang }: { isOpen: boolean; onClose: () => void; lang: string }) {
   const { getAIResponse, responses } = useAIChat(lang);
   const [messages, setMessages] = useState<{ text: string; isBot: boolean; time: string }[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      const greeting = responses[lang as keyof typeof responses]?.greeting || responses.en.greeting;
-      setMessages([{ text: greeting, isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+      const r = responses[lang as keyof typeof responses] || responses.en;
+      setMessages([{ text: r.greeting, isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
     }
   }, [isOpen, lang, responses]);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const handleSend = () => {
     if (!input.trim()) return;
-    const protection = protectContact(input);
-    if (!protection.safe) return;
-
-    const userMsg = { text: input, isBot: false, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
-    const { response, delay, needsAdmin } = getAIResponse(input);
-
+    const p = protectContact(input);
+    if (!p.safe) return;
+    setMessages(prev => [...prev, { text: input, isBot: false, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    setInput(''); setIsTyping(true);
+    const { response, needsAdmin } = getAIResponse(input);
     setTimeout(() => {
-      const botMsg = { text: response, isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-      setMessages(prev => [...prev, botMsg]);
+      setMessages(prev => [...prev, { text: response, isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
       setIsTyping(false);
-
-      if (needsAdmin) {
-        setTimeout(() => {
-          const adminMsg = {
-            text: lang === 'ru'
-              ? 'Передал ваш вопрос администратору. Он свяжется с вами в течение 10 минут.'
-              : 'Forwarded your question to admin. They\'ll contact you within 10 minutes.',
-            isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          };
-          setMessages(prev => [...prev, adminMsg]);
-        }, 3000);
-      }
+      if (needsAdmin) setTimeout(() => setMessages(prev => [...prev, { text: lang === 'ru' ? 'Передал админу. Ответят в течение 10 мин.' : 'Forwarded to admin. Response within 10 min.', isBot: true, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]), 3000);
     }, 3000 + Math.random() * 2000);
   };
 
   if (!isOpen) return null;
 
-  return (
-    <>
-      <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-      <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50">
-        <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-          <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="text-white font-bold">{t('support', lang)}</p>
-                <p className="text-green-400 text-xs flex items-center gap-1"><span className="w-2 h-2 bg-green-400 rounded-full" />{lang === 'ru' ? 'Онлайн' : 'Online'}</p>
-              </div>
-            </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-400" /></button>
+  return (<>
+    <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
+    <div className="fixed bottom-24 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50">
+      <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><MessageSquare className="w-5 h-5 text-white" /></div>
+            <div><p className="text-white font-bold">{t('support', lang)}</p><p className="text-green-400 text-xs flex items-center gap-1"><span className="w-2 h-2 bg-green-400 rounded-full" />{lang === 'ru' ? 'Онлайн' : 'Online'}</p></div>
           </div>
-          <div className="h-80 overflow-y-auto p-4 space-y-3">
-            {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}>
-                <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${msg.isBot ? 'bg-white/5 text-gray-300 rounded-bl-md' : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-br-md'}`}>
-                  <p className="text-sm">{msg.text}</p>
-                  <p className="text-[10px] opacity-50 mt-1">{msg.time}</p>
-                </div>
-              </div>
-            ))}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-white/5 rounded-2xl px-4 py-3 rounded-bl-md">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-          <div className="p-4 border-t border-white/5">
-            <div className="flex gap-2">
-              <input
-                type="text" value={input} onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={t('messagePlaceholder', lang)}
-                className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none focus:ring-2 focus:ring-yellow-400/50"
-              />
-              <button onClick={handleSend} className="p-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl">
-                <Send className="w-5 h-5 text-white" />
-              </button>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5 text-gray-400" /></button>
+        </div>
+        <div className="h-80 overflow-y-auto p-4 space-y-3">
+          {messages.map((m, i) => (<div key={i} className={`flex ${m.isBot ? 'justify-start' : 'justify-end'}`}>
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${m.isBot ? 'bg-white/5 text-gray-300 rounded-bl-md' : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-br-md'}`}>
+              <p className="text-sm">{m.text}</p><p className="text-[10px] opacity-50 mt-1">{m.time}</p>
             </div>
+          </div>))}
+          {isTyping && <div className="flex justify-start"><div className="bg-white/5 rounded-2xl px-4 py-3"><div className="flex gap-1"><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" /><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} /><span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} /></div></div></div>}
+          <div ref={endRef} />
+        </div>
+        <div className="p-4 border-t border-white/5">
+          <div className="flex gap-2">
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder={t('messagePlaceholder', lang)} className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none focus:ring-2 focus:ring-yellow-400/50" />
+            <button onClick={handleSend} className="p-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl"><Send className="w-5 h-5 text-white" /></button>
           </div>
         </div>
       </div>
-    </>
-  );
+    </div>
+  </>);
 }
 
-// Real Profile Editor
-function ProfileEditor({ user, onSave, lang }: { user: UserProfileType | null; onSave: (data: Partial<UserProfileType>) => void; lang: string }) {
-  const [editMode, setEditMode] = useState(false);
+// Settings Panel
+function SettingsPanel({ isOpen, onClose, lang, darkMode, setDarkMode, sounds, setSounds }: any) {
+  if (!isOpen) return null;
+  return (<>
+    <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
+    <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md z-50">
+      <div className="bg-gradient-to-br from-[#1a1f3a] to-[#0a0a1a] rounded-3xl p-6 border border-white/10 shadow-2xl">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-white font-bold text-xl">{t('settings', lang)}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-6 h-6 text-gray-400" /></button>
+        </div>
+        <div className="space-y-4">
+          {[
+            { icon: Globe, label: t('language', lang), value: lang === 'ru' ? 'Русский' : 'English', action: () => {} },
+            { icon: darkMode ? MoonIcon : Sun, label: t('darkMode', lang), value: null, toggle: true, state: darkMode, setState: setDarkMode },
+            { icon: sounds ? Volume2 : VolumeX, label: t('sounds', lang), value: null, toggle: true, state: sounds, setState: setSounds },
+            { icon: Shield, label: t('about', lang), value: 'v3.0', action: () => {} },
+          ].map((item, i) => (
+            <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+              <div className="flex items-center gap-3"><item.icon className="w-5 h-5 text-yellow-400" /><span className="text-white">{item.label}</span></div>
+              {item.toggle ? (
+                <div className={`w-12 h-6 rounded-full relative cursor-pointer ${item.state ? 'bg-yellow-500' : 'bg-gray-600'}`} onClick={() => item.setState(!item.state)}>
+                  <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${item.state ? 'translate-x-6' : 'translate-x-0.5'}`} />
+                </div>
+              ) : <span className="text-gray-400">{item.value}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </>);
+}
+
+// Profile Editor
+function ProfileEditor({ user, onSave, lang }: any) {
+  const [edit, setEdit] = useState(false);
   const [name, setName] = useState(user?.display_name || '');
   const [bio, setBio] = useState(user?.bio || '');
-  const [phone, setPhone] = useState('');
-  const [selfieUploaded, setSelfieUploaded] = useState(false);
-  const [passportUploaded, setPassportUploaded] = useState(false);
-
-  const handleSave = () => {
-    onSave({ display_name: name, bio });
-    setEditMode(false);
-  };
-
-  if (!user) return null;
+  const [selfie, setSelfie] = useState(false);
+  const [passport, setPassport] = useState(false);
+  const verified = selfie && passport;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-white font-bold">{t('profile', lang)}</h3>
-        <button onClick={() => setEditMode(!editMode)} className="p-2 bg-white/5 rounded-lg hover:bg-white/10">
-          <Edit3 className="w-4 h-4 text-yellow-400" />
-        </button>
+        <button onClick={() => setEdit(!edit)} className="p-2 bg-white/5 rounded-lg"><Edit3 className="w-4 h-4 text-yellow-400" /></button>
       </div>
-
-      {editMode ? (
+      {edit ? (
         <div className="space-y-3">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('fullName', lang)}
-            className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none focus:ring-2 focus:ring-yellow-400/50" />
-          <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder={t('bio', lang)} rows={3}
-            className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none resize-none" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t('phonePlaceholder', lang)}
-            className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('fullName', lang)} className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm outline-none focus:ring-2 focus:ring-yellow-400/50" />
+          <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder={t('bio', lang)} rows={3} className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm outline-none resize-none" />
           <div className="flex gap-2">
-            <button onClick={handleSave} className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3 rounded-xl font-medium">
-              {t('save', lang)}
-            </button>
-            <button onClick={() => setEditMode(false)} className="px-4 bg-white/5 text-gray-400 rounded-xl">{t('cancel', lang)}</button>
+            <button onClick={() => { onSave({ display_name: name, bio }); setEdit(false); }} className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3 rounded-xl font-medium">{t('save', lang)}</button>
+            <button onClick={() => setEdit(false)} className="px-4 bg-white/5 text-gray-400 rounded-xl">{t('cancel', lang)}</button>
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <p className="text-white font-medium">{user.display_name}</p>
-          <p className="text-gray-400 text-sm">{user.bio}</p>
-          {(user as any).phone && <p className="text-gray-400 text-sm flex items-center gap-2"><Phone className="w-4 h-4" />{(user as any).phone}</p>}
-        </div>
+        <div><p className="text-white font-medium">{user?.display_name}</p><p className="text-gray-400 text-sm">{user?.bio}</p></div>
       )}
-
-      {/* Verification */}
       <div className="bg-white/5 rounded-xl p-4 space-y-3">
         <h4 className="text-white text-sm font-medium">{t('verification', lang)}</h4>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-            <div className="flex items-center gap-3">
-              <Camera className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-white text-sm">{t('selfie', lang)}</p>
-                <p className="text-gray-500 text-xs">{t('verifiedBadge', lang)}</p>
-              </div>
-            </div>
-            {selfieUploaded ? <CheckCircle className="w-5 h-5 text-green-400" /> : <button className="text-yellow-400 text-xs">{t('upload', lang)}</button>}
+        {[
+          { icon: Camera, label: t('selfie', lang), desc: t('verifiedBadge', lang), state: selfie, set: setSelfie },
+          { icon: CreditCard, label: t('passport', lang), desc: 'KYC', state: passport, set: setPassport },
+        ].map((v, i) => (
+          <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div className="flex items-center gap-3"><v.icon className="w-5 h-5 text-yellow-400" /><div><p className="text-white text-sm">{v.label}</p><p className="text-gray-500 text-xs">{v.desc}</p></div></div>
+            {v.state ? <CheckCircle className="w-5 h-5 text-green-400" /> : <button onClick={() => v.set(true)} className="text-yellow-400 text-xs">{t('upload', lang)}</button>}
           </div>
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-yellow-400" />
-              <div>
-                <p className="text-white text-sm">{t('passport', lang)}</p>
-                <p className="text-gray-500 text-xs">KYC</p>
-              </div>
-            </div>
-            {passportUploaded ? <CheckCircle className="w-5 h-5 text-green-400" /> : <button className="text-yellow-400 text-xs">{t('upload', lang)}</button>}
-          </div>
-        </div>
-        {(selfieUploaded || passportUploaded) && (
-          <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <CheckCircle className="w-5 h-5 text-green-400" />
-            <span className="text-green-400 text-sm">{t('verified', lang)}</span>
-          </div>
-        )}
+        ))}
+        {verified && <div className="flex items-center gap-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20"><CheckCircle className="w-5 h-5 text-green-400" /><span className="text-green-400 text-sm">{t('verified', lang)}</span></div>}
       </div>
     </div>
   );
 }
 
 // Order History
-function OrderHistory({ lang, userId }: { lang: string; userId: string }) {
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'cancelled'>('all');
-
-  const mockOrders = [
-    { id: '1', title: 'Доставка документов', status: 'completed', date: '2026-04-05', reward: 5 },
-    { id: '2', title: 'Настройка роутера', status: 'active', date: '2026-04-07', reward: 15 },
-    { id: '3', title: 'Уборка квартиры', status: 'cancelled', date: '2026-04-03', reward: 10 },
+function OrderHistory({ lang }: any) {
+  const [filter, setFilter] = useState('all');
+  const orders = [
+    { id: '1', title: lang === 'ru' ? 'Доставка документов' : 'Doc Delivery', status: 'completed', date: '2026-04-05', reward: 5 },
+    { id: '2', title: lang === 'ru' ? 'Настройка роутера' : 'Router Setup', status: 'active', date: '2026-04-07', reward: 15 },
+    { id: '3', title: lang === 'ru' ? 'Уборка квартиры' : 'Apartment Cleaning', status: 'cancelled', date: '2026-04-03', reward: 10 },
   ];
-
-  const filtered = filter === 'all' ? mockOrders : mockOrders.filter(o => o.status === filter);
-
+  const filtered = filter === 'all' ? orders : orders.filter((o: any) => o.status === filter);
   return (
     <div className="space-y-3">
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {[
-          { key: 'all', label: t('allOrders', lang) },
-          { key: 'active', label: t('active', lang) },
-          { key: 'completed', label: t('completedOrders', lang) },
-          { key: 'cancelled', label: t('cancelled', lang) },
-        ].map(f => (
-          <button key={f.key} onClick={() => setFilter(f.key as any)}
-            className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === f.key ? 'bg-yellow-500 text-black' : 'bg-white/5 text-gray-400'}`}>
-            {f.label}
-          </button>
+        {[{ k: 'all', l: t('allOrders', lang) }, { k: 'active', l: t('active', lang) }, { k: 'completed', l: t('completedOrders', lang) }, { k: 'cancelled', l: t('cancelled', lang) }].map(f => (
+          <button key={f.k} onClick={() => setFilter(f.k)} className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap ${filter === f.k ? 'bg-yellow-500 text-black' : 'bg-white/5 text-gray-400'}`}>{f.l}</button>
         ))}
       </div>
-      {filtered.map(order => (
-        <div key={order.id} className="bg-white/5 rounded-xl p-4">
+      {filtered.map((o: any) => (
+        <div key={o.id} className="bg-white/5 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-white text-sm font-medium">{order.title}</h4>
-            <span className={`px-2 py-1 rounded-full text-xs ${
-              order.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-              order.status === 'active' ? 'bg-yellow-500/20 text-yellow-400' :
-              'bg-red-500/20 text-red-400'
-            }`}>
-              {order.status === 'completed' ? '✓' : order.status === 'active' ? '⏳' : '✕'}
-            </span>
+            <h4 className="text-white text-sm font-medium">{o.title}</h4>
+            <span className={`px-2 py-1 rounded-full text-xs ${o.status === 'completed' ? 'bg-green-500/20 text-green-400' : o.status === 'active' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>{o.status === 'completed' ? '✓' : o.status === 'active' ? '⏳' : '✕'}</span>
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>{order.date}</span>
-            <span className="text-yellow-400">{order.reward} USDT</span>
-          </div>
-          {order.status === 'completed' && (
-            <button className="mt-2 w-full py-2 bg-white/5 rounded-lg text-yellow-400 text-xs flex items-center justify-center gap-1">
-              <Repeat className="w-3 h-3" />{t('repeat', lang)}
-            </button>
-          )}
+          <div className="flex items-center justify-between text-xs text-gray-500"><span>{o.date}</span><span className="text-yellow-400">{o.reward} USDT</span></div>
+          {o.status === 'completed' && <button className="mt-2 w-full py-2 bg-white/5 rounded-lg text-yellow-400 text-xs flex items-center justify-center gap-1"><Repeat className="w-3 h-3" />{t('repeat', lang)}</button>}
         </div>
       ))}
     </div>
   );
 }
 
-// Statistics Panel
-function StatisticsPanel({ lang }: { lang: string }) {
-  const stats = {
-    today: { earned: 45, tasks: 3 },
-    week: { earned: 280, tasks: 18 },
-    month: { earned: 1250, tasks: 89 },
-    rank: 12,
-    totalCouriers: 500,
-  };
-
+// Statistics
+function StatisticsPanel({ lang }: any) {
+  const stats = { today: { e: 45, t: 3 }, week: { e: 280, t: 18 }, month: { e: 1250, t: 89 }, rank: 12, total: 500, success: 97, response: '5 мин', perDay: 4.2 };
   return (
     <div className="space-y-4">
       <h3 className="text-white font-bold">{t('statistics', lang)}</h3>
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <p className="text-yellow-400 font-bold text-lg">{stats.today.earned}</p>
-          <p className="text-gray-500 text-xs">{t('today', lang)}</p>
-        </div>
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <p className="text-yellow-400 font-bold text-lg">{stats.week.earned}</p>
-          <p className="text-gray-500 text-xs">{t('thisWeek', lang)}</p>
-        </div>
-        <div className="bg-white/5 rounded-xl p-3 text-center">
-          <p className="text-yellow-400 font-bold text-lg">{stats.month.earned}</p>
-          <p className="text-gray-500 text-xs">{t('thisMonth', lang)}</p>
-        </div>
+        <div className="bg-white/5 rounded-xl p-3 text-center"><p className="text-yellow-400 font-bold text-lg">{stats.today.e}</p><p className="text-gray-500 text-xs">{t('today', lang)}</p></div>
+        <div className="bg-white/5 rounded-xl p-3 text-center"><p className="text-yellow-400 font-bold text-lg">{stats.week.e}</p><p className="text-gray-500 text-xs">{t('thisWeek', lang)}</p></div>
+        <div className="bg-white/5 rounded-xl p-3 text-center"><p className="text-yellow-400 font-bold text-lg">{stats.month.e}</p><p className="text-gray-500 text-xs">{t('thisMonth', lang)}</p></div>
+      </div>
+      <div className="bg-white/5 rounded-xl p-4 space-y-3">
+        <div className="flex justify-between"><span className="text-gray-400 text-sm">{t('totalEarned', lang)}</span><span className="text-yellow-400 font-bold">{stats.month.e} USDT</span></div>
+        <div className="flex justify-between"><span className="text-gray-400 text-sm">{t('successRate', lang)}</span><span className="text-green-400 font-bold">{stats.success}%</span></div>
+        <div className="flex justify-between"><span className="text-gray-400 text-sm">{t('responseTime', lang)}</span><span className="text-blue-400 font-bold">{stats.response}</span></div>
+        <div className="flex justify-between"><span className="text-gray-400 text-sm">{t('ordersPerDay', lang)}</span><span className="text-purple-400 font-bold">{stats.perDay}</span></div>
       </div>
       <div className="bg-white/5 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-gray-400 text-sm">{t('rank', lang)}</span>
-          <span className="text-yellow-400 font-bold">#{stats.rank}/{stats.totalCouriers}</span>
-        </div>
-        <div className="w-full bg-white/10 rounded-full h-2">
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" style={{ width: `${((stats.totalCouriers - stats.rank) / stats.totalCouriers) * 100}%` }} />
-        </div>
+        <div className="flex items-center justify-between mb-2"><span className="text-gray-400 text-sm">{t('rank', lang)}</span><span className="text-yellow-400 font-bold">#{stats.rank}/{stats.total}</span></div>
+        <div className="w-full bg-white/10 rounded-full h-2"><div className="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" style={{ width: `${((stats.total - stats.rank) / stats.total) * 100}%` }} /></div>
       </div>
     </div>
   );
 }
 
-// User Reviews with AI check
-function UserReviews({ userId, lang }: { userId: string; lang: string }) {
-  const [reviews, setReviews] = useState<{ user: string; rating: number; text: string; aiChecked: boolean }[]>([
-    { user: 'Мария К.', rating: 5, text: 'Отличный курьер, доставил быстро!', aiChecked: true },
-    { user: 'Алексей П.', rating: 4, text: 'Всё хорошо, немного опоздал.', aiChecked: true },
+// Reviews
+function UserReviews({ lang }: any) {
+  const [reviews, setReviews] = useState([
+    { user: lang === 'ru' ? 'Мария К.' : 'Maria K.', rating: 5, text: lang === 'ru' ? 'Отличный курьер!' : 'Great courier!', aiChecked: true },
+    { user: lang === 'ru' ? 'Алексей П.' : 'Alex P.', rating: 4, text: lang === 'ru' ? 'Хорошо, но опоздал.' : 'Good, but late.', aiChecked: true },
   ]);
-  const [newReview, setNewReview] = useState('');
-  const [newRating, setNewRating] = useState(5);
-  const [aiChecking, setAiChecking] = useState(false);
+  const [text, setText] = useState('');
+  const [rating, setRating] = useState(5);
+  const [checking, setChecking] = useState(false);
 
-  const handleSubmitReview = () => {
-    if (!newReview.trim()) return;
-    setAiChecking(true);
-
-    // Simulate AI check
-    setTimeout(() => {
-      setReviews(prev => [...prev, { user: 'Вы', rating: newRating, text: newReview, aiChecked: true }]);
-      setNewReview('');
-      setAiChecking(false);
-    }, 2000);
+  const submit = () => {
+    if (!text.trim()) return;
+    setChecking(true);
+    setTimeout(() => { setReviews(prev => [...prev, { user: lang === 'ru' ? 'Вы' : 'You', rating, text, aiChecked: true }]); setText(''); setChecking(false); }, 2000);
   };
 
   return (
     <div className="space-y-4">
       <h3 className="text-white font-bold">{lang === 'ru' ? 'Отзывы' : 'Reviews'}</h3>
-      {reviews.map((r, i) => (
+      {reviews.map((r: any, i: number) => (
         <div key={i} className="bg-white/5 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-white text-sm font-medium">{r.user}</span>
-              {r.aiChecked && <Sparkles className="w-4 h-4 text-yellow-400" />}
-            </div>
+            <div className="flex items-center gap-2"><span className="text-white text-sm font-medium">{r.user}</span>{r.aiChecked && <Sparkles className="w-4 h-4 text-yellow-400" />}</div>
             <div className="flex gap-0.5">{Array.from({ length: 5 }, (_, j) => <span key={j}>{j < r.rating ? '⭐' : '☆'}</span>)}</div>
           </div>
           <p className="text-gray-400 text-sm">{r.text}</p>
         </div>
       ))}
       <div className="bg-white/5 rounded-xl p-4">
-        <div className="flex gap-1 mb-3">
-          {Array.from({ length: 5 }, (_, i) => (
-            <button key={i} onClick={() => setNewRating(i + 1)} className="text-xl">{i < newRating ? '⭐' : '☆'}</button>
-          ))}
-        </div>
-        <textarea value={newReview} onChange={(e) => setNewReview(e.target.value)}
-          placeholder={t('addComment', lang)} rows={3}
-          className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none resize-none mb-2" />
-        <button onClick={handleSubmitReview} disabled={aiChecking || !newReview.trim()}
-          className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3 rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2">
-          {aiChecking ? <><Loader2 className="w-4 h-4 animate-spin" />{t('aiChecking', lang)}</> : t('addComment', lang)}
+        <div className="flex gap-1 mb-3">{Array.from({ length: 5 }, (_, i) => (<button key={i} onClick={() => setRating(i + 1)} className="text-xl">{i < rating ? '⭐' : '☆'}</button>))}</div>
+        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t('addComment', lang)} rows={3} className="w-full bg-white/5 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 outline-none resize-none mb-2" />
+        <button onClick={submit} disabled={checking || !text.trim()} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-3 rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2">
+          {checking ? <><Loader2 className="w-4 h-4 animate-spin" />{t('aiChecking', lang)}</> : t('addComment', lang)}
         </button>
       </div>
     </div>
   );
 }
 
-// Main Home Content
+// Achievements
+function AchievementsPanel({ lang }: any) {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold">{t('achievements', lang)}</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {ACHIEVEMENTS.map((a, i) => (
+          <div key={i} className={`bg-white/5 rounded-xl p-4 text-center ${i < 3 ? 'border border-yellow-500/30' : 'opacity-40'}`}>
+            <div className="text-3xl mb-2">{a.icon}</div>
+            <p className="text-white text-sm font-medium">{a.lang[lang as keyof typeof a.lang]}</p>
+            <p className="text-gray-500 text-xs">{a.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Subscriptions
+function SubscriptionsPanel({ lang }: any) {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold">{t('subscriptions', lang)}</h3>
+      <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl p-5 border border-yellow-500/20">
+        <div className="flex items-center gap-3 mb-4">
+          <Crown className="w-8 h-8 text-yellow-400" />
+          <div><p className="text-white font-bold text-lg">{t('monthlyVIP', lang)}</p><p className="text-gray-400 text-sm">{t('vipDesc', lang)}</p></div>
+        </div>
+        <div className="space-y-2 mb-4">
+          {[t('vipDesc', lang), t('prioritySupport', lang), t('exclusiveOrders', lang)].map((f, i) => (
+            <div key={i} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-400" /><span className="text-gray-300 text-sm">{f}</span></div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-3xl font-bold text-yellow-400">9.99</span>
+          <span className="text-gray-400">USDT/{lang === 'ru' ? 'мес' : 'mo'}</span>
+        </div>
+        <button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-3 rounded-xl">{t('subscribe', lang)}</button>
+      </div>
+    </div>
+  );
+}
+
+// Promo Codes
+function PromosPanel({ lang }: any) {
+  const promos = [
+    { code: 'WELCOME50', discount: '50%', desc: lang === 'ru' ? 'Скидка на первый заказ' : 'First order discount', active: true },
+    { code: 'SPRING25', discount: '25%', desc: lang === 'ru' ? 'Весенняя акция' : 'Spring promo', active: true },
+  ];
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold">{t('promos', lang)}</h3>
+      {promos.map((p, i) => (
+        <div key={i} className="bg-white/5 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-yellow-400 font-bold text-lg">{p.code}</p>
+            <p className="text-gray-400 text-sm">{p.desc}</p>
+          </div>
+          <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-bold">{p.discount}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// District Rankings
+function DistrictPanel({ lang }: any) {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold">{t('districtRank', lang)}</h3>
+      {DISTRICT_RANKINGS.map((d, i) => (
+        <div key={i} className="bg-white/5 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</span>
+            <div><p className="text-white font-medium">{d.name}</p><p className="text-gray-500 text-xs">{d.orders} {t('tasks', lang)}</p></div>
+          </div>
+          <span className="text-yellow-400 font-bold">×{d.multiplier}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Features Grid (Future Ideas)
+function FeaturesPanel({ lang }: any) {
+  const features = [
+    { icon: Users2, title: t('groupOrder', lang), desc: lang === 'ru' ? 'Несколько курьеров' : 'Multiple couriers', color: 'from-blue-500 to-cyan-500' },
+    { icon: Zap, title: t('auction', lang), desc: lang === 'ru' ? 'Торги за заказ' : 'Bid for tasks', color: 'from-purple-500 to-pink-500' },
+    { icon: Heart, title: t('subscribeCourier', lang), desc: lang === 'ru' ? 'Постоянный курьер' : 'Dedicated courier', color: 'from-red-500 to-orange-500' },
+    { icon: Sparkles, title: t('aiPrice', lang), desc: lang === 'ru' ? 'AI оценка цены' : 'AI price estimate', color: 'from-green-500 to-emerald-500' },
+    { icon: ShieldCheck, title: t('guarantee', lang), desc: lang === 'ru' ? 'Возврат средств' : 'Money back', color: 'from-yellow-500 to-amber-500' },
+    { icon: Map, title: t('liveTracking', lang), desc: lang === 'ru' ? 'GPS в реальном времени' : 'Real-time GPS', color: 'from-indigo-500 to-blue-500' },
+  ];
+  return (
+    <div className="space-y-4">
+      <h3 className="text-white font-bold">{lang === 'ru' ? 'Возможности' : 'Features'}</h3>
+      <div className="grid grid-cols-2 gap-3">
+        {features.map((f, i) => (
+          <div key={i} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition cursor-pointer">
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-3`}><f.icon className="w-5 h-5 text-white" /></div>
+            <p className="text-white text-sm font-medium">{f.title}</p>
+            <p className="text-gray-500 text-xs">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ===== MAIN HOME CONTENT =====
 function HomeContent() {
   const { language, setLanguage } = useLanguage();
-
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfileType | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number]>([40.7128, -74.006]);
@@ -791,8 +617,13 @@ function HomeContent() {
   const [showSupport, setShowSupport] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [profileTab, setProfileTab] = useState<'profile' | 'orders' | 'stats' | 'reviews' | 'settings'>('profile');
-  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [profileTab, setProfileTab] = useState('profile');
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [sounds, setSounds] = useState(true);
+  const [showSubCategories, setShowSubCategories] = useState(false);
+  const [cachedTasks, setCachedTasks] = useState<TaskType[]>([]);
+  const [isOffline, setIsOffline] = useState(false);
 
   const surgeMultiplier = useMemo(() => {
     if (tasks.length === 0) return 1;
@@ -805,37 +636,54 @@ function HomeContent() {
     setTimeout(() => setShowSplash(false), 2000);
     loadUserProfile();
     loadTasks();
+    detectLocation();
+
+    // Offline detection
+    window.addEventListener('offline', () => setIsOffline(true));
+    window.addEventListener('online', () => setIsOffline(false));
+
+    return () => {
+      window.removeEventListener('offline', () => {});
+      window.removeEventListener('online', () => {});
+    };
   }, []);
+
+  const detectLocation = () => {
+    setIsDetecting(true);
+    if (navigator?.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (p) => { setUserPosition([p.coords.latitude, p.coords.longitude]); setIsDetecting(false); },
+        () => fetch('https://ipapi.co/json/').then(r => r.json()).then(d => d.latitude && setUserPosition([+d.latitude, +d.longitude])).finally(() => setIsDetecting(false))
+      );
+    } else setIsDetecting(false);
+  };
 
   const loadUserProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase.from('profiles').select('*').limit(1).single();
-      if (data && !error) {
-        setUserProfile({ ...data, rating: data.rating || 5 });
-      } else {
-        // Fallback: new user with 5-star rating
-        setUserProfile({
-          id: 'new-user', username: 'PulseUser',
-          display_name: language === 'ru' ? 'Пользователь' : 'User',
-          avatar_url: 'https://i.pravatar.cc/150?img=12',
-          bio: '', balance: 0, rating: 5, total_reviews: 0,
-          completed_tasks_as_executor: 0, completed_tasks_as_customer: 0,
-          is_verified: false, is_banned: false, vip_status: 'none',
-          language, country: '',
-          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-        } as UserProfileType);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+      if (data && !error) setUserProfile({ ...data, rating: data.rating || 5 });
+      else setUserProfile({
+        id: 'new-user', username: 'PulseUser', display_name: language === 'ru' ? 'Пользователь' : 'User',
+        avatar_url: 'https://i.pravatar.cc/150?img=12', bio: '', balance: 0, rating: 5, total_reviews: 0,
+        completed_tasks_as_executor: 0, completed_tasks_as_customer: 0, is_verified: false, is_banned: false,
+        vip_status: 'none', language, country: '', created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      } as UserProfileType);
+    } catch (e) { console.error(e); }
   }, [language]);
 
   const loadTasks = useCallback(async () => {
     try {
       const { data } = await supabase.from('tasks').select('*').eq('visibility', true).eq('is_hidden', false).order('created_at', { ascending: false }).limit(50);
-      if (data) setTasks(data.map((tk: any) => ({ ...tk, reward: Number(tk.reward) || 5, currency: (tk.currency || 'usdt') as any, category: (tk.category || 'it') as any, status: (tk.status || 'open') as any, priority: (tk.priority || 'normal') as any })));
-    } catch (e) { console.error(e); }
-  }, []);
+      if (data) {
+        const parsed = data.map((tk: any) => ({ ...tk, reward: Number(tk.reward) || 5, currency: (tk.currency || 'usdt') as any, category: (tk.category || 'it') as any, status: (tk.status || 'open') as any, priority: (tk.priority || 'normal') as any }));
+        setTasks(parsed);
+        setCachedTasks(parsed); // Cache for offline
+      }
+    } catch (e) {
+      console.error(e);
+      setTasks(cachedTasks); // Use cached data
+    }
+  }, [cachedTasks]);
 
   const handleCreateTask = async (td: any) => {
     try {
@@ -845,43 +693,30 @@ function HomeContent() {
     } catch (e) { console.error(e); }
   };
 
-  const detectLocation = () => {
-    setIsDetectingLocation(true);
-    if (navigator?.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => {
-          setUserPosition([p.coords.latitude, p.coords.longitude]);
-          setIsDetectingLocation(false);
-        },
-        () => {
-          fetch('https://ipapi.co/json/').then(r => r.json()).then(d => d.latitude && setUserPosition([+d.latitude, +d.longitude])).finally(() => setIsDetectingLocation(false));
-        }
-      );
-    } else {
-      setIsDetectingLocation(false);
-    }
-  };
-
   const filtered = selectedCategory ? tasks.filter(tk => tk.category === selectedCategory) : tasks;
   const searched = searchQuery ? filtered.filter(tk => tk.title.toLowerCase().includes(searchQuery.toLowerCase()) || tk.description?.toLowerCase().includes(searchQuery.toLowerCase())) : filtered;
 
-  // ===== RENDER =====
   if (showSplash) return <Splash onFinish={() => setShowSplash(false)} />;
   if (!isClient) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#0f1729] to-[#0a0a1a]">
-      {/* Animated background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    <div className={`min-h-screen ${darkMode ? 'bg-gradient-to-br from-[#0a0a1a] via-[#0f1729] to-[#0a0a1a]' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'}`}>
+      {/* Animated Background */}
+      {darkMode && <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[100px]" />
         <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-orange-500/[0.03] rounded-full blur-[100px]" />
         <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] bg-blue-500/[0.02] rounded-full blur-[80px]" />
-      </div>
+      </div>}
+
+      {/* Offline Banner */}
+      {isOffline && <div className="sticky top-0 z-50 bg-orange-500/20 border-b border-orange-500/20 px-4 py-2 text-center">
+        <p className="text-orange-400 text-sm flex items-center justify-center gap-2"><WifiOff className="w-4 h-4" />{language === 'ru' ? 'Оффлайн режим - показаны кэшированные данные' : 'Offline mode - showing cached data'}</p>
+      </div>}
 
       {/* HOME TAB */}
       {activeTab === 'home' && (
         <div className="relative pb-24">
-          <div className="sticky top-0 z-30 backdrop-blur-xl bg-[#0a0a1a]/90 border-b border-white/5">
+          <div className={`sticky top-0 z-30 backdrop-blur-xl ${darkMode ? 'bg-[#0a0a1a]/90' : 'bg-white/90'} border-b border-white/5`}>
             <div className="max-w-lg mx-auto px-4 py-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -889,44 +724,36 @@ function HomeContent() {
                     <span className="text-2xl">⚡</span>
                   </div>
                   <div>
-                    <h1 className="text-white font-bold text-lg">Pulse</h1>
-                    <p className="text-gray-400 text-xs">{t('subtitle', language)}</p>
+                    <h1 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>Pulse</h1>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('subtitle', language)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <LanguageSelector language={language} setLanguage={(l) => setLanguage(l as any)} />
-                  <button className="relative p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><Bell className="w-5 h-5 text-gray-300" />{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">{unreadCount}</span>}</button>
-                  <button onClick={() => setShowSupport(true)} className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><MessageSquare className="w-5 h-5 text-gray-300" /></button>
+                  <button className="relative p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><Bell className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />{unreadCount > 0 && <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center">{unreadCount}</span>}</button>
+                  <button onClick={() => setShowSupport(true)} className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10"><MessageSquare className={`w-5 h-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} /></button>
                 </div>
               </div>
 
               {/* Balance */}
-              <div className="relative overflow-hidden bg-white/5 rounded-2xl p-5 mb-4 border border-white/5">
+              <div className={`relative overflow-hidden rounded-2xl p-5 mb-4 border ${darkMode ? 'bg-white/5 border-white/5' : 'bg-gray-100 border-gray-200'}`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-full blur-2xl" />
                 <div className="relative">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2"><Wallet className="w-5 h-5 text-yellow-400" /><span className="text-gray-400 text-sm">{t('balance', language)}</span></div>
+                    <div className="flex items-center gap-2"><Wallet className="w-5 h-5 text-yellow-400" /><span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('balance', language)}</span></div>
                     {userProfile?.vip_status !== 'none' && <span className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 rounded-full"><Crown className="w-3 h-3 text-purple-400" /><span className="text-purple-400 text-xs">{t('vip', language)}</span></span>}
                   </div>
                   <div className="grid grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <p className="text-gray-500 text-xs mb-1">⭐ {t('stars', language)}</p>
-                      <p className="text-2xl font-bold text-yellow-400">{((userProfile?.balance || 0) * 10).toFixed(0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 text-xs mb-1">💵 {t('usdt', language)}</p>
-                      <p className="text-2xl font-bold text-green-400">{(userProfile?.balance || 0).toFixed(2)}</p>
-                    </div>
+                    <div><p className={`text-xs mb-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>⭐ {t('stars', language)}</p><p className="text-2xl font-bold text-yellow-400">{((userProfile?.balance || 0) * 10).toFixed(0)}</p></div>
+                    <div><p className={`text-xs mb-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>💵 {t('usdt', language)}</p><p className="text-2xl font-bold text-green-400">{(userProfile?.balance || 0).toFixed(2)}</p></div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex gap-3 text-xs">
-                      <span className="text-gray-400 flex items-center gap-1"><TrendingUp className="w-3 h-3" />{userProfile?.rating || 5}/5 ⭐</span>
-                      <span className="text-gray-500">•</span>
-                      <span className="text-gray-400">{userProfile?.completed_tasks_as_executor || 0} {t('completed', language)}</span>
+                      <span className={`flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}><TrendingUp className="w-3 h-3" />{userProfile?.rating || 5}/5 ⭐</span>
+                      <span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>•</span>
+                      <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>{userProfile?.completed_tasks_as_executor || 0} {t('completed', language)}</span>
                     </div>
-                    <button className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg text-white text-xs font-medium">
-                      <ArrowUpRight className="w-3 h-3" />{t('withdraw', language)}
-                    </button>
+                    <button className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg text-white text-xs font-medium"><ArrowUpRight className="w-3 h-3" />{t('withdraw', language)}</button>
                   </div>
                 </div>
               </div>
@@ -934,46 +761,61 @@ function HomeContent() {
               {/* Surge */}
               {surgeMultiplier > 1 && (
                 <div className={`rounded-xl p-3 mb-4 flex items-center justify-between ${surgeMultiplier >= 2 ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/20' : 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/20'}`}>
-                  <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-400 animate-pulse" /><span className="text-white font-bold text-sm">{surgeMultiplier >= 2 ? t('extremeSurge', language) : t('highSurge', language)}</span></div>
+                  <div className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-400 animate-pulse" /><span className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{surgeMultiplier >= 2 ? t('extremeSurge', language) : t('highSurge', language)}</span></div>
                   <span className="text-yellow-400 text-xs">×{surgeMultiplier.toFixed(1)}</span>
                 </div>
               )}
 
               {/* Search */}
-              <div className="bg-white/5 rounded-xl px-4 py-3 flex items-center gap-3">
-                <Search className="w-4 h-4 text-gray-400" />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('search', language)} className="bg-transparent text-sm flex-1 outline-none text-white placeholder-gray-500" />
+              <div className={`rounded-xl px-4 py-3 flex items-center gap-3 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                <Search className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('search', language)} className={`bg-transparent text-sm flex-1 outline-none ${darkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`} />
               </div>
             </div>
           </div>
 
           <div className="max-w-lg mx-auto px-4 py-6">
-            <h2 className="text-white font-bold text-lg mb-4">{t('categories', language)}</h2>
+            <h2 className={`font-bold text-lg mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('categories', language)}</h2>
             <div className="grid grid-cols-2 gap-3 mb-6">
               {CATEGORIES.map(cat => (
-                <div key={cat.value} onClick={() => { setSelectedCategory(cat.value === selectedCategory ? null : cat.value); setActiveTab('feed'); }}
-                  className={`group bg-white/5 rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] ${selectedCategory === cat.value ? 'border-yellow-400 shadow-lg shadow-yellow-500/20' : 'border-transparent hover:border-white/10'}`}>
+                <div key={cat.value} onClick={() => {
+                  if (SUB_CATEGORIES[cat.value]) { setShowSubCategories(!showSubCategories); }
+                  setSelectedCategory(cat.value === selectedCategory ? null : cat.value);
+                  setActiveTab('feed');
+                }} className={`group rounded-2xl p-4 cursor-pointer transition-all hover:scale-[1.02] ${darkMode ? 'bg-white/5' : 'bg-gray-100'} ${selectedCategory === cat.value ? 'border-yellow-400 shadow-lg shadow-yellow-500/20' : 'border-transparent hover:border-white/10'}`}>
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{cat.icon}</div>
-                  <div className="text-sm font-semibold text-white mb-1">{cat.label}</div>
-                  <div className="text-xs text-gray-500">{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
+                  <div className={`text-sm font-semibold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{cat.label}</div>
+                  <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{tasks.filter(tk => tk.category === cat.value).length} {t('available', language)}</div>
                 </div>
               ))}
             </div>
 
-            <button onClick={() => setIsCreateModalOpen(true)}
-              className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-yellow-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            {/* Sub-categories */}
+            {showSubCategories && selectedCategory && SUB_CATEGORIES[selectedCategory] && (
+              <div className="mb-6">
+                <h3 className={`text-sm font-medium mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{CATEGORIES.find(c => c.value === selectedCategory)?.label}</h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {SUB_CATEGORIES[selectedCategory].map(sub => (
+                    <button key={sub.value} className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full text-sm text-gray-300 whitespace-nowrap hover:bg-white/10">
+                      <span>{sub.icon}</span><span>{sub.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => setIsCreateModalOpen(true)} className="w-full bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-yellow-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
               <Plus className="w-5 h-5" />{t('createTask', language)}
             </button>
 
             {searched.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-white font-bold text-lg mb-4">{t('recent', language)}</h3>
+                <h3 className={`font-bold text-lg mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('recent', language)}</h3>
                 <div className="space-y-3">
                   {searched.slice(0, 5).map(task => {
                     const cat = CATEGORIES.find(c => c.value === task.category);
                     return (
-                      <div key={task.id} className="bg-white/5 rounded-2xl p-4 cursor-pointer hover:border-yellow-400/50 border border-transparent transition-all">
+                      <div key={task.id} className={`rounded-2xl p-4 cursor-pointer hover:border-yellow-400/50 border border-transparent transition-all ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
                         <div className="flex items-start gap-3">
                           <span className="text-2xl">{cat?.icon}</span>
                           <div className="flex-1 min-w-0">
@@ -981,15 +823,15 @@ function HomeContent() {
                               <span className="text-xs font-medium text-yellow-400">{cat?.label}</span>
                               {task.priority === 'urgent' && <Zap className="w-3 h-3 text-orange-400" />}
                             </div>
-                            <h4 className="text-white font-semibold text-sm truncate">{task.title}</h4>
-                            <p className="text-gray-500 text-xs mt-1 truncate">{task.description}</p>
+                            <h4 className={`font-semibold text-sm truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>{task.title}</h4>
+                            <p className={`text-xs mt-1 truncate ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{task.description}</p>
                           </div>
                           <div className="text-right">
                             <div className="text-lg font-bold text-yellow-400">{task.reward}</div>
-                            <div className="text-xs text-gray-500">{task.currency?.toUpperCase()}</div>
+                            <div className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{task.currency?.toUpperCase()}</div>
                           </div>
                         </div>
-                        {task.street_address && <div className="flex items-center gap-1.5 mt-3 text-xs text-gray-500"><MapPin className="w-3 h-3" /><span>{task.street_address}</span></div>}
+                        {task.street_address && <div className={`flex items-center gap-1.5 mt-3 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}><MapPin className="w-3 h-3" /><span>{task.street_address}</span></div>}
                       </div>
                     );
                   })}
@@ -1007,9 +849,8 @@ function HomeContent() {
       {activeTab === 'map' && (
         <div className="h-screen relative">
           <LiveTaskMap userPosition={userPosition} selectedCategory={selectedCategory || undefined} tasks={filtered} />
-          <button onClick={detectLocation} disabled={isDetectingLocation}
-            className="absolute bottom-24 right-4 z-20 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg shadow-yellow-500/25 text-white disabled:opacity-50">
-            {isDetectingLocation ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}
+          <button onClick={detectLocation} disabled={isDetecting} className="absolute bottom-24 right-4 z-20 p-4 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl shadow-lg shadow-yellow-500/25 text-white disabled:opacity-50">
+            {isDetecting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Navigation className="w-6 h-6" />}
           </button>
         </div>
       )}
@@ -1020,12 +861,10 @@ function HomeContent() {
           <div className="max-w-lg mx-auto px-4 py-6">
             <div className="text-center mb-6">
               <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center mb-4"><MessageSquare className="w-10 h-10 text-yellow-400" /></div>
-              <h2 className="text-white font-bold text-xl mb-2">{t('support', language)}</h2>
-              <p className="text-gray-400 text-sm">{t('supportDesc', language)}</p>
+              <h2 className={`font-bold text-xl mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('support', language)}</h2>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('supportDesc', language)}</p>
             </div>
-            <button onClick={() => setShowSupport(true)} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2">
-              <MessageSquare className="w-5 h-5" />{t('startChat', language)}
-            </button>
+            <button onClick={() => setShowSupport(true)} className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2"><MessageSquare className="w-5 h-5" />{t('startChat', language)}</button>
           </div>
         </div>
       )}
@@ -1034,57 +873,52 @@ function HomeContent() {
       {activeTab === 'profile' && userProfile && (
         <div className="pb-24">
           <div className="max-w-lg mx-auto px-4 py-6">
-            {/* Header */}
             <div className="text-center mb-6">
               <div className="relative inline-block">
                 <img src={userProfile.avatar_url} alt="" className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-yellow-400" />
-                {userProfile.is_verified && (
-                  <div className="absolute bottom-4 right-0 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0a0a1a]">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                )}
+                {userProfile.is_verified && <div className="absolute bottom-4 right-0 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#0a0a1a]"><CheckCircle className="w-4 h-4 text-white" /></div>}
               </div>
-              <h2 className="text-white font-bold text-xl">{userProfile.display_name}</h2>
-              <p className="text-gray-400">@{userProfile.username}</p>
+              <h2 className={`font-bold text-xl ${darkMode ? 'text-white' : 'text-gray-900'}`}>{userProfile.display_name}</h2>
+              <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>@{userProfile.username}</p>
               <div className="flex justify-center gap-1 mt-2">{Array.from({ length: 5 }, (_, i) => <span key={i}>{i < Math.floor(userProfile.rating || 5) ? '⭐' : '☆'}</span>)}</div>
             </div>
 
             {/* Profile Tabs */}
-            <div className="flex gap-1 mb-6 bg-white/5 rounded-xl p-1">
+            <div className={`flex gap-1 mb-6 rounded-xl p-1 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
               {[
                 { key: 'profile', icon: User, label: t('profile', language) },
                 { key: 'orders', icon: Clock, label: t('myOrders', language) },
                 { key: 'stats', icon: BarChart3, label: t('statistics', language) },
-                { key: 'reviews', icon: Star, label: 'Отзывы' },
-                { key: 'settings', icon: Settings, label: t('settings', language) },
+                { key: 'reviews', icon: Star, label: language === 'ru' ? 'Отзывы' : 'Reviews' },
+                { key: 'more', icon: Settings, label: language === 'ru' ? 'Ещё' : 'More' },
               ].map(tab => (
-                <button key={tab.key} onClick={() => setProfileTab(tab.key as any)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition ${profileTab === tab.key ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}`}>
+                <button key={tab.key} onClick={() => setProfileTab(tab.key)} className={`flex-1 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition ${profileTab === tab.key ? 'bg-yellow-500 text-black' : darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}>
                   <tab.icon className="w-3 h-3" /><span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Tab Content */}
-            {profileTab === 'profile' && <ProfileEditor user={userProfile} onSave={(data) => setUserProfile(prev => prev ? { ...prev, ...data } : null)} lang={language} />}
-            {profileTab === 'orders' && <OrderHistory lang={language} userId={userProfile.id} />}
+            {profileTab === 'profile' && <ProfileEditor user={userProfile} onSave={(data: any) => setUserProfile((prev: any) => prev ? { ...prev, ...data } : null)} lang={language} />}
+            {profileTab === 'orders' && <OrderHistory lang={language} />}
             {profileTab === 'stats' && <StatisticsPanel lang={language} />}
-            {profileTab === 'reviews' && <UserReviews userId={userProfile.id} lang={language} />}
-            {profileTab === 'settings' && (
+            {profileTab === 'reviews' && <UserReviews lang={language} />}
+            {profileTab === 'more' && (
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-yellow-400" /><span className="text-white">{t('language', language)}</span></div>
-                    <button onClick={() => setLanguage(language === 'ru' ? 'en' : 'ru')} className="text-yellow-400 text-sm">{language === 'ru' ? 'English' : 'Русский'}</button>
-                  </div>
+                <AchievementsPanel lang={language} />
+                <SubscriptionsPanel lang={language} />
+                <PromosPanel lang={language} />
+                <DistrictPanel lang={language} />
+                <FeaturesPanel lang={language} />
+                <div className="space-y-3 pt-4">
+                  <button onClick={() => setShowSettings(true)} className={`w-full rounded-xl p-4 flex items-center justify-between ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                    <div className="flex items-center gap-3"><Settings className="w-5 h-5 text-yellow-400" /><span className={darkMode ? 'text-white' : 'text-gray-900'}>{t('settings', language)}</span></div>
+                    <ChevronRight className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  </button>
+                  <button className={`w-full rounded-xl p-4 flex items-center justify-between text-red-400 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                    <div className="flex items-center gap-3"><LogOut className="w-5 h-5" /><span>{t('logout', language)}</span></div>
+                  </button>
                 </div>
-                <button onClick={() => setShowSettings(true)} className="w-full bg-white/5 rounded-xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3"><Settings className="w-5 h-5 text-yellow-400" /><span className="text-white">{t('settings', language)}</span></div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </button>
-                <button className="w-full bg-white/5 rounded-xl p-4 flex items-center justify-between text-red-400">
-                  <div className="flex items-center gap-3"><LogOut className="w-5 h-5" /><span>{t('logout', language)}</span></div>
-                </button>
               </div>
             )}
           </div>
@@ -1094,7 +928,7 @@ function HomeContent() {
       {/* Modals */}
       {isCreateModalOpen && <CreateTaskModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreateTask={handleCreateTask} userPosition={userPosition} />}
       <SupportChat isOpen={showSupport} onClose={() => setShowSupport(false)} lang={language} />
-      <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} lang={language} />
+      <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} lang={language} darkMode={darkMode} setDarkMode={setDarkMode} sounds={sounds} setSounds={setSounds} />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} unreadCount={unreadCount} />
     </div>
   );
