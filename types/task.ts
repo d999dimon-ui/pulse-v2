@@ -10,9 +10,9 @@ export interface UserProfile {
   display_name: string;
   avatar_url?: string;
   bio?: string;
-  balance: number; // Main user balance
+  balance: number;
   wallet_address?: string;
-  rating: number; // Average rating 0-5
+  rating: number;
   total_reviews: number;
   completed_tasks_as_executor: number;
   completed_tasks_as_customer: number;
@@ -22,6 +22,7 @@ export interface UserProfile {
   vip_expires_at?: string;
   language: string;
   country?: string;
+  phone?: string;
   created_at: string;
   updated_at: string;
 }
